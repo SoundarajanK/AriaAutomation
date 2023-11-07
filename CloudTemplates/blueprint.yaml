@@ -1,4 +1,6 @@
 formatVersion: 1
+name: GE_Demo
+version: 1
 inputs: {}
 resources:
   CentOs:
