@@ -3,7 +3,7 @@ name: centos
 version: 1
 inputs: {}
 resources:
-  CentOs:
+  CentOs-New:
     type: Cloud.Machine
     properties:
       constraints:
