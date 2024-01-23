@@ -1,0 +1,46 @@
+formatVersion: 1
+inputs:
+  vmFlavour:
+    type: string
+    title: Flavour Size
+    description: Enter the flavour size
+    enum:
+      - GE-Small
+      - cs360-medium
+      - cs360-Large
+    default: GE-Small
+  OSImage:
+    type: string
+    title: OSType
+    description: Select the OS type
+    enum:
+      - null
+  vmCount:
+    type: integer
+    title: Enter Number of VMs
+    default: 1
+resources:
+  Cloud_SaltStack_1:
+    type: Cloud.SaltStack
+    properties:
+      hosts:
+        - ${resource["Demo-VM"].id}
+      masterId: saltstack_enterprise_installer
+      stateFiles:
+        - /apache/init.sls
+      saltEnvironment: ''
+  Demo-VM:
+    type: Cloud.Machine
+    properties:
+      image: CentOS7-CloudInit
+      flavor: ${input.vmFlavour}
+      count: ${input.vmCount}
+      networks:
+        - network: ${resource["Demo-Network"].id}
+          assignment: static
+  Demo-Network:
+    type: Cloud.Network
+    properties:
+      networkType: existing
+      constraints:
+        - tag: net:pg-dvmg-dc01-WL-vLAN3241
