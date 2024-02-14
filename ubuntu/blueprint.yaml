@@ -45,5 +45,7 @@ resources:
     properties:
       networkType: existing
       constraints:
+        - tag: env:prod
+      constraints:
         - tag: net:pg-dvmg-dc01-WL-vLAN3241
         - tag: env:aws
