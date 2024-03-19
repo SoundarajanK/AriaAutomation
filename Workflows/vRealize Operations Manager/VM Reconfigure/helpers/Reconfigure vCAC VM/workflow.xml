@@ -1,0 +1,388 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item6" object-name="workflow:name=generic" id="33f14e86-d76f-4c2a-a458-3c706e01966e" version="1.0.6" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Reconfigure vCAC VM]]></display-name>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="newCpuCount" type="number">
+      <description><![CDATA[New CPU count for the VM]]></description>
+    </param>
+    <param name="newMemorySizeMB" type="number">
+      <description><![CDATA[New memory size for the VM in MB]]></description>
+    </param>
+    <param name="vcacVm" type="vCAC:Entity">
+      <description><![CDATA[vCAC VM Entity]]></description>
+    </param>
+    <param name="hotAdd" type="boolean">
+      <description><![CDATA[Enable hot add?]]></description>
+    </param>
+  </input>
+  <attrib name="resourceActionRequestInputs" type="Properties" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+    <description><![CDATA[Input values]]></description>
+  </attrib>
+  <attrib name="vcacVmCatalogResource" type="vCACCAFE:CatalogResource" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+    <description><![CDATA[Resource]]></description>
+  </attrib>
+  <attrib name="resourceActionQuery" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+    <description><![CDATA[Query]]></description>
+  </attrib>
+  <attrib name="vmResourceOperations" type="Array/vCACCAFE:ConsumerResourceOperation" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="vmEditResourceOperation" type="vCACCAFE:ConsumerResourceOperation" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+    <description><![CDATA[The "Edit" resource operation of the vCAC VM]]></description>
+  </attrib>
+  <attrib name="vmProps" type="Properties" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="vcacHostUser" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+    <description><![CDATA[The UPN the vCO plugin uses to interact with vCAC]]></description>
+  </attrib>
+  <attrib name="vcacHostUserEntity" type="vCAC:Entity" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+    <description><![CDATA[The vCAC IaaS user entity for the vCAC plugin host user in vCO]]></description>
+  </attrib>
+  <attrib name="vcacCafeHost" type="vCACCAFE:VCACHost" read-only="false">
+    <value encoded="n"><![CDATA[dunes://service.dunes.ch/CustomSDKObject?id='353174f8-c3d7-4d3f-bfe4-8647f4384c42'&dunesName='vCACCAFE:VCACHost']]></value>
+    <description><![CDATA[The vCAC catalog host]]></description>
+  </attrib>
+  <attrib name="vcacIaaSHost" type="vCAC:VCACHost" read-only="false">
+    <value encoded="n"><![CDATA[dunes://service.dunes.ch/CustomSDKObject?id='9ed37619-6cb3-4719-b7b1-45d9975be9c6'&dunesName='vCAC:VCACHost']]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="1224.5"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item0" type="task" script-module="com.vmware.library.vcaccafe.request/requestResourceAction">
+    <display-name><![CDATA[requestResourceAction]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vcaccafe.request").requestResourceAction(operation,inputs) ;]]></script>
+    <in-binding>
+      <bind name="operation" type="vCACCAFE:ConsumerResourceOperation" export-name="vmEditResourceOperation">
+        <description><![CDATA[Resource operation]]></description>
+      </bind>
+      <bind name="inputs" type="Properties" export-name="resourceActionRequestInputs">
+        <description><![CDATA[Input values]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="vCACCAFE:ResourceActionRequest" explicitly-not-bound="true"/>
+    </out-binding>
+    <description><![CDATA[Sends a request for a resource action.]]></description>
+    <position y="55.40909090909091" x="1044.5"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item2" type="task">
+    <display-name><![CDATA[Create Properties]]></display-name>
+    <script encoded="false"><![CDATA[var providerOperationId = "Infrastructure.Machine.Action.Reconfigure"
+
+var vmEditResourceOperation;
+
+for each (var vmResourceOperation in vmResourceOperations) {
+	if (vmResourceOperation.bindingId == providerOperationId) {
+		vmEditResourceOperation = vmResourceOperation;
+	}
+}
+
+if (vmEditResourceOperation == null) {
+	throw "The current user does not have the \"Edit\" operation available on this VM";
+}
+
+resourceActionRequestInputs = new Properties({
+	"provider-operationId" : providerOperationId,
+	"provider-machineId" : vcacVm.getProperty("VirtualMachineID"),
+	"provider-MachineName" : vcacVm.getProperty("VirtualMachineName")
+});
+
+var currentCpuCount = vcacVm.getProperty("VMCPUs");
+var currentMemorySizeMB = vcacVm.getProperty("VMTotalMemoryMB");
+
+newCpuCount = newCpuCount != null ? newCpuCount : currentCpuCount;
+resourceActionRequestInputs.put("provider-Cafe.Shim.VirtualMachine.Reconfigure.CpuCount", System.formatNumber(newCpuCount, "0").toString());
+
+newMemorySizeMB = newMemorySizeMB != null ? newMemorySizeMB : currentMemorySizeMB;
+resourceActionRequestInputs.put("provider-Cafe.Shim.VirtualMachine.Reconfigure.MemorySize", System.formatNumber(newMemorySizeMB, "0").toString());
+
+var powerActionSelector;
+
+if (newCpuCount < currentCpuCount || newMemorySizeMB < currentMemorySizeMB) {
+	powerActionSelector = "0";
+}
+else {
+	var powerActionSelector = hotAdd == true ? "2" : "0";
+}
+
+resourceActionRequestInputs.put("provider-Cafe.Shim.VirtualMachine.Reconfigure.ExecutionSelector", "1");
+resourceActionRequestInputs.put("provider-Cafe.Shim.VirtualMachine.Reconfigure.PowerActionSelector", powerActionSelector);
+resourceActionRequestInputs.put("provider-Cafe.Shim.VirtualMachine.Reason", "Generated by vR Ops auto-remediation workflow");
+resourceActionRequestInputs.put("provider-Cafe.Shim.VirtualMachine.Reconfigure.Requestor", vcacHostUserEntity.getProperty("UserID"));
+
+var vmPropertyBag = [];
+var storagePropertyBag = [];
+var networkPropertyBag = [];
+var diskCustomProperties = [];
+var nicCustomProperties = [];
+
+var vmPropIndex = 0;
+var diskCustomPropIndex = [];
+var nicCustomPropIndex = [];
+
+var maxDiskIndex = -1;
+var maxNicIndex = -1;
+
+for each (var vmPropKey in vmProps.keys) {
+	var propValue = vmProps.get(vmPropKey);
+	
+	if (vmPropKey.lastIndexOf("VirtualMachine.Disk") != -1) {
+		var lastDotCharIndex = vmPropKey.lastIndexOf(".");
+		var diskIndex = System.formatNumber(Number(vmPropKey.substring(20, lastDotCharIndex - 1)), "0");
+		var propSuffix = vmPropKey.substring(lastDotCharIndex + 1, vmPropKey.length);
+		
+		if (diskIndex > maxDiskIndex) {
+			fillInTheArrayGaps(storagePropertyBag, maxDiskIndex, diskIndex);
+			fillInTheArrayGaps(diskCustomProperties, maxDiskIndex, diskIndex);
+			fillInTheArrayGaps(diskCustomPropIndex, maxDiskIndex, diskIndex);
+			diskCustomPropIndex[diskIndex] = 0;
+			maxDiskIndex = diskIndex;
+		}
+		
+		if (storagePropertyBag[diskIndex] == null) {
+			storagePropertyBag[diskIndex] = new Properties();
+			diskCustomProperties[diskIndex] = new Array();
+		}
+		
+		switch (propSuffix) {
+		case "ExternalID":
+			storagePropertyBag[diskIndex].put("ExternalId", propValue);
+			break;
+		case "Size":
+			storagePropertyBag[diskIndex].put("CapacityInGB", propValue);
+			break;
+		case "StorageReservationPolicy":
+			storagePropertyBag[diskIndex].put("StoragePolicy", propValue);
+			break;
+		case "Label":
+			storagePropertyBag[diskIndex].put(propSuffix, propValue);
+			break;
+		case "Letter":
+			storagePropertyBag[diskIndex].put("Device", propValue);
+			break;
+		case "StorageReservationPolicyMode":
+			storagePropertyBag[diskIndex].put("StoragePolicyMode", propValue);
+			break;
+		case "Storage":
+			storagePropertyBag[diskIndex].put("StoragePath", propValue);
+			break;
+		default:
+			diskCustomProperties[diskIndex][diskCustomPropIndex[diskIndex]] = {
+				"PropertyName" : propSuffix,
+				"PropertyValue" : propValue,
+				"IsHidden" : false,
+				"IsRuntime" : false,
+				"IsEncrypted" : false
+			};
+			diskCustomPropIndex[diskIndex] = diskCustomPropIndex[diskIndex] + 1;
+			break;
+		}
+	}
+	else if (vmPropKey.lastIndexOf("VirtualMachine.Network") != -1) {
+		var lastDotCharIndex = vmPropKey.lastIndexOf(".");
+		var nicIndex = System.formatNumber(Number(vmPropKey.substring(23, lastDotCharIndex - 1)), "0");
+		var propSuffix = vmPropKey.substring(lastDotCharIndex + 1, vmPropKey.length);
+		
+		if (nicIndex > maxNicIndex) {
+			fillInTheArrayGaps(networkPropertyBag, maxNicIndex, nicIndex);
+			fillInTheArrayGaps(nicCustomProperties, maxNicIndex, nicIndex);
+			fillInTheArrayGaps(nicCustomPropIndex, maxNicIndex, nicIndex);
+			nicCustomPropIndex[nicIndex] = 0;
+			maxNicIndex = nicIndex;
+		}
+		
+		if (networkPropertyBag[nicIndex] == null) {
+			networkPropertyBag[nicIndex] = new Properties();
+			nicCustomProperties[nicIndex] = new Array();
+		}
+		
+		switch (propSuffix) {
+		case "Name":
+			networkPropertyBag[nicIndex].put("NetworkName", propValue);
+			break;
+		case "Address":
+			networkPropertyBag[nicIndex].put(propSuffix, propValue);
+			break;
+		case "MacAddress":
+			networkPropertyBag[nicIndex].put(propSuffix, propValue);
+			break;
+		default:
+			nicCustomProperties[nicIndex][nicCustomPropIndex[nicIndex]] = {
+				"PropertyName" : propSuffix,
+				"PropertyValue" : propValue,
+				"IsHidden" : false,
+				"IsRuntime" : false,
+				"IsEncrypted" : false
+			};
+			nicCustomPropIndex[nicIndex] = nicCustomPropIndex[nicIndex] + 1;
+			break;
+		}
+	}
+	else {
+		if (vmPropKey.substring(0, 2) != "__") {
+			vmPropertyBag[vmPropIndex] = {
+				"PropertyName" : vmPropKey,
+				"PropertyValue" : propValue,
+				"IsHidden" : false,
+				"IsRuntime" : false,
+				"IsEncrypted" : false
+			};
+			vmPropIndex = vmPropIndex + 1;
+		}
+	}
+}
+
+for (var i = 0; i < storagePropertyBag.length; i++) {
+	storagePropertyBag[i].put("CustomProperties", diskCustomProperties[i]);
+}
+
+for (var i = 0; i < networkPropertyBag.length; i++) {
+	networkPropertyBag[i].put("CustomProperties", nicCustomProperties[i]);
+}
+
+var vmPropertyBagSerialized = System.getModule("org.dojotoolkit.dojo.json").serialize(vmPropertyBag);
+var storagePropertyBagSerialized = System.getModule("org.dojotoolkit.dojo.json").serialize(storagePropertyBag);
+var networkPropertyBagSerialized = System.getModule("org.dojotoolkit.dojo.json").serialize(networkPropertyBag);
+
+resourceActionRequestInputs.put("provider-Cafe.Shim.VirtualMachine.Reconfigure.PropertyBag", vmPropertyBagSerialized);
+resourceActionRequestInputs.put("provider-Cafe.Shim.VirtualMachine.Reconfigure.Storages", storagePropertyBagSerialized);
+resourceActionRequestInputs.put("provider-Cafe.Shim.VirtualMachine.Reconfigure.Networks", networkPropertyBagSerialized);
+var requestDate = System.formatDate(new Date(), "M/d/yyyy h:mm:ss a");
+resourceActionRequestInputs.put("provider-Cafe.Shim.VirtualMachine.Reconfigure.RequestDate", requestDate);
+
+System.log(resourceActionRequestInputs);
+
+function fillInTheArrayGaps(theArray, oldMaxIndex, newMaxIndex) {
+	for (var i = oldMaxIndex + 1; i < newMaxIndex; i++)
+		theArray[i] = null;
+}
+]]></script>
+    <in-binding>
+      <bind name="vcacVm" type="vCAC:Entity" export-name="vcacVm">
+        <description><![CDATA[vCAC VM Entity]]></description>
+      </bind>
+      <bind name="newCpuCount" type="number" export-name="newCpuCount">
+        <description><![CDATA[New CPU count for the VM]]></description>
+      </bind>
+      <bind name="vmResourceOperations" type="Array/vCACCAFE:ConsumerResourceOperation" export-name="vmResourceOperations"/>
+      <bind name="newMemorySizeMB" type="number" export-name="newMemorySizeMB">
+        <description><![CDATA[New memory size for the VM in MB]]></description>
+      </bind>
+      <bind name="hotAdd" type="boolean" export-name="hotAdd">
+        <description><![CDATA[Whether or not to hot add or shutdown the VM before the reconfiguration operation]]></description>
+      </bind>
+      <bind name="vmProps" type="Properties" export-name="vmProps"/>
+      <bind name="vcacHostUserEntity" type="vCAC:Entity" export-name="vcacHostUserEntity"/>
+    </in-binding>
+    <out-binding>
+      <bind name="resourceActionRequestInputs" type="Properties" export-name="resourceActionRequestInputs">
+        <description><![CDATA[Input values]]></description>
+      </bind>
+      <bind name="vmEditResourceOperation" type="vCACCAFE:ConsumerResourceOperation" export-name="vmEditResourceOperation"/>
+    </out-binding>
+    <position y="55.40909090909091" x="904.5"/>
+  </workflow-item>
+  <workflow-item name="item4" out-name="item1" type="task" script-module="com.vmware.library.vcaccafe.request/getAvailableResourceActions">
+    <display-name><![CDATA[getAvailableResourceActions]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vcaccafe.request").getAvailableResourceActions(resource,query) ;]]></script>
+    <in-binding>
+      <bind name="resource" type="vCACCAFE:CatalogResource" export-name="vcacVmCatalogResource">
+        <description><![CDATA[Resource]]></description>
+      </bind>
+      <bind name="query" type="string" export-name="resourceActionQuery">
+        <description><![CDATA[Query]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Array/vCACCAFE:ConsumerResourceOperation" export-name="vmResourceOperations"/>
+    </out-binding>
+    <description><![CDATA[Gets the available resource actions for a resource.]]></description>
+    <position y="55.40909090909091" x="344.5"/>
+  </workflow-item>
+  <workflow-item name="item6" out-name="item4" type="task" script-module="com.dailyhypervisor.vcac.common/getCatalogResourceForIaasVmEntity">
+    <display-name><![CDATA[getCatalogResourceForIaasVmEntity]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.dailyhypervisor.vcac.common").getCatalogResourceForIaasVmEntity(vcacCafeHost,vcacIaasVmEntity) ;]]></script>
+    <in-binding>
+      <bind name="vcacCafeHost" type="vCACCAFE:VCACHost" export-name="vcacCafeHost">
+        <description><![CDATA[The vCAC catalog host]]></description>
+      </bind>
+      <bind name="vcacIaasVmEntity" type="vCAC:Entity" export-name="vcacVm">
+        <description><![CDATA[The vCAC IaaS VM entity]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="vCACCAFE:CatalogResource" export-name="vcacVmCatalogResource"/>
+    </out-binding>
+    <position y="55.40909090909091" x="204.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item5" type="task" script-module="com.dailyhypervisor.vcac.common/getVirtualMachineProperties">
+    <display-name><![CDATA[getVirtualMachineProperties]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.dailyhypervisor.vcac.common").getVirtualMachineProperties(virtualMachineEntity,vCACHost) ;]]></script>
+    <in-binding>
+      <bind name="virtualMachineEntity" type="vCAC:Entity" export-name="vcacVm"/>
+      <bind name="vCACHost" type="vCAC:VCACHost" export-name="vcacIaaSHost"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Properties" export-name="vmProps"/>
+    </out-binding>
+    <position y="55.40909090909091" x="484.5"/>
+  </workflow-item>
+  <workflow-item name="item5" out-name="item7" type="task">
+    <display-name><![CDATA[Get vCAC Host User]]></display-name>
+    <script encoded="false"><![CDATA[vcacHostUser = vcacCafeHost.username;
+
+System.log("Send Reconfigure request as vRA User: " + vcacHostUser);
+]]></script>
+    <in-binding>
+      <bind name="vcacCafeHost" type="vCACCAFE:VCACHost" export-name="vcacCafeHost"/>
+    </in-binding>
+    <out-binding>
+      <bind name="vcacHostUser" type="string" export-name="vcacHostUser"/>
+    </out-binding>
+    <position y="55.40909090909091" x="624.5"/>
+  </workflow-item>
+  <workflow-item name="item7" out-name="item3" type="task" script-module="com.vmware.library.vcac/getUserEntityByName">
+    <display-name><![CDATA[getUserEntityByName]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vcac").getUserEntityByName(vcacHost,userName) ;]]></script>
+    <in-binding>
+      <bind name="vcacHost" type="vCAC:VCACHost" export-name="vcacIaaSHost">
+        <description><![CDATA[vCAC Host to search]]></description>
+      </bind>
+      <bind name="userName" type="string" export-name="vcacHostUser">
+        <description><![CDATA[User name]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="vCAC:Entity" export-name="vcacHostUserEntity"/>
+    </out-binding>
+    <description><![CDATA[Given a vCAC Host and the name of a user, return the vCAC:Entity object]]></description>
+    <position y="55.40909090909091" x="764.5"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="newCpuCount">
+      <desc><![CDATA[New CPU count for the VM]]></desc>
+    </p-param>
+    <p-param name="newMemorySizeMB">
+      <desc><![CDATA[New memory size for the VM in MB]]></desc>
+    </p-param>
+    <p-param name="vcacVm">
+      <desc><![CDATA[vCAC VM Entity]]></desc>
+    </p-param>
+    <p-param name="hotAdd">
+      <desc><![CDATA[Enable hot add?]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

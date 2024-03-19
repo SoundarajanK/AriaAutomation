@@ -1,0 +1,389 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item16" object-name="Workflow:name=generic" id="9a244950-39ce-4703-b88f-0107969da1d1" version="0.0.14" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[vRO Upgrade Tools on Next Reboot]]></display-name>
+  <description><![CDATA[Removes a host from vCenter.]]></description>
+  <position y="0.0" x="5.0"/>
+  <input>
+    <param name="correlationId" type="string"/>
+    <param name="targetId" type="string"/>
+    <param name="targetvCenteruuid" type="string"/>
+  </input>
+  <output>
+    <param name="STATUS" type="string"/>
+  </output>
+  <attrib name="toolsUpdating" type="string" read-only="false">
+    <value encoded="n"><![CDATA[Starting the process to upgrade tools on vm at next reboot]]></value>
+    <description><![CDATA[Message when starting to upgrade tools]]></description>
+  </attrib>
+  <attrib name="toolsUpdated" type="string" read-only="false">
+    <value encoded="n"><![CDATA[Successfully initiatated the tools upgrade process for next reboot]]></value>
+    <description><![CDATA[Success Message]]></description>
+  </attrib>
+  <attrib name="vmEvent" type="string" read-only="false">
+    <value encoded="n"><![CDATA[Update Guest Tools]]></value>
+    <description><![CDATA[VR Ops Event]]></description>
+  </attrib>
+  <attrib name="vmName" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+    <description><![CDATA[name of the host being Removed]]></description>
+  </attrib>
+  <attrib name="severity" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+    <description><![CDATA[Severity of the current task (from VR Ops point of view)]]></description>
+  </attrib>
+  <attrib name="vm" type="VC:VirtualMachine" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+    <description><![CDATA[Virtual Machine to Upgrade Guest Tools on]]></description>
+  </attrib>
+  <attrib name="errorCode" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+    <description><![CDATA[Error returned by Upgrade Guest Tools]]></description>
+  </attrib>
+  <attrib name="eventDetails" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+    <description><![CDATA[Customized Event Details]]></description>
+  </attrib>
+  <attrib name="statusOut" type="boolean" read-only="false">
+    <value encoded="n"><![CDATA[false]]></value>
+  </attrib>
+  <attrib name="toolsStatus" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="toolsVersionStatus" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="toolsRunningStatus" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="powerstate" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <workflow-note x="540.0" y="189.40909090909088" w="440.0" h="245.0" color="b0ebceff">
+    <description><![CDATA[VM Tools Status Check]]></description>
+  </workflow-note>
+  <workflow-item name="item2" type="end" end-mode="0">
+    <position y="381.77272727272725" x="364.5"/>
+  </workflow-item>
+  <workflow-item name="item8" out-name="item2" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="vmEvent"/>
+      <bind name="eventDetails" type="string" export-name="toolsUpdated"/>
+      <bind name="CorrelationId" type="string" export-name="correlationId"/>
+      <bind name="targetVMName" type="string" export-name="vmName"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="264.5" x="324.5"/>
+  </workflow-item>
+  <workflow-item name="item9" out-name="item13" type="task">
+    <display-name><![CDATA[Get VM name]]></display-name>
+    <script encoded="false"><![CDATA[System.log("Found VM: " + vmName);]]></script>
+    <in-binding>
+      <bind name="vmName" type="string" export-name="vmName">
+        <description><![CDATA[name of the host being Removed]]></description>
+      </bind>
+    </in-binding>
+    <out-binding/>
+    <position y="9.954545454545453" x="325.0"/>
+  </workflow-item>
+  <workflow-item name="item12" out-name="item14" type="task">
+    <display-name><![CDATA[Set Severity Level]]></display-name>
+    <script encoded="false"><![CDATA[severity = "error";
+STATUS = "Failed"
+eventDetails = "An error occurred upgrading Guest Tools at next reboot:  " + errorCode;
+System.log("severity is " + severity);]]></script>
+    <in-binding>
+      <bind name="errorCode" type="string" export-name="errorCode"/>
+    </in-binding>
+    <out-binding>
+      <bind name="eventDetails" type="string" export-name="eventDetails">
+        <description><![CDATA[Customized Event Details]]></description>
+      </bind>
+      <bind name="severity" type="string" export-name="severity"/>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+    </out-binding>
+    <position y="391.77272727272725" x="64.5"/>
+  </workflow-item>
+  <workflow-item name="item11" out-name="item8" type="task">
+    <display-name><![CDATA[Set Severity Level]]></display-name>
+    <script encoded="false"><![CDATA[severity = "info";
+STATUS = "Success"]]></script>
+    <in-binding/>
+    <out-binding>
+      <bind name="severity" type="string" export-name="severity"/>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+    </out-binding>
+    <position y="264.5" x="184.5"/>
+  </workflow-item>
+  <workflow-item name="item13" out-name="item7" type="task">
+    <display-name><![CDATA[Set Severity Level]]></display-name>
+    <script encoded="false"><![CDATA[severity = "info";
+STATUS = 'Running';
+]]></script>
+    <in-binding/>
+    <out-binding>
+      <bind name="severity" type="string" export-name="severity"/>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+    </out-binding>
+    <position y="9.954545454545453" x="584.5"/>
+  </workflow-item>
+  <workflow-item name="item7" out-name="item23" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="vmEvent"/>
+      <bind name="eventDetails" type="string" export-name="toolsUpdating"/>
+      <bind name="CorrelationId" type="string" export-name="correlationId"/>
+      <bind name="targetVMName" type="string" export-name="vmName"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="9.954545454545453" x="864.5"/>
+  </workflow-item>
+  <workflow-item name="item14" out-name="item2" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="vmEvent"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="CorrelationId" type="string" export-name="correlationId"/>
+      <bind name="targetVMName" type="string" export-name="vmName"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="391.77272727272725" x="184.5"/>
+  </workflow-item>
+  <workflow-item name="item16" out-name="item9" type="link" linked-workflow-id="6ff24a3a-d83e-47fd-9661-cdfbed7b7c22">
+    <display-name><![CDATA[Find VM by MOID]]></display-name>
+    <in-binding>
+      <bind name="targetId" type="string" export-name="targetId"/>
+      <bind name="targetvCenteruuid" type="string" export-name="targetvCenteruuid"/>
+      <bind name="CorrelationId" type="string" export-name="correlationId"/>
+    </in-binding>
+    <out-binding>
+      <bind name="targetVM" type="VC:VirtualMachine" export-name="vm"/>
+      <bind name="targetVmName" type="string" export-name="vmName"/>
+      <bind name="statusOut" type="boolean" export-name="statusOut"/>
+    </out-binding>
+    <position y="9.954545454545453" x="85.0"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item11" catch-name="item0" throw-bind-name="errorCode" type="link" linked-workflow-id="AF8080808080808080808080808080804A80808001231146624761b79546544c2">
+    <display-name><![CDATA[Upgrade tools at next reboot]]></display-name>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Upgrades VMware Tools on a virtual machine without performing an automatic reboot.]]></description>
+    <position y="200.86363636363635" x="65.0"/>
+  </workflow-item>
+  <workflow-item name="item0" prototype-id="system-server-error" out-name="item12" type="task" interaction="l">
+    <display-name><![CDATA[System+Server error]]></display-name>
+    <script encoded="false"><![CDATA[//Auto-generated script
+System.error(text + " - " + object);
+Server.error(text, object);
+]]></script>
+    <in-binding>
+      <bind name="text" type="string" export-name="errorCode">
+        <description><![CDATA[The text to log]]></description>
+      </bind>
+      <bind name="object" type="VC:VirtualMachine" export-name="vm">
+        <description><![CDATA[The text to log and additional info]]></description>
+      </bind>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Log the input text to the console and the server log with level 'error']]></description>
+    <position y="328.1363636363636" x="65.0"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item5" type="condition" alt-out-name="item10" comparator="0">
+    <display-name><![CDATA[Decision]]></display-name>
+    <script encoded="false"><![CDATA[//Generated by the system, cannot be edited
+return (toolsVersionStatus == "guestToolsCurrent") ;]]></script>
+    <in-binding>
+      <bind name="toolsVersionStatus" type="string" export-name="toolsVersionStatus"/>
+    </in-binding>
+    <condition name="toolsVersionStatus" type="string" comparator="0" label="null">guestToolsCurrent</condition>
+    <position y="190.86363636363635" x="864.5"/>
+  </workflow-item>
+  <workflow-item name="item4" type="end" end-mode="0">
+    <position y="381.77272727272725" x="904.5"/>
+  </workflow-item>
+  <workflow-item name="item5" out-name="item6" type="task">
+    <display-name><![CDATA[Set Severity Level]]></display-name>
+    <script encoded="false"><![CDATA[severity = "info";
+STATUS = 'Success';
+eventDetails = "VMTools version is already current, no need to upgrade";
+]]></script>
+    <in-binding/>
+    <out-binding>
+      <bind name="severity" type="string" export-name="severity"/>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+    </out-binding>
+    <position y="264.5" x="864.5"/>
+  </workflow-item>
+  <workflow-item name="item6" out-name="item4" throw-bind-name="errorCode" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="vmEvent"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="CorrelationId" type="string" export-name="correlationId"/>
+      <bind name="targetVMName" type="string" export-name="vmName"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="328.1363636363636" x="864.5"/>
+  </workflow-item>
+  <workflow-item name="item10" out-name="item17" type="condition" alt-out-name="item19" comparator="0">
+    <display-name><![CDATA[Decision]]></display-name>
+    <script encoded="false"><![CDATA[//Generated by the system, cannot be edited
+return (toolsVersionStatus == "guestToolsCurrent") ;]]></script>
+    <in-binding>
+      <bind name="toolsVersionStatus" type="string" export-name="toolsVersionStatus"/>
+    </in-binding>
+    <condition name="toolsVersionStatus" type="string" comparator="0" label="null">guestToolsCurrent</condition>
+    <position y="190.86363636363635" x="685.0"/>
+  </workflow-item>
+  <workflow-item name="item15" type="end" end-mode="0">
+    <position y="381.77272727272725" x="725.0"/>
+  </workflow-item>
+  <workflow-item name="item17" out-name="item18" type="task">
+    <display-name><![CDATA[Set Severity Level]]></display-name>
+    <script encoded="false"><![CDATA[severity = "error";
+STATUS = 'Failed';
+eventDetails = "VMTools are not running or not installed. Please Power on or Install VMtools before attempting the upgrade.";
+]]></script>
+    <in-binding/>
+    <out-binding>
+      <bind name="severity" type="string" export-name="severity"/>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+    </out-binding>
+    <position y="273.59090909090907" x="684.5"/>
+  </workflow-item>
+  <workflow-item name="item18" out-name="item15" throw-bind-name="errorCode" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="vmEvent"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="CorrelationId" type="string" export-name="correlationId"/>
+      <bind name="targetVMName" type="string" export-name="vmName"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="337.2272727272727" x="684.5"/>
+  </workflow-item>
+  <workflow-item name="item19" out-name="item21" type="condition" alt-out-name="item3" comparator="0">
+    <display-name><![CDATA[Decision]]></display-name>
+    <script encoded="false"><![CDATA[//Generated by the system, cannot be edited
+return (toolsStatus == "toolsOk") ;]]></script>
+    <in-binding>
+      <bind name="toolsStatus" type="string" export-name="toolsStatus"/>
+    </in-binding>
+    <condition name="toolsStatus" type="string" comparator="0" label="null">toolsOk</condition>
+    <position y="190.86363636363635" x="524.5"/>
+  </workflow-item>
+  <workflow-item name="item20" type="end" end-mode="0">
+    <position y="381.77272727272725" x="565.0"/>
+  </workflow-item>
+  <workflow-item name="item21" out-name="item22" type="task">
+    <display-name><![CDATA[Set Severity Level]]></display-name>
+    <script encoded="false"><![CDATA[severity = "error";
+STATUS = 'Failed';
+eventDetails = "VMTools are not running or not in a state that can be upgraded. Please power on or check the state of VMTools before proceeding.";
+]]></script>
+    <in-binding/>
+    <out-binding>
+      <bind name="severity" type="string" export-name="severity"/>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+    </out-binding>
+    <position y="273.59090909090907" x="524.5"/>
+  </workflow-item>
+  <workflow-item name="item22" out-name="item20" throw-bind-name="errorCode" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="vmEvent"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="CorrelationId" type="string" export-name="correlationId"/>
+      <bind name="targetVMName" type="string" export-name="vmName"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="337.2272727272727" x="524.5"/>
+  </workflow-item>
+  <workflow-item name="item23" out-name="item25" type="task">
+    <display-name><![CDATA[Tools status]]></display-name>
+    <script encoded="false"><![CDATA[var guestSummary = vm.summary.guest
+var toolsStatus = guestSummary.toolsStatus.value;
+System.log("Tools Status "+ toolsStatus);
+var toolsVersionStatus = guestSummary.toolsVersionStatus;
+System.log("Tools Version Status "+ toolsVersionStatus);
+var toolsRunningStatus = guestSummary.toolsRunningStatus;
+System.log("Tools Running Status "+ toolsRunningStatus);
+var powerstate = vm.summary.runtime.powerState.value;
+System.log("PowerState is: " + powerstate);
+]]></script>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+    </in-binding>
+    <out-binding>
+      <bind name="toolsVersionStatus" type="string" export-name="toolsVersionStatus"/>
+      <bind name="toolsRunningStatus" type="string" export-name="toolsRunningStatus"/>
+      <bind name="toolsStatus" type="string" export-name="toolsStatus"/>
+      <bind name="powerstate" type="string" export-name="powerstate"/>
+    </out-binding>
+    <position y="73.59090909090908" x="865.0"/>
+  </workflow-item>
+  <workflow-item name="item25" out-name="item26" type="condition" alt-out-name="item1" comparator="0">
+    <display-name><![CDATA[Decision]]></display-name>
+    <script encoded="false"><![CDATA[//Generated by the system, cannot be edited
+return (powerstate == "poweredOff") ;]]></script>
+    <in-binding>
+      <bind name="powerstate" type="string" export-name="powerstate"/>
+    </in-binding>
+    <condition name="powerstate" type="string" comparator="0" label="null">poweredOff</condition>
+    <position y="127.22727272727272" x="865.0"/>
+  </workflow-item>
+  <workflow-item name="item26" out-name="item24" type="task">
+    <display-name><![CDATA[Set Severity Level]]></display-name>
+    <script encoded="false"><![CDATA[severity = "error";
+STATUS = "Failed";
+eventDetails = "VMTools cannot be upgrade in VM's current power state 'PoweredOff'";
+System.log("VMTools cannot be upgrade in VM's current power state 'PoweredOff'");]]></script>
+    <in-binding/>
+    <out-binding>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="severity" type="string" export-name="severity"/>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+    </out-binding>
+    <position y="137.22727272727272" x="1144.5"/>
+  </workflow-item>
+  <workflow-item name="item24" out-name="item27" throw-bind-name="errorCode" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="vmEvent"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="CorrelationId" type="string" export-name="correlationId"/>
+      <bind name="targetVMName" type="string" export-name="vmName"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="255.40909090909088" x="1144.5"/>
+  </workflow-item>
+  <workflow-item name="item27" type="end" end-mode="0">
+    <position y="390.8636363636363" x="1185.0"/>
+  </workflow-item>
+  <presentation>
+    <p-step>
+      <title><![CDATA[Host]]></title>
+    </p-step>
+    <p-param name="correlationId">
+      <desc><![CDATA[CorrelationId]]></desc>
+    </p-param>
+    <p-param name="targetId">
+      <desc><![CDATA[targetId]]></desc>
+    </p-param>
+    <p-param name="targetvCenteruuid">
+      <desc><![CDATA[targetvCenteruuid]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

@@ -1,0 +1,179 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="8e1ca527-f0a9-4c13-950c-3efa87f5acde" version="0.0.12" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Get processes from guest - kill bad  processes]]></display-name>
+  <description><![CDATA[List the processes running in the guest operating system, plus those started by this API that have recently completed]]></description>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="vmUsername" type="string">
+      <description><![CDATA[Username for the virtual machine]]></description>
+    </param>
+    <param name="vmPassword" type="SecureString">
+      <description><![CDATA[Password for the virtual machine]]></description>
+    </param>
+    <param name="badProcName" type="string"/>
+    <param name="vm" type="VC:VirtualMachine">
+      <description><![CDATA[Virtual machine]]></description>
+    </param>
+  </input>
+  <output>
+    <param name="result" type="Array/CompositeType(pid:number,name:string,owner:string,cmdLine:string,startTime:Date,endTime:Date,exitCode:number):GuestProcessInfoType">
+      <description><![CDATA[The list running processes.]]></description>
+    </param>
+  </output>
+  <attrib name="badProcId" type="number" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="timeout" type="number" read-only="false">
+    <value encoded="n"><![CDATA[60.0]]></value>
+    <description><![CDATA[Timeout before throwing a timeout exception [minutes]]]></description>
+  </attrib>
+  <attrib name="pollingRate" type="number" read-only="false">
+    <value encoded="n"><![CDATA[5.0]]></value>
+    <description><![CDATA[Time between all request information on the tools [seconds]]]></description>
+  </attrib>
+  <attrib name="sleepTime" type="number" read-only="false">
+    <value encoded="n"><![CDATA[5.0]]></value>
+    <description><![CDATA[Time to sleep in seconds]]></description>
+  </attrib>
+  <attrib name="Exception" type="string" read-only="false">
+    <value encoded="n"><![CDATA[Invalide Process name or command failed.]]></value>
+  </attrib>
+  <workflow-item name="item1" out-name="item2" catch-name="item3" throw-bind-name="Exception" type="task">
+    <display-name><![CDATA[Get list of all processes]]></display-name>
+    <script encoded="false"><![CDATA[
+var host = vm.sdkConnection; 
+
+var guestOperationsManager = host.guestOperationsManager; 
+var guestAuth = new VcNamePasswordAuthentication(); 
+guestAuth.username = vmUsername; 
+guestAuth.password = vmPassword; 
+
+var processManager = guestOperationsManager.processManager; 
+var guestProcessInfo = processManager.listProcessesInGuest(vm , guestAuth , null); 
+var processList = new Array(); for each (var process in guestProcessInfo) {    
+	 var propertyObject = new Properties(); 
+	propertyObject.put("pid", process.pid); propertyObject.put("name", process.name);    
+	 processList.push(propertyObject); } 
+			var theBadProcess = badProcName; 
+			
+for each (var process in processList)
+	 { System.log("Checking " + process.get("name") + " : " + process.get("pid")); 
+		if ( process.get("name") == theBadProcess )
+		 { badProcId = + process.get("pid"); 
+		break;
+		}
+			}
+		
+System.log("About to kill process: " + badProcId + " named " + badProcName); ]]></script>
+    <in-binding>
+      <bind name="vmUsername" type="string" export-name="vmUsername"/>
+      <bind name="vmPassword" type="SecureString" export-name="vmPassword"/>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+      <bind name="badProcName" type="string" export-name="badProcName"/>
+    </in-binding>
+    <out-binding>
+      <bind name="result" type="Array/CompositeType(pid:number,name:string,owner:string,cmdLine:string,startTime:Date,endTime:Date,exitCode:number):GuestProcessInfoType" export-name="result"/>
+      <bind name="badProcId" type="number" export-name="badProcId"/>
+    </out-binding>
+    <position y="55.40909090909091" x="344.5"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item5" catch-name="item4" throw-bind-name="Exception" type="link" linked-workflow-id="C98080808080808080808080808080807B80808001322751030482b80adf61e7c">
+    <display-name><![CDATA[Kill process in guest]]></display-name>
+    <in-binding>
+      <bind name="vmUsername" type="string" export-name="vmUsername">
+        <description><![CDATA[Username for the virtual machine]]></description>
+      </bind>
+      <bind name="vmPassword" type="SecureString" export-name="vmPassword">
+        <description><![CDATA[Password for the virtual machine]]></description>
+      </bind>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm">
+        <description><![CDATA[Virtual machine]]></description>
+      </bind>
+      <bind name="pid" type="number" export-name="badProcId">
+        <description><![CDATA[Process ID of the process to be terminated ]]></description>
+      </bind>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Terminates a process in the guest OS.]]></description>
+    <position y="55.40909090909091" x="484.5"/>
+  </workflow-item>
+  <workflow-item name="item4" out-name="item0" type="task">
+    <display-name><![CDATA[bad process doesnt exist]]></display-name>
+    <script encoded="false"><![CDATA[System.log("Bad process " + badProcName + " is not currently running");]]></script>
+    <in-binding>
+      <bind name="badProcName" type="string" export-name="badProcName"/>
+    </in-binding>
+    <out-binding/>
+    <position y="164.5" x="484.5"/>
+  </workflow-item>
+  <workflow-item name="item5" out-name="item0" type="task">
+    <display-name><![CDATA[process killed]]></display-name>
+    <script encoded="false"><![CDATA[System.log("Bad process " + badProcName + " with ID " + badProcId + " killed succesfully");
+]]></script>
+    <in-binding>
+      <bind name="badProcName" type="string" export-name="badProcName"/>
+      <bind name="badProcId" type="number" export-name="badProcId"/>
+    </in-binding>
+    <out-binding/>
+    <position y="55.40909090909091" x="624.5"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item14" type="task" script-module="com.vmware.library.vc.vm.tools/vim3WaitToolsStarted">
+    <display-name><![CDATA[vim3WaitToolsStarted]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+System.getModule("com.vmware.library.vc.vm.tools").vim3WaitToolsStarted(vm,pollingRate,timeout) ;]]></script>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm">
+        <description><![CDATA[VM in which the action look to get the new DNS Name]]></description>
+      </bind>
+      <bind name="pollingRate" type="number" export-name="pollingRate">
+        <description><![CDATA[Time between all request information on the tools [seconds]]]></description>
+      </bind>
+      <bind name="timeout" type="number" export-name="timeout">
+        <description><![CDATA[Timeout before throwing a timeout exception [minutes]]]></description>
+      </bind>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Wait for the VMware tools to be up and the guest running
+
+Exception:
+- Timeout: When timeout is reached
+- ReferenceError: When vm is not set correctly]]></description>
+    <position y="164.5" x="25.0"/>
+  </workflow-item>
+  <workflow-item name="item14" prototype-id="sleep" out-name="item1" content-mode="x" type="task">
+    <display-name><![CDATA[Sleep]]></display-name>
+    <script encoded="false"><![CDATA[//Auto-generated script
+if ( sleepTime != null )  {
+	System.sleep(sleepTime*1000);
+}
+else  {
+	throw "'sleepTime' is NULL";
+}
+]]></script>
+    <in-binding>
+      <bind name="sleepTime" type="number" export-name="sleepTime">
+        <description><![CDATA[Time to sleep in seconds]]></description>
+      </bind>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Sleep a given number of seconds]]></description>
+    <position y="164.5" x="345.0"/>
+  </workflow-item>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="905.0"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="vmUsername">
+      <desc><![CDATA[Username for the virtual machine]]></desc>
+    </p-param>
+    <p-param name="vmPassword">
+      <desc><![CDATA[Password for the virtual machine]]></desc>
+    </p-param>
+    <p-param name="badProcName">
+      <desc><![CDATA[badProcName]]></desc>
+    </p-param>
+    <p-param name="vm">
+      <desc><![CDATA[Virtual machine]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

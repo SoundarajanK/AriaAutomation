@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item0" object-name="Workflow:name=generic" id="cbe4859c-c915-44bd-8e6c-430bc6378ce7" editor-version="2.0" version="1.0.1" api-version="3.1.0" allowed-operations="vef" restartMode="1">
+    <display-name>Copy of Add a database</display-name>
+    <description>Adds a database object to the plug-in's inventory.</description>
+    <position y="20.0" x="180.0"/>
+    <input>
+        <param name="name" type="string">
+            <description>Name of the specified database</description>
+        </param>
+        <param name="type" type="string">
+            <description>Database type</description>
+        </param>
+        <param name="connectionURL" type="string">
+            <description>Connection URL</description>
+        </param>
+        <param name="username" type="string">
+            <description>User name</description>
+        </param>
+        <param name="password" type="SecureString">
+            <description>Password</description>
+        </param>
+        <param name="sessionMode" type="string">
+            <description>Session mode</description>
+        </param>
+    </input>
+    <output>
+        <param name="database" type="SQL:Database">
+            <description>The new database attached to the Inventory</description>
+        </param>
+    </output>
+    <attrib name="errorCode" type="string">
+        <value encoded="n"></value>
+        <description>An error message or code</description>
+    </attrib>
+    <workflow-item name="item1" type="end" end-mode="0" comparator="0">
+        <position y="150.0" x="180.0"/>
+    </workflow-item>
+    <workflow-item name="item2" throw-bind-name="errorCode" type="end" end-mode="1" comparator="0">
+        <position y="90.0" x="340.0"/>
+    </workflow-item>
+    <workflow-item name="item0" out-name="item1" catch-name="item2" throw-bind-name="errorCode" type="task" script-module="com.vmware.library.sql.configuration/addDatabase" comparator="0">
+        <display-name>addDatabase</display-name>
+        <script encoded="false">//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.sql.configuration").addDatabase(name,type,connectionURL,username,password,sessionMode) ;</script>
+        <in-binding>
+            <bind name="name" type="string" export-name="name"/>
+            <bind name="type" type="string" export-name="type"/>
+            <bind name="connectionURL" type="string" export-name="connectionURL"/>
+            <bind name="username" type="string" export-name="username"/>
+            <bind name="password" type="SecureString" export-name="password"/>
+            <bind name="sessionMode" type="string" export-name="sessionMode"/>
+        </in-binding>
+        <out-binding>
+            <bind name="actionResult" type="SQL:Database" export-name="database"/>
+        </out-binding>
+        <description>Adds a database object to the plug-in's inventory.</description>
+        <position y="102.5" x="145.0"/>
+    </workflow-item>
+</ns2:workflow>

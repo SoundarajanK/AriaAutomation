@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="createConfigElement" result-type="ConfigurationElement" api-version="6.0.0" id="a2540f6d-a0e8-4d5c-a996-d3178930005a" version="0.0.0" allowed-operations="evf" category-name="com.vmware.vrops.remediation">
+  <param n="categoryPath" t="string"><![CDATA[Configuration Element Category Path]]></param>
+  <param n="configName" t="string"><![CDATA[Desired Config Element Name]]></param>
+  <script encoded="false"><![CDATA[var configElement = null;
+try {
+	var configCategory = Server.getConfigurationElementCategoryWithPath(categoryPath);
+	if(configCategory) {
+		System.log("Found configuration category '"+configCategory.name+"'");
+		
+		//Find Configuration Element
+		var configElements = configCategory.configurationElements;
+		for (var i in configElements) {
+			ce = configElements[i];
+			if (ce.name == configName) {
+				configElement = ce;
+				break;
+			}
+		}
+		if(configElement) {
+			System.log("Found configuration '"+configElement.name+"'");
+		} else {
+			configElement = Server.createConfigurationElement(categoryPath, configName);
+			System.log("Created configuration element '"+configElement.name+"'");
+		}
+	} else {
+		configElement = Server.createConfigurationElement(categoryPath, configName);
+		System.log("Created category path '"+categoryPath+"' and configuration element '"+configElement.name+"'");
+	}
+} catch(e) {
+	System.warn(e);
+}
+
+return configElement;]]></script>
+</dunes-script-module>

@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="MCDemo" result-type="string" api-version="6.0.0" id="2b92f4b9-368d-442b-b7f9-868a69ad2183" version="0.0.0" category-name="com.vmware.library.powershell" memory-limit="512000000" timeout="180">
+  <runtime><![CDATA[powercli:12-powershell-7.1]]></runtime>
+  <script encoded="false"><![CDATA[function Handler($context, $inputs) {
+   
+   $connection = Set-PowerCLIConfiguration -InvalidCertificateAction Ignore -ParticipateInCeip:$false -Scope Session -Confirm:$false
+
+   Write-Host "Connecting to vCenter"
+
+   $vCenter = Connect-VIServer -Server s360srv001.eng.vmware.com -Protocol https -User administrator@vsphere.local  -Password L@bS360#1!
+
+   Write-Host "Connected to vCenter"
+
+   $a = "<style>" 
+$a = $a + "BODY{background-color:white;}" 
+$a = $a + "TABLE{border-width: 1px;border-style: solid;border-color: black;border-collapse: collapse;}" 
+$a = $a + "TH{border-width: 1px;padding: 0px;border-style: solid;border-color: black;background-color: yellow;}" 
+$a = $a + "TD{border-width: 1px;padding: 0px;border-style: solid;border-color: black;}"
+$a = $a + "</style>"
+
+Get-Cluster -Name "S360-MG-CL01"  | get-vmhost | select Name, NumCpu, CpuUsageMhz, CPUTotalMhz, MemoryUsageGB, MemoryTotalGB  | 
+ConvertTo-Html -head $a | Out-File /tmp/vmdetails13.htm
+
+#Invoke-Item "/etc/vmdetails13.htm"
+Write-Host "etc/vmdetails13.htm"
+
+    return $connection, $vCenter
+}
+]]></script>
+</dunes-script-module>

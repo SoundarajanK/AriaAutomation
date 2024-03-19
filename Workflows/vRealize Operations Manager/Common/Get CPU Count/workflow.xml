@@ -1,0 +1,90 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item2" object-name="workflow:name=generic" id="180d59f9-0f2d-413d-9ccc-1d7d1b7386c0" version="0.0.2" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Get CPU Count]]></display-name>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="virtualMachineIn" type="VC:VirtualMachine"/>
+    <param name="CorrelationId" type="string"/>
+    <param name="targetVMName" type="string"/>
+  </input>
+  <output>
+    <param name="cpuCountOut" type="number"/>
+    <param name="statusOut" type="boolean"/>
+  </output>
+  <attrib name="event" type="string" read-only="false">
+    <value encoded="n"><![CDATA[Get Current CPU Count]]></value>
+  </attrib>
+  <attrib name="eventDetails" type="string" read-only="false">
+    <value encoded="n"><![CDATA[Starting Event]]></value>
+  </attrib>
+  <attrib name="severity" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="804.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item3" type="task">
+    <display-name><![CDATA[Determine Current CPU Count]]></display-name>
+    <script encoded="false"><![CDATA[cpuCountOut = -1;
+cpuCount = virtualMachineIn.config.hardware.numCPU;
+cpuCountOut = cpuCount;
+System.log("vm name: "+virtualMachineIn.name);
+if (cpuCount > 0){
+   eventDetails = "Current CPU Count="+cpuCount;
+   statusOut = true;
+   severity = "info";
+}
+else {
+   eventDetails = "Invalid CPU Count="+cpuCount;
+   statusOut = false;
+   severity = "error";
+}
+System.log("one last time, cpu count: "+cpuCountOut);]]></script>
+    <in-binding>
+      <bind name="virtualMachineIn" type="VC:VirtualMachine" export-name="virtualMachineIn"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+    </in-binding>
+    <out-binding>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="statusOut" type="boolean" export-name="statusOut"/>
+      <bind name="cpuCountOut" type="number" export-name="cpuCountOut"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </out-binding>
+    <position y="55.40909090909091" x="344.5"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item1" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="event"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="CorrelationId" type="string" export-name="CorrelationId"/>
+      <bind name="targetVMName" type="string" export-name="targetVMName"/>
+      <bind name="severity" type="string" explicitly-not-bound="true" export-name="NULL"/>
+    </in-binding>
+    <out-binding/>
+    <position y="55.40909090909091" x="204.5"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item0" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="event"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="CorrelationId" type="string" export-name="CorrelationId"/>
+      <bind name="targetVMName" type="string" export-name="targetVMName"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="55.40909090909091" x="484.5"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="virtualMachineIn">
+      <desc><![CDATA[virtualMachineIn]]></desc>
+    </p-param>
+    <p-param name="CorrelationId">
+      <desc><![CDATA[CorrelationId]]></desc>
+    </p-param>
+    <p-param name="targetVMName">
+      <desc><![CDATA[targetVMName]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<package>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='354f73b6-88fb-424b-b116-a0bad1994835'&dunesName='Action'&name='shutdownVM'&category='com.vmware.library.vc.vm.power']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='6417dffd-de3b-4109-9fbd-d13be0f94869'&dunesName='Action'&name='startVM'&category='com.vmware.library.vc.vm.power']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='683f3fe1-8b67-4567-8261-6b3713e61eb1'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='99afccd7-9fcc-4dc2-82b7-586de690364e'&dunesName='Action'&name='vim3WaitTaskEnd'&category='com.vmware.library.vc.basic']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='BD80808080808080808080808080808075C280800122528313869552e41805bb1'&dunesName='Workflow']]></elm>
+<used-plugin name='VC' version='7.0.0' />
+</package>

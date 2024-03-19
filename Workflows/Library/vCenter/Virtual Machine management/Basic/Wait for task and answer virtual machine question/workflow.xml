@@ -1,0 +1,206 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item0" object-name="Workflow:name=generic" id="B8808080808080808080808080808080C480808001231146624761b79546544c2" version="0.1.0" api-version="6.0.0" allowed-operations="vf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Wait for task and answer virtual machine question]]></display-name>
+  <description><![CDATA[Waits for a vCenter Server task to complete or for the virtual machine to ask a question. If the virtual machine requires an answer, accepts user input and answers the question.]]></description>
+  <position y="10.0" x="180.0"/>
+  <input>
+    <param name="vm" type="VC:VirtualMachine">
+      <description><![CDATA[Virtual machine for which the task runs]]></description>
+    </param>
+    <param name="task" type="VC:Task">
+      <description><![CDATA[Task to await]]></description>
+    </param>
+  </input>
+  <attrib name="questionText" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+    <description><![CDATA[Text of the question asked by the virtual machine]]></description>
+  </attrib>
+  <attrib name="questionAnswer" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+    <description><![CDATA[Selected answer]]></description>
+  </attrib>
+  <attrib name="questionText2" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+    <description><![CDATA[Text to prompt user choice]]></description>
+  </attrib>
+  <attrib name="answerList" type="Array/string" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+    <description><![CDATA[List of possible answers]]></description>
+  </attrib>
+  <attrib name="questionId" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+    <description><![CDATA[Identifier of the question asked]]></description>
+  </attrib>
+  <attrib name="choiceList" type="Array/Any" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+    <description><![CDATA[List of answer elements (IDs and texts)]]></description>
+  </attrib>
+  <attrib name="taskActionResult" type="Any" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+    <description><![CDATA[Result of the task to await action]]></description>
+  </attrib>
+  <attrib name="progress" type="boolean" read-only="false">
+    <value encoded="n"><![CDATA[true]]></value>
+    <description><![CDATA[Log progress while waiting for the task to complete]]></description>
+  </attrib>
+  <attrib name="pollRate" type="number" read-only="false">
+    <value encoded="n"><![CDATA[1.0]]></value>
+    <description><![CDATA[Polling rate for the task state, in seconds]]></description>
+  </attrib>
+  <attrib name="timeoutDate" type="Date" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+    <description><![CDATA[If not set to null, this input item waits until the specified date and continues the workflow run]]></description>
+  </attrib>
+  <workflow-note x="500.0" y="50.0" w="360.0" h="260.0">
+    <description><![CDATA[VM requires answer
+]]></description>
+  </workflow-note>
+  <workflow-item name="item2" type="end" end-mode="0">
+    <position y="250.0" x="380.0"/>
+  </workflow-item>
+  <workflow-item name="item4" out-name="item5" type="input">
+    <display-name><![CDATA[Reply to VM]]></display-name>
+    <in-binding>
+      <bind name="security.group" type="LdapGroup" explicitly-not-bound="true" export-name="NULL">
+        <description><![CDATA[Any user member of this security group will be authorized to answer this 'Input']]></description>
+      </bind>
+      <bind name="timeout.date" type="Date" export-name="timeoutDate">
+        <description><![CDATA[If not null, this input item will wait until date and will continue workflow execution.]]></description>
+      </bind>
+      <bind name="questionText" type="string" export-name="questionText"/>
+      <bind name="questionText2" type="string" export-name="questionText2"/>
+    </in-binding>
+    <out-binding>
+      <bind name="questionAnswer" type="string" export-name="questionAnswer"/>
+    </out-binding>
+    <presentation>
+      <desc><![CDATA[${questionText}]]></desc>
+      <p-param name="questionAnswer">
+        <desc><![CDATA[${questionText2}
+]]></desc>
+        <p-qual kind="ognl" name="linkedEnumeration" type="Array/string"><![CDATA[#answerList]]></p-qual>
+        <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+    </presentation>
+    <position y="140.0" x="540.0"/>
+  </workflow-item>
+  <workflow-item name="item5" out-name="item3" type="task">
+    <display-name><![CDATA[Send answer to VM]]></display-name>
+    <script encoded="false"><![CDATA[// The user has selected a response, now we need to convert it back from the label to the key because the answerVM requires the key 
+var theAnswer;
+for (i in choiceList) {
+	if (choiceList[i].label == questionAnswer){
+		theAnswer = choiceList[i].key;
+		System.log("Answer selected: "  + choiceList[i].key + " (The text the user selected was: " + questionAnswer + ")");
+		break;
+	}
+}
+
+vm.answerVM(questionId , theAnswer);]]></script>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+      <bind name="questionAnswer" type="string" export-name="questionAnswer"/>
+      <bind name="questionId" type="string" export-name="questionId"/>
+      <bind name="choiceList" type="Array/Any" export-name="choiceList"/>
+      <bind name="pollRate" type="number" export-name="pollRate"/>
+    </in-binding>
+    <out-binding/>
+    <position y="200.0" x="540.0"/>
+  </workflow-item>
+  <workflow-item name="item6" out-name="item4" type="task">
+    <display-name><![CDATA[Set question text]]></display-name>
+    <script encoded="false"><![CDATA[// Set text to display in user interaction
+var question = vm.runtime.question;
+
+questionId = question.id;
+
+questionText = question.text;
+questionText2 = "Please choose: " + "\n";
+
+// Set array of valid answers
+choiceList=question.choice.choiceInfo;
+// Set array of texts to display in presentation allowing user to choose response 
+answerList = new Array();	
+for (i in choiceList) {
+	answerList.push(choiceList[i].label);
+}
+]]></script>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+    </in-binding>
+    <out-binding>
+      <bind name="questionText" type="string" export-name="questionText"/>
+      <bind name="questionText2" type="string" export-name="questionText2"/>
+      <bind name="answerList" type="Array/string" export-name="answerList"/>
+      <bind name="questionId" type="string" export-name="questionId"/>
+      <bind name="choiceList" type="Array/Any" export-name="choiceList"/>
+    </out-binding>
+    <position y="80.0" x="540.0"/>
+  </workflow-item>
+  <workflow-item name="item0" out-name="item1" type="task" script-module="com.vmware.library.vc.basic/WaitTaskEndOrVMQuestion">
+    <display-name><![CDATA[WaitTaskEndOrVMQuestion]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vc.basic").WaitTaskEndOrVMQuestion(task,progress,pollRate,vm) ;]]></script>
+    <in-binding>
+      <bind name="task" type="VC:Task" export-name="task">
+        <description><![CDATA[Task to Wait for]]></description>
+      </bind>
+      <bind name="progress" type="boolean" export-name="progress">
+        <description><![CDATA[Log progess while waiting for the task]]></description>
+      </bind>
+      <bind name="pollRate" type="number" export-name="pollRate">
+        <description><![CDATA[Polling rate for the task state [seconds]]]></description>
+      </bind>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Any" export-name="taskActionResult"/>
+    </out-binding>
+    <description><![CDATA[Wait for a VC Task to end or for the VM to ask a question.
+Return the task result or the question asked. ]]></description>
+    <position y="80.0" x="140.0"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item6" type="custom-condition" alt-out-name="item2">
+    <display-name><![CDATA[VM Question?]]></display-name>
+    <script encoded="false"><![CDATA[if (taskActionResult instanceof VcVirtualMachineQuestionInfo){
+	return true;
+}
+else {
+	return false;
+}]]></script>
+    <in-binding>
+      <bind name="taskActionResult" type="Any" export-name="taskActionResult"/>
+    </in-binding>
+    <position y="70.0" x="340.0"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item2" type="task" script-module="com.vmware.library.vc.basic/vim3WaitTaskEnd">
+    <display-name><![CDATA[vim3WaitTaskEnd]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vc.basic").vim3WaitTaskEnd(task,progress,pollRate) ;]]></script>
+    <in-binding>
+      <bind name="task" type="VC:Task" export-name="task">
+        <description><![CDATA[Task to Wait for]]></description>
+      </bind>
+      <bind name="progress" type="boolean" export-name="progress">
+        <description><![CDATA[Log progess while waiting for the task]]></description>
+      </bind>
+      <bind name="pollRate" type="number" export-name="pollRate">
+        <description><![CDATA[Polling rate for the task state [seconds]]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Any" export-name="taskActionResult"/>
+    </out-binding>
+    <description><![CDATA[Wait for a VC Task to end.
+When task ended, return the task result if any. ]]></description>
+    <position y="260.0" x="540.0"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="vm">
+      <desc><![CDATA[Virtual machine for which the task runs]]></desc>
+    </p-param>
+    <p-param name="task">
+      <desc><![CDATA[Task to await]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

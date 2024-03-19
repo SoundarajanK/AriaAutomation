@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<package>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='991f08af-17d4-42b0-b94a-32f82a5314f4'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='d226f393-3956-4a6c-bcd9-89572658a446'&dunesName='Action'&name='createSnapshot_Copy'&category='com.vmware.library.vc.vm.snapshot']]></elm>
+<used-plugin name='VC' version='7.0.0' />
+</package>

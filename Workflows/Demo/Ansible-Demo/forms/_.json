@@ -1,0 +1,1 @@
+{"schema":{"cmd":{"id":"cmd","type":{"dataType":"string"},"label":"cmd","constraints":{"required":false}}},"layout":{"pages":[{"id":"page_b0st4iyf","title":"General","sections":[{"id":"section_c2nkj7sv","fields":[{"id":"cmd","display":"textField","signpostPosition":"right-middle","state":{"visible":true,"read-only":false}}]}]}]},"itemId":""}

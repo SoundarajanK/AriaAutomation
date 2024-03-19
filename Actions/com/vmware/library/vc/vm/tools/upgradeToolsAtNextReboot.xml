@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="upgradeToolsAtNextReboot" result-type="VC:Task" api-version="6.0.0" id="d52568f1-6094-4911-9863-4716d4f7aa8e" version="0.1.1" allowed-operations="vf" category-name="com.vmware.library.vc.vm.tools">
+  <description><![CDATA[Deprecated: use updateToolsOnWindowsVirtualMachineWithoutRebooting
+
+Upgrade vm tools at next reboot]]></description>
+  <param n="vm" t="VC:VirtualMachine"/>
+  <script encoded="false"><![CDATA[task = vm.upgradeTools_Task('/s /v"/qn REBOOT=ReallySuppress"');
+return task;]]></script>
+</dunes-script-module>

@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="revertToCurrentSnapshot" result-type="VC:Task" api-version="6.0.0" id="4f6469b4-c900-4738-8565-568352a2a1cc" version="0.2.0" allowed-operations="vf" category-name="com.vmware.library.vc.vm.snapshot">
+  <description><![CDATA[Reverts the virtual machine to the current snapshot. This is equivalent to doing snapshot.currentSnapshot.revert.
+If no snapshot exists, then the operation does nothing, and the virtual machine state remains unchanged.]]></description>
+  <param n="vm" t="VC:VirtualMachine"><![CDATA[The VM to revert to the current snapshot]]></param>
+  <param n="host" t="VC:HostSystem"><![CDATA[Choice of host for the virtual machine, in case this operation causes the virtual machine to power on. ]]></param>
+  <script encoded="false"><![CDATA[if (vm == null) {
+	throw "ReferenceError: VM cannot be null";
+}
+return vm.revertToCurrentSnapshot_Task(host);]]></script>
+</dunes-script-module>

@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="ThalesDemo" result-type="string" api-version="6.0.0" id="7f6d860e-a291-49b2-880c-7fadf2db0679" version="0.0.0" category-name="com.vmware.library.powershell" memory-limit="512000000">
+  <runtime><![CDATA[powercli:11-powershell-6.2]]></runtime>
+  <script encoded="false"><![CDATA[function Handler($context, $inputs) {
+    $connection = Set-PowerCLIConfiguration -InvalidCertificateAction Ignore -ParticipateInCeip:$false -Scope Session -Confirm:$false
+
+    Write-Host "Connecting to vCenter"
+
+    $connect = Connect-VIServer -Server s360srv001.eng.vmware.com -Protocol https -User administrator@vsphere.local  -Password L@bS360#1!
+
+    Write-Host "Connected to vCenter"
+
+    Write-Host "Get the list of VMs"
+
+    Get-VM 
+    ##-Name EMERSONVM003
+
+    Write-Host $_.Name
+
+    ##Get-VM | Sort-Object Name | foreach {
+
+      ##  Write-Host $_.Name
+    ##}
+    $value | Format-Table | Out-Host 
+    Write-Host $output
+    return $connect, $connection
+
+    return $output
+}
+]]></script>
+</dunes-script-module>

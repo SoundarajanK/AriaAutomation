@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item1" object-name="workflow:name=generic" id="35659258-921d-4826-a3e6-bc81ad9f88c7" editor-version="2.0" version="0.0.0" api-version="6.0.0" restartMode="1" resumeFromFailedMode="0">
+    <display-name>Properties Array test</display-name>
+    <position y="50.0" x="100.0"/>
+    <input/>
+    <output/>
+    <attrib name="var_Prop" type="Properties">
+        <value encoded="n">{}</value>
+    </attrib>
+    <workflow-item name="item0" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="50.0" x="460.0"/>
+    </workflow-item>
+    <workflow-item name="item1" out-name="item0" type="task" comparator="0">
+        <display-name>Scriptable task</display-name>
+        <script encoded="false">var in_targetsystem = new String();&#13;
+in_targetsystem = ["system1", "system2", "system3"]&#13;
+&#13;
+var vmProps = new Properties();&#13;
+for (var i in in_targetsystem) {&#13;
+    var vmDetail = new Properties();&#13;
+    &#13;
+    vmDetail.put("name", in_targetsystem[i]);&#13;
+    vmDetail.put("FQDN", in_targetsystem[i] + ".s360.lab");&#13;
+    vmDetail.put("tagname", "cg-" + in_targetsystem[i]);&#13;
+    var_Prop.put(i, vmDetail);&#13;
+    &#13;
+    &#13;
+&#13;
+}</script>
+        <in-binding>
+            <bind name="var_Prop" type="Properties" export-name="var_Prop"/>
+        </in-binding>
+        <out-binding>
+            <bind name="var_Prop" type="Properties" export-name="var_Prop"/>
+        </out-binding>
+        <description>Simple task with custom script capability.</description>
+        <position y="60.0" x="220.0"/>
+    </workflow-item>
+</ns2:workflow>

@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item2" object-name="workflow:name=generic" id="0759496c-6a48-4991-bb1a-ec4624282983" version="0.0.1" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[enforceRejectForgedTrans]]></display-name>
+  <description><![CDATA[This workflow will set your ESXi Host vSS Networking to comply with the vSphere Security Hardening Guide alerts in vRealize Operations 7.0.  The following settings are modified:
+
+- For each vSS connected to the host, set "Forged transmits" to "Reject"
+
+This addresses the following compliance symptoms:
+
+-RP 1,2,3 - vNetwork.reject-forged-transmit-StandardSwitch - Forged Transmits policy is not set to reject
+
+Note that the vROps symptom above is for vSS only, and as such only standard switches are updated with this workflow.]]></description>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="host" type="VC:HostSystem"/>
+  </input>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="524.5"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item0" type="task">
+    <display-name><![CDATA[Update standard virtual switch]]></display-name>
+    <script encoded="false"><![CDATA[var vSwitches = host.configManager.networkSystem.networkInfo.vswitch
+for each (vSwitch in vSwitches) {
+	spec = vSwitch.spec
+	spec.policy.security.forgedTransmits = false;
+
+	var myVcHostNetworkConfigResult = host.configManager.networkSystem.updateVirtualSwitch(vSwitch.name, spec);
+}]]></script>
+    <in-binding>
+      <bind name="host" type="VC:HostSystem" export-name="host"/>
+    </in-binding>
+    <out-binding/>
+    <position y="55.40909090909091" x="244.5"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="host">
+      <desc><![CDATA[host]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

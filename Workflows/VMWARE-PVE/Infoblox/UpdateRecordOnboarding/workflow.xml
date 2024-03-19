@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item1" object-name="workflow:name=generic" id="b4f1a232-725a-4ffb-8786-5b56700b1bfb" editor-version="2.0" version="0.0.2" api-version="6.0.0" allowed-operations="vfe" restartMode="1" resumeFromFailedMode="0">
+    <display-name>UpdateRecordOnboarding</display-name>
+    <position y="50.0" x="100.0"/>
+    <input>
+        <param name="inputProperties" type="Properties"/>
+    </input>
+    <output/>
+    <attrib name="machineList" type="Array/Properties">
+        <value encoded="n">[]</value>
+    </attrib>
+    <attrib name="vraHost" type="VRA:Host">
+        <value encoded="n">dunes://service.dunes.ch/CustomSDKObject?id='_2hpPPffQ3acc6DoZZ3oBw'&amp;dunesName='VRA:Host'</value>
+    </attrib>
+    <workflow-item name="item0" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="50.0" x="980.0"/>
+    </workflow-item>
+    <workflow-item name="item1" out-name="item4" type="task" comparator="0">
+        <display-name>Pares Inputs</display-name>
+        <script encoded="false">System.log('Parse Inputs')
+
+var deploymentId = System.getContext().getParameter("__metadata_targetId");
+
+System.log('Deployment ID: ' + deploymentId);
+
+var restClient = vraHost.createRestClient();
+var pathUri = "/deployment/api/deployments/" + deploymentId + "?expand=blueprint&amp;expand=catalog&amp;expand=lastRequest&amp;expand=project&amp;expand=resources"
+var request = restClient.createRequest("GET", pathUri);
+var response = restClient.execute(request);
+
+
+System.log(pathUri);
+System.log("REST Response Status code: " + response.statusCode);
+System.log("Status Message: " + response.statusMessage);
+System.debug("Content as string: " + response.contentAsString);
+
+if (response.statusCode == 200 ){
+    //System.log(response.contentAsString);
+    var deploymentObjStr = response.contentAsString;
+    var deploymentData = JSON.parse(response.contentAsString);
+
+}else{
+    System.error("Failed to Get Deployment Details");
+    throw new Error("Failed to Get Deployment Details for Deployment " + deploymentId );
+}
+
+var machineList = [];
+for each (var thisMachine in deploymentData['resources']){
+    System.log(JSON.stringify(thisMachine));
+    if (thisMachine['type'] == 'Cloud.vSphere.Machine'){
+        var machineObj = {};
+        machineObj['name'] = thisMachine['properties']['resourceName'];
+        machineObj['id'] = thisMachine['id']
+        machineList.push(machineObj);
+    }   
+}
+</script>
+        <in-binding>
+            <bind name="inputProperties" type="Properties" export-name="inputProperties"/>
+            <bind name="vraHost" type="VRA:Host" export-name="vraHost"/>
+        </in-binding>
+        <out-binding>
+            <bind name="machineList" type="Array/Properties" export-name="machineList"/>
+        </out-binding>
+        <description>Simple task with custom script capability.</description>
+        <position y="60.0" x="200.0"/>
+    </workflow-item>
+    <workflow-item name="item4" out-name="item0" type="foreach" comparator="0">
+        <display-name>UpdateInfobloxHostRecord</display-name>
+        <in-binding>
+            <bind name="machineObj" type="Array/Properties" export-name="*machineList"/>
+        </in-binding>
+        <out-binding/>
+        <reference id="261289fa-ec72-474c-ab83-774039d2d9ca" type="Workflow"/>
+        <position y="60.0" x="500.0"/>
+    </workflow-item>
+</ns2:workflow>

@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="37405753-9ce9-4f33-b3e5-4827ce7fbf7b" version="0.0.1" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[enforceHostImage]]></display-name>
+  <description><![CDATA[This workflow will set your ESXi Host Image Acceptance Level to comply with the vSphere Security Hardening Guide alerts in vRealize Operations 7.0.  The following settings are modified:
+
+- Sets software acceptance level to that specified by attribute "hostAcceptanceLevel"
+
+There are three symptom checks, for RP 1, 2 and 3.  This workflow can respond to any of them but will always set according to the user configured value.  You should set the "hostAcceptanceLevel" to match the vROps Risk Profile you have selected.
+RP 1 - "VMware Certified"
+RP 2 - "VMware Accepted"
+RP 3 - "Partner Supported"
+
+This addresses the following compliance symptoms:
+- RP 1,2,3 - ESXi.verify-acceptance-level-supported - Image Profile and VIB Acceptance Levels are none of VMware Certified, VMware Accepted or Partner Supported
+- (if configured) RP 2 - ESXi.verify-acceptance-level-accepted - Image Profile and VIB Acceptance Levels are neither either VMware Certified nor VMware Accepted
+- (if configured) RP 1 - ESXi.verify-acceptance-level]]></description>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="host" type="VC:HostSystem"/>
+  </input>
+  <attrib name="hostAcceptanceLevel" type="string" read-only="false" conf-id="5477703e-f0be-4626-b3c1-d78d94fcf99b" conf-key="hostImageAcceptanceLevel">
+    <value encoded="n"><![CDATA[retry=3 min=disabled,disabled,disabled,7,7]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="384.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item0" type="task">
+    <display-name><![CDATA[Set Host Image Acceptance Level]]></display-name>
+    <script encoded="false"><![CDATA[optionManager = host.configManager.imageConfigManager;
+
+optionManager.updateHostImageAcceptanceLevel(hostAcceptanceLevel);
+
+
+
+
+
+
+
+]]></script>
+    <in-binding>
+      <bind name="host" type="VC:HostSystem" export-name="host"/>
+      <bind name="hostAcceptanceLevel" type="string" export-name="hostAcceptanceLevel"/>
+    </in-binding>
+    <out-binding/>
+    <position y="55.40909090909091" x="204.5"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="host">
+      <desc><![CDATA[host]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

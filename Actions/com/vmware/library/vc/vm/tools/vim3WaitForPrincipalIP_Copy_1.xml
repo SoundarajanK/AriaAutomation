@@ -1,0 +1,60 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="vim3WaitForPrincipalIP_Copy_1" result-type="string" api-version="6.0.0" id="edeaca49-9aae-494f-ad3d-b8cca24a35f9" version="0.2.0" category-name="com.vmware.library.vc.vm.tools">
+  <description><![CDATA[Return IP if found. Else return empty string.
+Exception:
+- Timeout: timeout reached]]></description>
+  <param n="vm" t="VC:VirtualMachine"><![CDATA[VM to wait for IP]]></param>
+  <param n="timeout" t="number"><![CDATA[Timeout for the operation [min]]]></param>
+  <param n="interval" t="number"><![CDATA[Interval for polling rate [s]]]></param>
+  <script encoded="false"><![CDATA[if (vm == null) throw "ReferenceError: vm is not defined for waiting for the DNS name";
+if (vm.name == null) throw "ReferenceError: vm is not initialized for waiting for the DNS name";
+timeout = timeout * 60;
+// wait the tools are up and Ok or Old
+while (true) {
+	if (vm.guest != null) {
+		if (vm.guest.toolsStatus != null && vm.guest.toolsStatus == VcVirtualMachineToolsStatus.toolsOk) {
+			System.log("toolsOK");
+		}
+		if (vm.guest.toolsStatus != null && vm.guest.toolsStatus == VcVirtualMachineToolsStatus.toolsOld) {
+			System.log("toolsOld");
+		}
+		if (vm.guest.toolsStatus != null && (vm.guest.toolsStatus == VcVirtualMachineToolsStatus.toolsOk || vm.guest.toolsStatus == VcVirtualMachineToolsStatus.toolsOld)) {
+			if (vm.guest.guestState == "running") {
+				break;
+			}
+		}
+	}
+	else {
+		System.log("vm.guest is null");
+	}	
+
+	// wait the poolingRate
+	System.sleep(interval*1000);
+	// test timeout
+	timeout -= interval;
+	if (timeout <= 0) {
+		throw "Timeout: Timout waiting for tools to be started on a running OS";
+	}
+}
+
+System.log("VMware tools on VM " + vm.name + " are in state: " + vm.guest.toolsStatus + " and guest is " + vm.guest.guestState);
+
+while(timeout >0){
+	var primaryIpAddress;
+	if (vm != null && vm.summary != null && vm.summary.guest != null)
+		primaryIpAddress = vm.summary.guest.ipAddress;
+	if ((primaryIpAddress != null) && (primaryIpAddress != "")) {
+		System.log("Found '"+primaryIpAddress+"' as principal address");
+		return primaryIpAddress;
+		}
+	else {
+		System.log("Waiting on principal IP for vm '"+vm.name+"'");
+	}
+	System.sleep(interval*1000);
+	// test timeout
+	timeout -= interval;
+	if (timeout <= 0) {
+		throw "Timeout: Timout waiting for IP address on VM " + vm.name;
+	}
+}]]></script>
+</dunes-script-module>

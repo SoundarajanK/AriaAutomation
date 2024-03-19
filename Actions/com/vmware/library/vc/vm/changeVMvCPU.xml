@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="changeVMvCPU" result-type="VC:Task" api-version="6.0.0" id="cef73ba3-2c69-4b2a-9180-29edba5bc71f" version="0.1.0" allowed-operations="vf" category-name="com.vmware.library.vc.vm">
+  <description><![CDATA[Change the number of vCPUs in the VM.]]></description>
+  <param n="vm" t="VC:VirtualMachine"><![CDATA[The VM to change]]></param>
+  <param n="vcpu" t="number"><![CDATA[New vCPU number]]></param>
+  <script encoded="false"><![CDATA[var configSpec = new VcVirtualMachineConfigSpec();
+configSpec.numCPUs = vcpu;
+var task = vm.reconfigVM_Task( configSpec );
+return task;
+]]></script>
+</dunes-script-module>

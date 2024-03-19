@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getVirtualMachineByExternalRefId" result-type="vCAC:Entity" api-version="6.0.0" id="69cf40a5-f2be-4a07-990d-67327cda0a7a" version="2.0.0" allowed-operations="vf" category-name="com.vmware.library.vcac">
+  <description><![CDATA[Gets a virtual machine entity filtered by its ExternalReferenceId property.]]></description>
+  <param n="host" t="vCAC:VCACHost"><![CDATA[vCAC host]]></param>
+  <param n="uniqueId" t="string"><![CDATA[VM unique Id]]></param>
+  <script encoded="false"><![CDATA[if (uniqueId == null) {
+	return null;
+}
+var modelName = 'ManagementModelEntities.svc';
+var entitySetName = 'VirtualMachines';
+//421d3de5-bd45-4afe-9038-6db417f27b38
+var filter = "ExternalReferenceId eq '" + uniqueId + "'";
+var orderBy = null;
+var top = 1;
+var skip = 0;
+var headers = null;
+var select = null;
+
+var entities = vCACEntityManager.readModelEntitiesBySystemQuery(host.id, modelName, entitySetName, filter, orderBy, select,
+top, skip, headers);
+
+if (entities.length > 0) {
+	return entities[0];
+}
+
+return null;
+
+
+]]></script>
+</dunes-script-module>

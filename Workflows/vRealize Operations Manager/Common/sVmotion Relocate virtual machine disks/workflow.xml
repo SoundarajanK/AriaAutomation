@@ -1,0 +1,116 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item0" object-name="Workflow:name=generic" id="978eaa4a-1b33-40df-b929-6909e84cd9d2" version="0.2.1" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[sVmotion Relocate virtual machine disks]]></display-name>
+  <description><![CDATA[Relocates virtual machine disks to another host or datastore while the virtual machine is powered off by using the RelocateVM_Task operation from the vSphere API.]]></description>
+  <ref-types><![CDATA[(VC:VirtualMachine)]]></ref-types>
+  <position y="20.0" x="180.0"/>
+  <input>
+    <param name="vm" type="VC:VirtualMachine">
+      <description><![CDATA[Virtual machine to relocate to another host or datastore]]></description>
+    </param>
+    <param name="datastore" type="VC:Datastore">
+      <description><![CDATA[Datastore in which to relocate the virtual machine (optional)]]></description>
+    </param>
+    <param name="host" type="VC:HostSystem">
+      <description><![CDATA[Destination host for the virtual machine (optional)]]></description>
+    </param>
+    <param name="pool" type="VC:ResourcePool">
+      <description><![CDATA[Resource pool to which to attach the virtual machine (Optional)]]></description>
+    </param>
+    <param name="transform" type="VC:VirtualMachineRelocateTransformation">
+      <description><![CDATA[Transformation to perform on the disks (optional)]]></description>
+    </param>
+  </input>
+  <attrib name="task" type="VC:Task" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+    <description><![CDATA[Task to await]]></description>
+  </attrib>
+  <attrib name="progress" type="boolean" read-only="false">
+    <value encoded="n"><![CDATA[false]]></value>
+    <description><![CDATA[Log progress while waiting for the task to complete]]></description>
+  </attrib>
+  <attrib name="pollRate" type="number" read-only="false">
+    <value encoded="n"><![CDATA[1.0]]></value>
+    <description><![CDATA[Polling rate for the task state, in seconds]]></description>
+  </attrib>
+  <attrib name="movePriority" type="VC:VirtualMachineMovePriority" read-only="false">
+    <value encoded="n"><![CDATA[dunes://service.dunes.ch/CustomSDKObject?id='defaultPriority'&dunesName='VC:VirtualMachineMovePriority']]></value>
+    <description><![CDATA[Priority of move operation; edit the Relocate VM script to set the priority]]></description>
+  </attrib>
+  <workflow-item name="item0" out-name="item1" type="task">
+    <display-name><![CDATA[Relocate VM]]></display-name>
+    <script encoded="false"><![CDATA[var relocateSpec = new VcVirtualMachineRelocateSpec();
+if (datastore != null)
+	relocateSpec.datastore = datastore.reference;
+relocateSpec.disk = null;
+if (host != null)
+	relocateSpec.host = host.reference;
+if (pool != null) 
+	relocateSpec.pool = pool.reference;
+if (transform != null)
+	relocateSpec.transform = VcVirtualMachineRelocateTransformation.fromString(transform.name);
+
+// Commented because breaking VC 2.5 compatibility
+//if (movePriority != null)
+//	var priority = VcVirtualMachineMovePriority.fromString(movePriority.name);
+
+task = vm.relocateVM_Task(relocateSpec); //, priority);]]></script>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+      <bind name="transform" type="VC:VirtualMachineRelocateTransformation" export-name="transform"/>
+      <bind name="pool" type="VC:ResourcePool" export-name="pool"/>
+      <bind name="host" type="VC:HostSystem" export-name="host"/>
+      <bind name="datastore" type="VC:Datastore" export-name="datastore"/>
+      <bind name="movePriority" type="VC:VirtualMachineMovePriority" export-name="movePriority"/>
+    </in-binding>
+    <out-binding>
+      <bind name="task" type="VC:Task" export-name="task"/>
+    </out-binding>
+    <position y="140.0" x="140.0"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item2" type="task" script-module="com.vmware.library.vc.basic/vim3WaitTaskEnd">
+    <display-name><![CDATA[vim3WaitTaskEnd]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vc.basic").vim3WaitTaskEnd(task,progress,pollRate) ;]]></script>
+    <in-binding>
+      <bind name="task" type="VC:Task" export-name="task">
+        <description><![CDATA[Task to Wait for]]></description>
+      </bind>
+      <bind name="progress" type="boolean" export-name="progress">
+        <description><![CDATA[Log progess while waiting for the task]]></description>
+      </bind>
+      <bind name="pollRate" type="number" export-name="pollRate">
+        <description><![CDATA[Polling rate for the task state [seconds]]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Any" explicitly-not-bound="true" export-name="NULL"/>
+    </out-binding>
+    <description><![CDATA[Wait a VIM 3 Task to end.
+When task ended, return the ]]></description>
+    <position y="200.0" x="140.0"/>
+  </workflow-item>
+  <workflow-item name="item2" type="end" end-mode="0">
+    <position y="264.09090909090907" x="185.0"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="vm">
+      <desc><![CDATA[Virtual machine to relocate. 
+To migrate both the disks and the VM at the same time, the VM must be powered off]]></desc>
+      <p-qual name="mandatory"><![CDATA[true]]></p-qual>
+      <p-qual name="contextualParameter"><![CDATA[]]></p-qual>
+    </p-param>
+    <p-param name="datastore">
+      <desc><![CDATA[Datastore in which to relocate the virtual machine (optional)]]></desc>
+    </p-param>
+    <p-param name="host">
+      <desc><![CDATA[Destination host for the virtual machine (optional)]]></desc>
+    </p-param>
+    <p-param name="pool">
+      <desc><![CDATA[Resource pool to which to attach the virtual machine (optional)]]></desc>
+    </p-param>
+    <p-param name="transform">
+      <desc><![CDATA[Transformation to perform on the disks (optional)]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

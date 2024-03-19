@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getCurrentDateInISOFormat" result-type="string" api-version="6.0.0" id="e053fdb5-e6a7-464e-af6a-9b9629df8ba6" version="1.0.0" allowed-operations="vfe" category-name="actions.mayank.goyal">
+  <script encoded="false"><![CDATA[//Desired Format 2016-06-14T00:00:00.000+03:00
+var date = new Date();
+System.log("Current Date: "+date.toGMTString());
+//yy=date.getFullYear().toString().substr(2,2);
+var yyyy = date.getFullYear();
+var mm = (date.getMonth() + 1 < 10 ? "0" : "") + (date.getMonth() + 1);
+var dd = (date.getDate() < 10 ? "0" : "") + date.getDate();
+var HH = (date.getHours() < 10 ? "0" : "") + date.getHours();
+var MM = (date.getMinutes() < 10 ? "0" : "") + date.getMinutes();
+var SS = (date.getSeconds() < 10 ? "0" : "") + date.getSeconds();
+var milli = "";
+if (date.getMilliseconds() < 10)
+    milli = "00" + date.getMilliseconds();
+else if (date.getMilliseconds() < 100 && date.getMilliseconds() > 10)
+    milli = "0" + date.getMilliseconds();
+else
+    milli = date.getMilliseconds();
+System.log(yyyy + "-" + mm + "-" + dd + "T" + HH + ":" + MM + ":" + SS + "." + milli + "+00:00");
+return (yyyy + "-" + mm + "-" + dd + "T" + HH + ":" + MM + ":" + SS + "." + milli + "+00:00");]]></script>
+</dunes-script-module>

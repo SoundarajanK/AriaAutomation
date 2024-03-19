@@ -1,0 +1,231 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item16" object-name="Workflow:name=generic" id="75ae2e87-27a4-4331-a5dd-5f2b81aad4f9" version="0.0.5" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[vRO Remove Host]]></display-name>
+  <description><![CDATA[Removes a host from vCenter.]]></description>
+  <position y="0.0" x="5.0"/>
+  <input>
+    <param name="correlationId" type="string"/>
+    <param name="targetId" type="string"/>
+    <param name="targetvCenteruuid" type="string"/>
+  </input>
+  <output>
+    <param name="STATUS" type="string"/>
+  </output>
+  <attrib name="removingHost" type="string" read-only="false">
+    <value encoded="n"><![CDATA[Removing the host from vCenter...]]></value>
+    <description><![CDATA[Message when starting to remove Host]]></description>
+  </attrib>
+  <attrib name="hostRemoved" type="string" read-only="false">
+    <value encoded="n"><![CDATA[Host successfully removed from vCenter]]></value>
+    <description><![CDATA[Success Message]]></description>
+  </attrib>
+  <attrib name="hostEvent" type="string" read-only="false">
+    <value encoded="n"><![CDATA[Remove Host from vCenter]]></value>
+    <description><![CDATA[VR Ops Event]]></description>
+  </attrib>
+  <attrib name="hostName" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+    <description><![CDATA[name of the host being Removed]]></description>
+  </attrib>
+  <attrib name="severity" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+    <description><![CDATA[Severity of the current task (from VR Ops point of view)]]></description>
+  </attrib>
+  <attrib name="host" type="VC:HostSystem" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+    <description><![CDATA[Host to remove from vCenter]]></description>
+  </attrib>
+  <attrib name="errorCode" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+    <description><![CDATA[Error returned by Remove Host wokflow]]></description>
+  </attrib>
+  <attrib name="eventDetails" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+    <description><![CDATA[Customized Event Details]]></description>
+  </attrib>
+  <workflow-item name="item2" type="end" end-mode="0">
+    <position y="245.40909090909088" x="944.5"/>
+  </workflow-item>
+  <workflow-item name="item8" out-name="item2" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="hostEvent"/>
+      <bind name="eventDetails" type="string" export-name="hostRemoved"/>
+      <bind name="CorrelationId" type="string" export-name="correlationId"/>
+      <bind name="targetVMName" type="string" export-name="hostName"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="100.86363636363636" x="904.5"/>
+  </workflow-item>
+  <workflow-item name="item9" out-name="item13" type="task">
+    <display-name><![CDATA[Get Host name]]></display-name>
+    <script encoded="false"><![CDATA[hostName = host.name;
+
+System.log("Found host: " + hostName);]]></script>
+    <in-binding>
+      <bind name="host" type="VC:HostSystem" export-name="host"/>
+    </in-binding>
+    <out-binding>
+      <bind name="hostName" type="string" export-name="hostName"/>
+    </out-binding>
+    <position y="9.954545454545453" x="364.5"/>
+  </workflow-item>
+  <workflow-item name="item12" out-name="item14" type="task">
+    <display-name><![CDATA[Set Severity Level]]></display-name>
+    <script encoded="false"><![CDATA[severity = "error";
+STATUS = "Failed"
+eventDetails = "An error occurred Removing the Host:  " + errorCode;
+System.log("severity is " + severity);]]></script>
+    <in-binding>
+      <bind name="errorCode" type="string" export-name="errorCode"/>
+    </in-binding>
+    <out-binding>
+      <bind name="severity" type="string" export-name="severity"/>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails">
+        <description><![CDATA[Customized Event Details]]></description>
+      </bind>
+    </out-binding>
+    <position y="209.95454545454544" x="644.5"/>
+  </workflow-item>
+  <workflow-item name="item11" out-name="item8" type="task">
+    <display-name><![CDATA[Set Severity Level]]></display-name>
+    <script encoded="false"><![CDATA[severity = "info";
+STATUS = "Success"]]></script>
+    <in-binding/>
+    <out-binding>
+      <bind name="severity" type="string" export-name="severity"/>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+    </out-binding>
+    <position y="100.86363636363636" x="764.5"/>
+  </workflow-item>
+  <workflow-item name="item13" out-name="item7" type="task">
+    <display-name><![CDATA[Set Severity Level]]></display-name>
+    <script encoded="false"><![CDATA[severity = "info";
+STATUS = 'Running';
+]]></script>
+    <in-binding/>
+    <out-binding>
+      <bind name="severity" type="string" export-name="severity"/>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+    </out-binding>
+    <position y="9.954545454545453" x="504.5"/>
+  </workflow-item>
+  <workflow-item name="item7" out-name="item3" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="hostEvent"/>
+      <bind name="eventDetails" type="string" export-name="removingHost"/>
+      <bind name="CorrelationId" type="string" export-name="correlationId"/>
+      <bind name="targetVMName" type="string" export-name="hostName"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="9.954545454545453" x="644.5"/>
+  </workflow-item>
+  <workflow-item name="item14" out-name="item2" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="hostEvent"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="CorrelationId" type="string" export-name="correlationId"/>
+      <bind name="targetVMName" type="string" export-name="hostName"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="209.95454545454544" x="764.5"/>
+  </workflow-item>
+  <workflow-item name="item16" out-name="item1" type="link" linked-workflow-id="94d636e2-34d0-4a9b-b0fb-848c306d4880">
+    <display-name><![CDATA[Find host MOID]]></display-name>
+    <in-binding>
+      <bind name="targetId" type="string" export-name="targetId"/>
+      <bind name="targetvCenteruuid" type="string" export-name="targetvCenteruuid"/>
+    </in-binding>
+    <out-binding>
+      <bind name="host" type="VC:HostSystem" export-name="host"/>
+    </out-binding>
+    <position y="9.954545454545453" x="85.0"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item11" catch-name="item0" throw-bind-name="errorCode" type="link" linked-workflow-id="BD8080808080808080808080808080807FC280800122528313869552e41805bb1">
+    <display-name><![CDATA[Remove host]]></display-name>
+    <in-binding>
+      <bind name="host" type="VC:HostSystem" export-name="host">
+        <description><![CDATA[Host to remove]]></description>
+      </bind>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Removes a host and unregisters it from vCenter Server. If the host is part of a cluster, you must put it in maintenance mode before attempting to remove it.]]></description>
+    <position y="100.86363636363636" x="644.5"/>
+  </workflow-item>
+  <workflow-item name="item0" prototype-id="system-server-error" out-name="item12" type="task" interaction="l">
+    <display-name><![CDATA[System+Server error]]></display-name>
+    <script encoded="false"><![CDATA[//Auto-generated script
+System.error(text + " - " + object);
+Server.error(text, object);
+]]></script>
+    <in-binding>
+      <bind name="text" type="string" export-name="errorCode">
+        <description><![CDATA[The text to log]]></description>
+      </bind>
+      <bind name="object" type="Any" export-name="host">
+        <description><![CDATA[The text to log and additional info]]></description>
+      </bind>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Log the input text to the console and the server log with level 'error']]></description>
+    <position y="155.4090909090909" x="644.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item9" type="custom-condition" alt-out-name="item4">
+    <display-name><![CDATA[Custom decision]]></display-name>
+    <script encoded="false"><![CDATA[return host =! null;]]></script>
+    <in-binding>
+      <bind name="host" type="VC:HostSystem" export-name="host"/>
+    </in-binding>
+    <position y="0.0" x="225.0"/>
+  </workflow-item>
+  <workflow-item name="item4" out-name="item5" type="task">
+    <display-name><![CDATA[Set Severity Level]]></display-name>
+    <script encoded="false"><![CDATA[severity = "error";
+STATUS = "Failed"
+eventDetails = "An error occurred Removing the Host:  host not found";
+System.log("severity is " + severity);]]></script>
+    <in-binding>
+      <bind name="errorCode" type="string" export-name="errorCode"/>
+    </in-binding>
+    <out-binding>
+      <bind name="severity" type="string" export-name="severity"/>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails">
+        <description><![CDATA[Customized Event Details]]></description>
+      </bind>
+    </out-binding>
+    <position y="100.86363636363636" x="224.5"/>
+  </workflow-item>
+  <workflow-item name="item5" out-name="item2" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="hostEvent"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="CorrelationId" type="string" export-name="correlationId"/>
+      <bind name="targetVMName" type="string" export-name="hostName"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="255.40909090909088" x="224.5"/>
+  </workflow-item>
+  <presentation>
+    <p-step>
+      <title><![CDATA[Host]]></title>
+    </p-step>
+    <p-param name="correlationId">
+      <desc><![CDATA[CorrelationId]]></desc>
+    </p-param>
+    <p-param name="targetId">
+      <desc><![CDATA[targetId]]></desc>
+    </p-param>
+    <p-param name="targetvCenteruuid">
+      <desc><![CDATA[targetvCenteruuid]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

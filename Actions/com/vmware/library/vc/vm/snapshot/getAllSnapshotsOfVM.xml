@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getAllSnapshotsOfVM" result-type="Array/VC:VirtualMachineSnapshot" api-version="6.0.0" id="5ccca51f-d5db-4723-bfc3-b1d8ca83893c" version="0.1.0" allowed-operations="vf" category-name="com.vmware.library.vc.vm.snapshot">
+  <description><![CDATA[Get all snapshots for a vm]]></description>
+  <param n="vm" t="VC:VirtualMachine"/>
+  <script encoded="false"><![CDATA[var snapshots = new Array();
+if(vm.snapshot){
+	var snapshotTrees = vm.snapshot.rootSnapshotList;
+	for (i in snapshotTrees){
+		getSnapshotsOfVM(snapshotTrees[i]);
+	}
+}
+return snapshots;
+
+
+function getSnapshotsOfVM(tree) {
+	snapshots.push(tree.snapshot);
+	var trees = tree.childSnapshotList;
+	if (trees != null) {
+		for (index in trees) {
+			if (trees[index] != null)
+				getSnapshotsOfVM(trees[index]);
+		}
+	}
+}
+
+]]></script>
+</dunes-script-module>

@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="ListClusters" result-type="Array/string" api-version="6.0.0" id="1a11617c-ccca-4806-8cf4-946e5fcfb13a" version="1.0.0" category-name="lab.s360" memory-limit="512000000" timeout="180">
+  <runtime><![CDATA[powercli:11-powershell-6.2]]></runtime>
+  <script encoded="false"><![CDATA[function Handler($context, $inputs) {
+  $connection=Connect-VIServer -Server s360srv001.eng.vmware.com -User administrator@vsphere.local -Password 'L@bS360#1!' -force
+  $cluster=get-cluster|select name
+  $clustername=@()
+  $clustername = $cluster.name
+  $as=disconnect-viserver -Server s360srv001.eng.vmware.com -confirm:$False
+  return $clustername
+}
+]]></script>
+</dunes-script-module>

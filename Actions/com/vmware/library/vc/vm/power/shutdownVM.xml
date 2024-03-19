@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="shutdownVM" result-type="void" api-version="6.0.0" id="354f73b6-88fb-424b-b116-a0bad1994835" version="0.3.0" allowed-operations="vf" category-name="com.vmware.library.vc.vm.power">
+  <description><![CDATA[Shuts down the virtual machine's guest OS and waits for a specified period of time before throwing an error if the virtual machine is still not powered off. If the timeout is set to 0, the action does not wait.]]></description>
+  <param n="vm" t="VC:VirtualMachine"/>
+  <param n="timeout" t="number"><![CDATA[Timeout in minutes [min]]]></param>
+  <param n="polling" t="number"><![CDATA[Polling rate in seconds [s]]]></param>
+  <script encoded="false"><![CDATA[if (timeout == null) {
+	timeout = 0;
+}
+timeout *= 60;
+
+vm.shutdownGuest();
+while(true){
+	var status = vm.runtime.powerState.value;
+	if(status == "poweredOff") {
+		break;
+	}
+	if (timeout <= 0) {
+		throw "Timeout: VM '" + vm.name + "' is still powered on";
+	}
+	timeout -= polling;
+	System.sleep(polling * 1000);
+}
+]]></script>
+</dunes-script-module>

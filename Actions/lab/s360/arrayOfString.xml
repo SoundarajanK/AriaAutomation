@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="arrayOfString" result-type="Array/string" api-version="6.0.0" id="1179105d-bdc4-4e3f-ad53-f4c7d33f0de2" version="0.0.0" category-name="lab.s360">
+  <script encoded="false"><![CDATA[var options = new Array();
+
+options.push("dev");
+options.push("tst");
+options.push("uat");
+options.push("prd");
+
+return options;]]></script>
+</dunes-script-module>

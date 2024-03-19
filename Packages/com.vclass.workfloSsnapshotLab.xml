@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<package>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='76b5598b-4b94-4275-8d41-63c102c06fed'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='fecc53e2-6ed3-4203-8efa-a6b5033c3e44'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='8efc8297-a1ab-4734-9f1a-c38e715a0f0d'&dunesName='Action'&name='createSnapshot'&category='com.vmware.library.vc.vm.snapshot']]></elm>
+<used-plugin name='VC' version='6.5.0' />
+</package>

@@ -1,0 +1,70 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item0" object-name="workflow:name=generic" id="7f7efd6c-344e-484d-beb2-6e341d0a4138" version="0.0.3" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Validate CPU Count]]></display-name>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="cpuCount" type="number"/>
+    <param name="correlationId" type="string"/>
+  </input>
+  <output>
+    <param name="status" type="boolean"/>
+  </output>
+  <attrib name="severity" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="eventDetails" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <workflow-item name="item3" type="end" end-mode="0">
+    <position y="45.40909090909091" x="624.5"/>
+  </workflow-item>
+  <workflow-item name="item0" out-name="item1" type="task">
+    <display-name><![CDATA[Scriptable task]]></display-name>
+    <script encoded="false"><![CDATA[status = true; 
+cpuCountStringVal  = "" + cpuCount; 
+
+var wholeNumberPattern = /^\d+$/;
+
+if ( cpuCountStringVal.match( wholeNumberPattern ) == null  ){
+	eventDetails = "cpuCount value is invalid, positive integer required, provided value: [" + cpuCount + "]";
+	status = false; 
+    severity = "error";
+} else{
+    eventDetails = "cpuCount value is valid, provided value: [" + cpuCount + "]";
+	severity = "info";
+}
+
+
+
+]]></script>
+    <in-binding>
+      <bind name="cpuCount" type="number" export-name="cpuCount"/>
+    </in-binding>
+    <out-binding>
+      <bind name="status" type="boolean" export-name="status"/>
+      <bind name="severity" type="string" export-name="severity"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+    </out-binding>
+    <position y="55.40909090909091" x="305.0"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item3" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="eventDetails"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="CorrelationId" type="string" export-name="correlationId"/>
+      <bind name="targetVMName" type="string" explicitly-not-bound="true"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="55.40909090909091" x="444.5"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="cpuCount">
+      <desc><![CDATA[cpuCount]]></desc>
+    </p-param>
+    <p-param name="correlationId">
+      <desc><![CDATA[correlationId]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<package>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='0b772a98-228f-4743-9e15-a7d222a8ab75'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='2a5a8833-dc5c-45c2-8a45-97cf5ac239e4'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='6417dffd-de3b-4109-9fbd-d13be0f94869'&dunesName='Action'&name='startVM'&category='com.vmware.library.vc.vm.power']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='6af61b49-421b-4bf7-89db-e2214df751f0'&dunesName='Action'&name='WaitTaskEndOrVMQuestion'&category='com.vmware.library.vc.basic']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='72e31134-5a07-4f2c-8353-0f49391c0879'&dunesName='Action'&name='forcePowerOff'&category='com.vmware.library.vc.vm.power']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='81808080808080808080808080808080558980800124522604009086868f99767'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='99afccd7-9fcc-4dc2-82b7-586de690364e'&dunesName='Action'&name='vim3WaitTaskEnd'&category='com.vmware.library.vc.basic']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='B8808080808080808080808080808080C480808001231146624761b79546544c2'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='BD8080808080808080808080808080803DC180800122528313869552e41805bb1'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='BD80808080808080808080808080808058C180800122528313869552e41805bb1'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='BD808080808080808080808080808080B8C280800122528313869552e41805bb1'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='BD808080808080808080808080808080CCC280800122528313869552e41805bb1'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='b9242805-c5a6-42d0-b2b4-b759321e086b'&dunesName='Action'&name='vim3WaitToolsStarted'&category='com.vmware.library.vc.vm.tools']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='c7c7f91c-8ab1-45f4-8ce4-3392d4556d7a'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='dab6aeaa-7626-458b-89a8-5ef203ebc104'&dunesName='Action'&name='getRelocateSpec'&category='com.vmware.library.vc.vm.spec']]></elm>
+<used-plugin name='VC' version='7.0.0' />
+</package>

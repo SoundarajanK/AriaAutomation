@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getVMbyName_Copy" result-type="VC:VirtualMachine" api-version="6.0.0" id="75a7a55a-07ba-4f85-9e88-60501293e6d0" version="0.0.0" category-name="lab.s360">
+  <param n="name" t="VC:VirtualMachine"><![CDATA[Name of the VM you are searching for]]></param>
+  <script encoded="false"><![CDATA[var allVms = VcPlugin.getAllVirtualMachines();
+
+for (var i in allVms) {
+    if (allVms[i].name == name) {
+        System.log("VM Located");
+        return allVms[i];
+    }
+}
+System.log("VM not found");
+return null;
+]]></script>
+</dunes-script-module>

@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="removeAllSnapshot" result-type="VC:Task" api-version="6.0.0" id="14f892d3-be6a-48c1-b2fa-1fc0d29d7e66" version="0.2.0" allowed-operations="vf" category-name="com.vmware.library.vc.vm.snapshot">
+  <description><![CDATA[Remove all the snapshots associated with this virtual machine. If the virtual machine does not have any snapshots, then this operation simply returns successfully. ]]></description>
+  <param n="vm" t="VC:VirtualMachine"><![CDATA[VM from which to remove the snapshot]]></param>
+  <script encoded="false"><![CDATA[if (vm == null) {
+	throw "ReferenceError: VM cannot be null";
+}
+return vm.removeAllSnapshots_Task();]]></script>
+</dunes-script-module>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<package>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/ConfigurationElement?id='03377b5a-c5ac-4a47-8235-52aa0d166c95'&dunesName='ConfigurationElement']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='2a4c55fa-eacd-420a-b747-630e42777ac5'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='2eba9eec-cfbf-497f-812d-37056225156c'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='3ae4e0be-b345-47b4-af85-f099174c4d46'&dunesName='Action'&name='vim3WaitForPrincipalIP'&category='com.vmware.library.vc.vm.tools']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='8efc8297-a1ab-4734-9f1a-c38e715a0f0d'&dunesName='Action'&name='createSnapshot'&category='com.vmware.library.vc.vm.snapshot']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='90808080808080808080808080808080D28080800120523434428525559a3425f'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='95e9792d-4864-4d72-9c27-9709c04975c5'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='99afccd7-9fcc-4dc2-82b7-586de690364e'&dunesName='Action'&name='vim3WaitTaskEnd'&category='com.vmware.library.vc.basic']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='BD8080808080808080808080808080801BC280800122528313869552e41805bb1'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='fe87a8ec-9216-41e2-b847-bbb61a974fe2'&dunesName='Action'&name='createVirtualDiskFlatVer2ConfigSpec'&category='com.vmware.library.vc.vm.spec.config.device']]></elm>
+<used-plugin name='VC' version='7.0.0' />
+</package>

@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<config-element id="fb155c55-91b6-4b70-98c6-e45764ff6534" version="0.0.0">
+  <display-name><![CDATA[Email Config]]></display-name>
+  <atts>
+    <att name="password" type="SecureString" read-only="false"/>
+    <att name="var_smtp" type="string" read-only="false">
+      <value encoded="n"><![CDATA[smtp.s360.lab]]></value>
+    </att>
+    <att name="username" type="string" read-only="false">
+      <value encoded="n"><![CDATA[svc_smtpuser]]></value>
+    </att>
+    <att name="port" type="string" read-only="false">
+      <value encoded="n"><![CDATA[25]]></value>
+    </att>
+  </atts>
+</config-element>

@@ -1,0 +1,161 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item3" object-name="workflow:name=generic" id="a3a75f5a-a443-4ec3-ac69-50b52413ab37" version="0.0.0" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Update Memory Reservation]]></display-name>
+  <description><![CDATA[Update Memory Reservation
+
+Inputs: 
+	1. hostSystem		: Host System to which the virtual machine belongs.
+	2. vm		: Virtual Machine to Which the Memory Reservation have to be updated.
+	3. newMemoryReservation	: Enter Memory Reservation value.
+
+Outputs: 
+	1. updateVM		: Virtual Machine that got updated with the new vNIC.]]></description>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="hostSystem" type="VC:HostSystem">
+      <description><![CDATA[Select the Host System to which the virtual machine belongs]]></description>
+    </param>
+    <param name="vm" type="VC:VirtualMachine">
+      <description><![CDATA[Select the Virtual Machine to Which the Memory Reservation have to be updated]]></description>
+    </param>
+    <param name="newMemoryReservation" type="number">
+      <description><![CDATA[Enter Memory Reservation value (MB)]]></description>
+    </param>
+  </input>
+  <output>
+    <param name="updatedVM" type="VC:VirtualMachine"/>
+  </output>
+  <attrib name="task" type="VC:Task" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="progress" type="boolean" read-only="false">
+    <value encoded="n"><![CDATA[false]]></value>
+    <description><![CDATA[Log progess while waiting for the task]]></description>
+  </attrib>
+  <attrib name="pollRate" type="number" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+    <description><![CDATA[Polling rate for the task state [seconds]]]></description>
+  </attrib>
+  <attrib name="actionResult" type="Any" read-only="false">
+    <value encoded="n"><![CDATA[Any#__NULL__]]></value>
+  </attrib>
+  <attrib name="errorCode" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="changeMemoryReservationState" type="boolean" read-only="false">
+    <value encoded="n"><![CDATA[true]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="924.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item2" type="task">
+    <display-name><![CDATA[changing the memory reservation]]></display-name>
+    <script encoded="false"><![CDATA[
+
+//creating the virtual machine config spec
+var resourceAlloc = new VcResourceAllocationInfo();
+resourceAlloc.reservation= newMemoryReservation;
+var configSpec = new VcVirtualMachineConfigSpec();
+configSpec.memoryAllocation = resourceAlloc;
+
+System.log("Reconfiguring the memory reservation limit for the virtual machine : "+vm);
+//reconfiguring the vm config spec to update the cpu reservation limit
+task = vm.reconfigVM_Task(configSpec);
+
+]]></script>
+    <in-binding>
+      <bind name="newMemoryReservation" type="number" export-name="newMemoryReservation"/>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+    </in-binding>
+    <out-binding>
+      <bind name="changeMemoryReservationState" type="boolean" export-name="changeMemoryReservationState"/>
+      <bind name="task" type="VC:Task" export-name="task"/>
+    </out-binding>
+    <position y="55.40909090909091" x="364.5"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item14" catch-name="item12" throw-bind-name="errorCode" type="task" script-module="com.vmware.library.vc.basic/vim3WaitTaskEnd">
+    <display-name><![CDATA[vim3WaitTaskEnd]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vc.basic").vim3WaitTaskEnd(task,progress,pollRate) ;]]></script>
+    <in-binding>
+      <bind name="pollRate" type="number" export-name="pollRate">
+        <description><![CDATA[Polling rate for the task state [seconds]]]></description>
+      </bind>
+      <bind name="progress" type="boolean" export-name="progress">
+        <description><![CDATA[Log progess while waiting for the task]]></description>
+      </bind>
+      <bind name="task" type="VC:Task" export-name="task">
+        <description><![CDATA[Task to Wait for]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Any" export-name="actionResult"/>
+    </out-binding>
+    <description><![CDATA[Wait for a VC Task to end.
+When task ended, return the task result if any. ]]></description>
+    <position y="55.40909090909091" x="544.5"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item1" type="task">
+    <display-name><![CDATA[validation]]></display-name>
+    <script encoded="false"><![CDATA[for each(var v in hostSystem.vm){
+	if(v.name == vm.name){
+		System.log("Selected Virtual Machine is available");
+		System.log("vm.state: "+vm.state);
+		validateReservation(vm)
+		break;
+	}
+}
+
+function validateReservation(vm){
+	//obtaining the current memory reservation limit
+	var memoryReservationLimit = vm.config.memoryAllocation.limit;
+	
+	if(memoryReservationLimit<newMemoryReservation && memoryReservationLimit!=-1){
+		throw "Provided memory reservation value :"+newMemoryReservation+" is more than memory reservation limit :"+memoryReservationLimit+" of the virtual machine";
+	}
+}]]></script>
+    <in-binding>
+      <bind name="hostSystem" type="VC:HostSystem" export-name="hostSystem"/>
+      <bind name="newMemoryReservation" type="number" export-name="newMemoryReservation"/>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+    </in-binding>
+    <out-binding/>
+    <position y="55.40909090909091" x="204.5"/>
+  </workflow-item>
+  <workflow-item name="item10" throw-bind-name="errorCode" type="end" end-mode="1">
+    <position y="109.04545454545453" x="404.5"/>
+  </workflow-item>
+  <workflow-item name="item12" out-name="item10" catch-name="item10" throw-bind-name="errorCode" type="task">
+    <display-name><![CDATA[Logging the error messages]]></display-name>
+    <script encoded="false"><![CDATA[System.error("Reconfiguring the virtual machine failed. ERROR : "+errorCode);]]></script>
+    <in-binding>
+      <bind name="errorCode" type="string" export-name="errorCode"/>
+    </in-binding>
+    <out-binding/>
+    <position y="119.04545454545453" x="544.5"/>
+  </workflow-item>
+  <workflow-item name="item14" out-name="item0" type="task">
+    <display-name><![CDATA[Logging success messages]]></display-name>
+    <script encoded="false"><![CDATA[System.log("Reconfiguration of the virtual machine is successful");
+System.log("Successfully updated the memory reservation limit of virtual machine ["+vm.name + "]");
+updatedVM=vm;]]></script>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+    </in-binding>
+    <out-binding>
+      <bind name="updatedVM" type="VC:VirtualMachine" export-name="updatedVM"/>
+    </out-binding>
+    <position y="55.40909090909091" x="724.5"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="hostSystem">
+      <desc><![CDATA[Select the Host System to which the virtual machine belongs]]></desc>
+    </p-param>
+    <p-param name="vm">
+      <desc><![CDATA[Select the Virtual Machine to Which the Memory Reservation have to be updated]]></desc>
+    </p-param>
+    <p-param name="newMemoryReservation">
+      <desc><![CDATA[ Enter Memory Reservation value (MB)]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item0" object-name="Workflow:name=generic" id="0d7044fa-b06e-448d-83b2-71b0332db43f" editor-version="2.0" version="0.2.0" api-version="6.0.0" allowed-operations="vef" restartMode="1" resumeFromFailedMode="0">
+    <display-name>Copy of Shut down guest OS and wait</display-name>
+    <description>Shuts down a guest operating system and waits for the process to complete.</description>
+    <position y="0.0" x="280.0"/>
+    <input>
+        <param name="vm" type="VC:VirtualMachine">
+            <description>Virtual machine to shut down</description>
+        </param>
+    </input>
+    <attrib name="task" type="VC:Task">
+        <value encoded="n"/>
+        <description>Task to await</description>
+    </attrib>
+    <attrib name="progress" type="boolean">
+        <value encoded="n">false</value>
+        <description>Log progress while waiting for the task</description>
+    </attrib>
+    <attrib name="pollRate" type="number">
+        <value encoded="n">1.0</value>
+        <description>Polling rate for the task state, in seconds</description>
+    </attrib>
+    <attrib name="timeout" type="number">
+        <value encoded="n">10.0</value>
+        <description>Timeout before forcing the shutdown, in minutes</description>
+    </attrib>
+    <workflow-item name="item0" out-name="item2" alt-out-name="item1" type="custom-condition" comparator="0">
+        <display-name>Suspended?</display-name>
+        <script encoded="false">return vm.runtime.powerState.value == "suspended";</script>
+        <in-binding>
+            <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+        </in-binding>
+        <position y="50.0" x="240.0"/>
+    </workflow-item>
+    <workflow-item name="item2" out-name="item3" type="task" script-module="com.vmware.library.vc.vm.power/startVM" comparator="0">
+        <display-name>startVM</display-name>
+        <script encoded="false">//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vc.vm.power").startVM(vm,host) ;</script>
+        <in-binding>
+            <bind name="vm" type="VC:VirtualMachine" export-name="vm">
+                <description>VM to start or resume</description>
+            </bind>
+            <bind name="host" type="VC:HostSystem" export-name="NULL">
+                <description>[Optional] The host where the virtual machine is to be powered on. If no host is specified, the current associated host is used. This field must specify a host that is part of the same compute resource that the virtual machine is currently associated with. If this host is not compatible, the current host association is used. </description>
+            </bind>
+        </in-binding>
+        <out-binding>
+            <bind name="actionResult" type="VC:Task" export-name="task"/>
+        </out-binding>
+        <description>Start / Resume a VM. Return the start task</description>
+        <position y="60.0" x="400.0"/>
+    </workflow-item>
+    <workflow-item name="item3" out-name="item1" type="task" script-module="com.vmware.library.vc.basic/vim3WaitTaskEnd" comparator="0">
+        <display-name>vim3WaitTaskEnd</display-name>
+        <script encoded="false">//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vc.basic").vim3WaitTaskEnd(task,progress,pollRate) ;</script>
+        <in-binding>
+            <bind name="task" type="VC:Task" export-name="task">
+                <description>Task to Wait for</description>
+            </bind>
+            <bind name="progress" type="boolean" export-name="progress">
+                <description>Log progess while waiting for the task</description>
+            </bind>
+            <bind name="pollRate" type="number" export-name="pollRate">
+                <description>Polling rate for the task state [seconds]</description>
+            </bind>
+        </in-binding>
+        <out-binding>
+            <bind name="actionResult" type="Any" export-name="NULL"/>
+        </out-binding>
+        <description>Wait a VIM 3 Task to end.
+When task ended, return the </description>
+        <position y="140.0" x="400.0"/>
+    </workflow-item>
+    <workflow-item name="item1" out-name="item4" type="task" script-module="com.vmware.library.vc.vm.power/shutdownVM" comparator="0">
+        <display-name>shutdownVM</display-name>
+        <script encoded="false">//Auto generated script, cannot be modified !
+System.getModule("com.vmware.library.vc.vm.power").shutdownVM(vm,timeout,polling) ;</script>
+        <in-binding>
+            <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+            <bind name="timeout" type="number" export-name="timeout">
+                <description>Timeout in minutes [min]</description>
+            </bind>
+            <bind name="polling" type="number" export-name="pollRate">
+                <description>Polling rate in seconds [s]</description>
+            </bind>
+        </in-binding>
+        <out-binding/>
+        <description>Shutdown the VM guest and wait for a given time before throwing an error if the VM is still not powered off. If timeout is set to 0, the action don't wait</description>
+        <position y="140.0" x="240.0"/>
+    </workflow-item>
+    <workflow-item name="item4" type="end" end-mode="0" comparator="0">
+        <position y="170.0" x="280.0"/>
+    </workflow-item>
+</ns2:workflow>

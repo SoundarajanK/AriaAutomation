@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item1" object-name="Workflow:name=generic" id="af881e1d-e6d5-419b-a3ad-f50005a2b87d" editor-version="2.0" version="0.2.0" api-version="6.0.0" allowed-operations="vef" restartMode="1" resumeFromFailedMode="0">
+    <display-name>Copy of Move virtual machine to folder</display-name>
+    <description>Moves a virutal machine to a specified virtual machine folder.</description>
+    <ref-types>(VC:VirtualMachine)</ref-types>
+    <position y="20.0" x="180.0"/>
+    <input>
+        <param name="vm" type="VC:VirtualMachine">
+            <description>Virtual machine to move</description>
+        </param>
+        <param name="folder" type="VC:VmFolder">
+            <description>Destination virtual machine folder</description>
+        </param>
+    </input>
+    <attrib name="tmpVMs" type="Array/VC:VirtualMachine">
+        <value encoded="n"/>
+        <description>Temporary array of virtual machines that are being processed</description>
+    </attrib>
+    <workflow-item name="item2" type="end" end-mode="0" comparator="0">
+        <position y="190.0" x="180.0"/>
+    </workflow-item>
+    <workflow-item name="item1" out-name="item0" type="task" comparator="0">
+        <display-name>Prepare VMs</display-name>
+        <script encoded="false">tmpVMs = new Array();
+tmpVMs.push(vm);</script>
+        <in-binding>
+            <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+        </in-binding>
+        <out-binding>
+            <bind name="tmpVMs" type="Array/VC:VirtualMachine" export-name="tmpVMs"/>
+        </out-binding>
+        <position y="80.0" x="140.0"/>
+    </workflow-item>
+    <workflow-item name="item0" out-name="item2" type="link" linked-workflow-id="BD80808080808080808080808080808031C180800122528313869552e41805bb1" comparator="0">
+        <display-name>Move VMs to Folder and wait</display-name>
+        <in-binding>
+            <bind name="vms" type="Array/VC:VirtualMachine" export-name="tmpVMs">
+                <description>Virtual machines to move to folder</description>
+            </bind>
+            <bind name="folder" type="VC:VmFolder" export-name="folder">
+                <description>Destination folder</description>
+            </bind>
+        </in-binding>
+        <out-binding/>
+        <position y="140.0" x="140.0"/>
+    </workflow-item>
+</ns2:workflow>

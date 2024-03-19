@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<config-element id="75423818-737f-427c-bd9e-c542242f9629" version="0.0.0">
+  <display-name><![CDATA[Test-vCenter]]></display-name>
+  <atts>
+    <att name="server" type="string" read-only="false">
+      <value encoded="n"><![CDATA[s360srv014.eng.vmware.com]]></value>
+    </att>
+    <att name="user" type="string" read-only="false">
+      <value encoded="n"><![CDATA[administrator@vsphere.local]]></value>
+    </att>
+    <att name="password" type="SecureString" read-only="false">
+      <value encoded="n"><![CDATA[__NULL__]]></value>
+    </att>
+  </atts>
+</config-element>

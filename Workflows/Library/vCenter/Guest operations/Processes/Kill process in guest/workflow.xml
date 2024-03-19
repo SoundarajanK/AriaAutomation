@@ -1,0 +1,59 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="C98080808080808080808080808080807B80808001322751030482b80adf61e7c" version="0.0.0" api-version="6.0.0" allowed-operations="vf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Kill process in guest]]></display-name>
+  <description><![CDATA[Terminates a process in the guest OS.]]></description>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="vmUsername" type="string">
+      <description><![CDATA[Username for the virtual machine]]></description>
+    </param>
+    <param name="vmPassword" type="SecureString">
+      <description><![CDATA[Password for the virtual machine]]></description>
+    </param>
+    <param name="vm" type="VC:VirtualMachine">
+      <description><![CDATA[Virtual machine]]></description>
+    </param>
+    <param name="pid" type="number">
+      <description><![CDATA[Process ID of the process to be terminated ]]></description>
+    </param>
+  </input>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="384.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item0" type="task">
+    <display-name><![CDATA[Scriptable task]]></display-name>
+    <script encoded="false"><![CDATA[var host = vm.sdkConnection;
+
+var guestOperationsManager = host.guestOperationsManager;
+var guestAuth = new VcNamePasswordAuthentication();
+guestAuth.username = vmUsername;
+guestAuth.password = vmPassword;
+
+var processManager = guestOperationsManager.processManager;
+processManager.terminateProcessInGuest(vm , guestAuth , pid);]]></script>
+    <in-binding>
+      <bind name="vmUsername" type="string" export-name="vmUsername"/>
+      <bind name="vmPassword" type="SecureString" export-name="vmPassword"/>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+      <bind name="pid" type="number" export-name="pid"/>
+    </in-binding>
+    <out-binding/>
+    <position y="55.40909090909091" x="204.5"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="vmUsername">
+      <desc><![CDATA[Username for the virtual machine]]></desc>
+    </p-param>
+    <p-param name="vmPassword">
+      <desc><![CDATA[Password for the virtual machine]]></desc>
+    </p-param>
+    <p-param name="vm">
+      <desc><![CDATA[Virtual machine]]></desc>
+      <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+    </p-param>
+    <p-param name="pid">
+      <desc><![CDATA[Process ID of the process to be terminated ]]></desc>
+      <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+    </p-param>
+  </presentation>
+</workflow>

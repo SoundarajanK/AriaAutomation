@@ -1,0 +1,1 @@
+{"schema":{"vm":{"id":"vm","type":{"dataType":"reference","referenceType":"VRA:Machine"},"label":"vm","constraints":{"required":false}}},"layout":{"pages":[{"id":"page_wt2je6ei","title":"General","sections":[{"id":"section_tqx596uy","fields":[{"id":"vm","display":"valuePickerTree","signpostPosition":"right-middle","state":{"visible":true,"read-only":false}}]}]}]},"itemId":""}

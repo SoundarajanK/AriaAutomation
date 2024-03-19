@@ -1,0 +1,88 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="04267dc7-c56c-4427-809c-080ac6cf7cc9" version="0.0.3" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[GetVmPowerState]]></display-name>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="targetVM" type="VC:VirtualMachine"/>
+    <param name="snapShotRequired" type="boolean"/>
+    <param name="CorrelationId" type="string"/>
+    <param name="targetVMName" type="string"/>
+  </input>
+  <output>
+    <param name="vmStateOut" type="string"/>
+    <param name="statusOut" type="boolean"/>
+    <param name="snapShotPowerOff" type="boolean"/>
+  </output>
+  <attrib name="event" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+    <description><![CDATA[getVmPowerState]]></description>
+  </attrib>
+  <attrib name="eventDetails" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="severity" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="524.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item2" type="task">
+    <display-name><![CDATA[Get Power State]]></display-name>
+    <script encoded="false"><![CDATA[var vmState = "";
+vmState = targetVM.runtime.powerState.value;
+vmStateOut = vmState;
+
+if (vmState.length > 0  && vmState == "poweredOn"){
+  statusOut = true;
+  eventDetails = "The current VM State="+vmState;
+  severity = "info";
+}
+else {
+  statusOut = false;
+  eventDetails = "Guest is not powered on";
+  severity = "info";
+}
+snapShotPowerOff = false;
+if (vmState =="poweredOn" && snapShotRequired){
+  snapShotPowerOff = true;
+}]]></script>
+    <in-binding>
+      <bind name="targetVM" type="VC:VirtualMachine" export-name="targetVM"/>
+      <bind name="snapShotRequired" type="boolean" export-name="snapShotRequired"/>
+    </in-binding>
+    <out-binding>
+      <bind name="vmStateOut" type="string" export-name="vmStateOut"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="statusOut" type="boolean" export-name="statusOut"/>
+      <bind name="snapShotPowerOff" type="boolean" export-name="snapShotPowerOff"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </out-binding>
+    <position y="55.40909090909091" x="204.5"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item0" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="event"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="CorrelationId" type="string" export-name="CorrelationId"/>
+      <bind name="targetVMName" type="string" export-name="targetVMName"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="55.40909090909091" x="344.5"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="targetVM">
+      <desc><![CDATA[targetVM]]></desc>
+    </p-param>
+    <p-param name="snapShotRequired">
+      <desc><![CDATA[snapShotRequired]]></desc>
+    </p-param>
+    <p-param name="CorrelationId">
+      <desc><![CDATA[CorrelationId]]></desc>
+    </p-param>
+    <p-param name="targetVMName">
+      <desc><![CDATA[targetVMName]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

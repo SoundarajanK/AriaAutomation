@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item1" object-name="workflow:name=generic" id="b8795d86-ad14-4939-96ab-903cdf10bba5" editor-version="2.0" version="1.0.0" api-version="6.0.0" allowed-operations="vef" restartMode="1" resumeFromFailedMode="0">
+    <display-name>Pre-Delete-WF</display-name>
+    <position y="50.0" x="100.0"/>
+    <input>
+        <param name="inputProperties" type="Properties"/>
+    </input>
+    <output>
+        <param name="actionResult" type="VRA:Machine"/>
+    </output>
+    <attrib name="name" type="string">
+        <value encoded="n">name</value>
+    </attrib>
+    <attrib name="vm" type="VC:VirtualMachine">
+        <value encoded="n"/>
+    </attrib>
+    <attrib name="vms" type="Array/VC:VirtualMachine">
+        <value encoded="n">[]</value>
+    </attrib>
+    <attrib name="sdk" type="VC:SdkConnection">
+        <value encoded="n"/>
+    </attrib>
+    <attrib name="criteria" type="string">
+        <value encoded="n">MyHostname</value>
+    </attrib>
+    <attrib name="objectType" type="string">
+        <value encoded="n">VC:VirtualMachine</value>
+    </attrib>
+    <attrib name="exactMatch" type="boolean">
+        <value encoded="n">true</value>
+    </attrib>
+    <attrib name="matchingObjects" type="Array/Any">
+        <value encoded="n">[]</value>
+    </attrib>
+    <attrib name="host" type="VRA:Host">
+        <value encoded="n">dunes://service.dunes.ch/CustomSDKObject?id='_2hpPPffQ3acc6DoZZ3oBw'&amp;dunesName='VRA:Host'</value>
+    </attrib>
+    <attrib name="resourceIds" type="Array">
+        <value encoded="n"/>
+    </attrib>
+    <attrib name="resourceid" type="string">
+        <value encoded="n"></value>
+    </attrib>
+    <attrib name="vRAVM" type="VRA:Machine">
+        <value encoded="n"/>
+    </attrib>
+    <attrib name="tracker" type="VRA:RequestTracker">
+        <value encoded="n"/>
+    </attrib>
+    <attrib name="timerDate" type="Date">
+        <value encoded="n"/>
+    </attrib>
+    <attrib name="pollingRate" type="number">
+        <value encoded="n">10.0</value>
+    </attrib>
+    <attrib name="timeout" type="number">
+        <value encoded="n">2.0</value>
+    </attrib>
+    <workflow-item name="item0" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="50.0" x="1680.0"/>
+    </workflow-item>
+    <workflow-item name="item1" out-name="item5" type="task" comparator="0">
+        <display-name>Get machine name</display-name>
+        <script encoded="false"> 
+System.log("Start");
+System.log("Debug");
+ 
+//The payload is grabbed by the inputProperties
+System.log(JSON.stringify(inputProperties, null, 2));
+ 
+var jsontxt = JSON.stringify(inputProperties, null, 2);
+var json = JSON.parse(jsontxt);
+//Exctract the bluprint Id from the inputProperties
+name = json.resourceNames;
+resourceIds = json.resourceIds;
+resourceid = resourceIds[0];
+System.log("my hostname is " + name + "resource ID is"+ resourceIds);
+//assign the value of vm to point to  vRAResourceName
+
+//Loop through the Execution contect
+for (p in System.getContext().parameterNames()) {
+    System.log(System.getContext().parameterNames()[p]+": "+System.getContext().getParameter(System.getContext().parameterNames()[p]));
+} 
+//System.log(vm)
+//To get a specific property 
+System.log(System.getContext().getParameter("__metadata_userName"));
+ 
+System.log("Stop");</script>
+        <in-binding>
+            <bind name="inputProperties" type="Properties" export-name="inputProperties"/>
+            <bind name="name" type="string" export-name="name"/>
+            <bind name="resourceIds" type="Array" export-name="resourceIds"/>
+        </in-binding>
+        <out-binding>
+            <bind name="name" type="string" export-name="name"/>
+            <bind name="resourceIds" type="Array" export-name="resourceIds"/>
+            <bind name="resourceid" type="string" export-name="resourceid"/>
+        </out-binding>
+        <description>this script block will get the payload data from inputProperties, then discover the vm through vcenter with the var VcPlugin.getAllVirtualMachines </description>
+        <position y="70.0" x="180.0"/>
+    </workflow-item>
+    <workflow-item name="item5" out-name="item6" type="task" comparator="0">
+        <display-name>make array into single VCVirtualmachine</display-name>
+        <script encoded="false">var objects;
+var exactMatch = false;
+		objects = Server.findAllForType("VC:VirtualMachine");
+var temp = new Array();
+for each (var object in objects) {
+	if (object.name.match(name)) {
+		if (exactMatch &amp;&amp; (object.name.length != name.length)) {
+			continue;	// Wasn't an exact match, so skip this object
+		}
+		temp.push(object);
+	}
+}
+
+
+
+
+vms = temp;
+vm = vms[0];
+
+System.log("length = " + vms.length);
+
+System.log(" after get " + name)</script>
+        <in-binding>
+            <bind name="vms" type="Array/VC:VirtualMachine" export-name="vms"/>
+            <bind name="name" type="string" export-name="name"/>
+            <bind name="matchingObjects" type="Array/Any" export-name="matchingObjects"/>
+        </in-binding>
+        <out-binding>
+            <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+        </out-binding>
+        <description>Simple task with custom script capability.</description>
+        <position y="60.0" x="360.0"/>
+    </workflow-item>
+    <workflow-item name="item6" out-name="item7" type="task" script-module="com.vmware.library.vra.infrastructure.machine/getMachineById" comparator="0">
+        <display-name>getMachineById</display-name>
+        <script encoded="false">//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vra.infrastructure.machine").getMachineById(machineId,host);
+</script>
+        <in-binding>
+            <bind name="machineId" type="string" export-name="resourceid">
+                <description></description>
+            </bind>
+            <bind name="host" type="VRA:Host" export-name="host">
+                <description></description>
+            </bind>
+        </in-binding>
+        <out-binding>
+            <bind name="actionResult" type="VRA:Machine" export-name="vRAVM"/>
+        </out-binding>
+        <description>Add a note to the workflow schema.</description>
+        <position y="60.0" x="520.0"/>
+    </workflow-item>
+    <workflow-item name="item7" out-name="item12" type="link" linked-workflow-id="BD80808080808080808080808080808075C280800122528313869552e41805bb1" comparator="0">
+        <display-name>Shut down guest OS and wait</display-name>
+        <script encoded="false"></script>
+        <in-binding>
+            <bind name="vm" type="VC:VirtualMachine" export-name="vm">
+                <description>Virtual machine to shut down</description>
+            </bind>
+        </in-binding>
+        <out-binding/>
+        <description> </description>
+        <position y="60.0" x="660.0"/>
+    </workflow-item>
+    <workflow-item name="item12" out-name="item13" type="task" comparator="0">
+        <display-name>Wait timer</display-name>
+        <script encoded="false">timerDate = new Date();
+System.log( "Current date : '" + timerDate + "'" );
+timerDate.setTime( timerDate.getTime() + (60 * 1000) );
+System.log( "Timer will expire at '" + timerDate + "'" );</script>
+        <in-binding>
+            <bind name="timerDate" type="Date" export-name="timerDate"/>
+        </in-binding>
+        <out-binding>
+            <bind name="timerDate" type="Date" export-name="timerDate"/>
+        </out-binding>
+        <description>Please modify the wait timer value from 60 seconds to any other value for which you want this workflow to wait before delete task. Covert the value from hours to mins before entering and the next scriptable task called Waiting Timer would use this value and put the workflow to sleep on the disk.</description>
+        <position y="60.0" x="840.0"/>
+    </workflow-item>
+    <workflow-item name="item13" out-name="item16" type="waiting-timer" comparator="0">
+        <display-name>Waiting timer</display-name>
+        <script></script>
+        <in-binding>
+            <bind name="timer.date" type="Date" export-name="timerDate">
+                <description>This timer item will wait until date and will continue workflow execution.</description>
+            </bind>
+        </in-binding>
+        <out-binding/>
+        <position y="50.0" x="1040.0"/>
+    </workflow-item>
+    <workflow-item name="item16" out-name="item17" type="task" comparator="0">
+        <display-name>VRA Machine Power ON</display-name>
+        <script encoded="false">var machineId = vRAVM.id;
+
+System.log("Host name is "+ host + "machine id is "+ machineId);
+
+var client = host.createInfrastructureClient().createMachineService();
+client.powerOn(machineId);
+</script>
+        <in-binding>
+            <bind name="vRAVM" type="VRA:Machine" export-name="vRAVM"/>
+            <bind name="host" type="VRA:Host" export-name="host"/>
+        </in-binding>
+        <out-binding>
+            <bind name="tracker" type="VRA:RequestTracker" export-name="tracker"/>
+        </out-binding>
+        <description>Define vRA host plugin value </description>
+        <position y="60.0" x="1220.0"/>
+    </workflow-item>
+    <workflow-item name="item17" out-name="item0" type="task" script-module="com.vmware.library.vc.vm.tools/vim3WaitToolsStarted" comparator="0">
+        <display-name>vim3WaitToolsStarted</display-name>
+        <script encoded="false">//Auto generated script, cannot be modified !
+System.getModule("com.vmware.library.vc.vm.tools").vim3WaitToolsStarted(vm,pollingRate,timeout);
+</script>
+        <in-binding>
+            <bind name="vm" type="VC:VirtualMachine" export-name="vm">
+                <description>VM in which the action look to get the new DNS Name</description>
+            </bind>
+            <bind name="pollingRate" type="number" export-name="pollingRate">
+                <description>Time between all request information on the tools [seconds]</description>
+            </bind>
+            <bind name="timeout" type="number" export-name="timeout">
+                <description>Timeout before throwing a timeout exception [minutes]</description>
+            </bind>
+        </in-binding>
+        <out-binding/>
+        <description>Add a note to the workflow schema.</description>
+        <position y="60.0" x="1460.0"/>
+    </workflow-item>
+</ns2:workflow>

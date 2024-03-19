@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item1" object-name="workflow:name=generic" id="16ea7aac-430f-4b3c-a79a-90e308764721" editor-version="2.0" version="0.0.0" api-version="6.0.0" restartMode="1" resumeFromFailedMode="0">
+    <display-name>Ans-Demo</display-name>
+    <position y="50.0" x="100.0"/>
+    <input/>
+    <output/>
+    <attrib name="hostNameOrIP" type="string">
+        <value encoded="n">10.176.144.90</value>
+    </attrib>
+    <attrib name="username" type="string">
+        <value encoded="n">root</value>
+    </attrib>
+    <attrib name="password" type="SecureString">
+        <value encoded="n">8BS56O4DX77Q61Q72U65K31H21RBE2683FV837082AZE34FC14G41F2A61U839EF27X5E7E94FUE09F707T6753507XE9F518QD26F99FZF84E222WDC5ED5CQ3D1E4E0O33CD20CRD5B0F6ZB95A8D1U83ADF6DI8630BABUD3EC60AM345D3EBNDBB66B8PED268DELE7F6443VE2B85EFJ</value>
+    </attrib>
+    <attrib name="cmd" type="string">
+        <value encoded="n">ansible-playbook /etc/ansible/playbooks/test.yml -vvv</value>
+    </attrib>
+    <attrib name="passwordAuthentication" type="boolean">
+        <value encoded="n">true</value>
+    </attrib>
+    <workflow-item name="item0" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="50.0" x="300.0"/>
+    </workflow-item>
+    <workflow-item name="item1" out-name="item0" type="link" linked-workflow-id="90808080808080808080808080808080D28080800120523434428525559a3425f" comparator="0">
+        <display-name>Run SSH command</display-name>
+        <script encoded="false"></script>
+        <in-binding>
+            <bind name="hostNameOrIP" type="string" export-name="hostNameOrIP">
+                <description>Hostname or IP address of the SSH host</description>
+            </bind>
+            <bind name="port" type="number" export-name="">
+                <description>Target port</description>
+            </bind>
+            <bind name="username" type="string" export-name="username">
+                <description>Username</description>
+            </bind>
+            <bind name="password" type="SecureString" export-name="password">
+                <description>Password</description>
+            </bind>
+            <bind name="cmd" type="string" export-name="cmd">
+                <description>The SSH command to run</description>
+            </bind>
+            <bind name="passwordAuthentication" type="boolean" export-name="passwordAuthentication">
+                <description>Sets authentication to password or key file</description>
+            </bind>
+            <bind name="path" type="Path" export-name="">
+                <description>Path to the private key</description>
+            </bind>
+            <bind name="passphrase" type="SecureString" export-name="">
+                <description>Private key pass-phrase</description>
+            </bind>
+            <bind name="encoding" type="string" export-name="">
+                <description>The encoding to be used. Leave this field empty to use the default system encoding. (Example values: "UTF-8", "ISO-8859-1"...)</description>
+            </bind>
+        </in-binding>
+        <out-binding>
+            <bind name="result" type="number" export-name="">
+                <description>0 = OK, Negative = Error, Positive = Number of values returned, after error text</description>
+            </bind>
+            <bind name="errorText" type="string" export-name="">
+                <description>Error text, if any</description>
+            </bind>
+            <bind name="outputText" type="string" export-name="">
+                <description>Result of running the SSH command</description>
+            </bind>
+        </out-binding>
+        <description> </description>
+        <position y="60.0" x="170.0"/>
+    </workflow-item>
+</ns2:workflow>

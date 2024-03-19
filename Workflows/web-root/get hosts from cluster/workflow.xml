@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item1" object-name="workflow:name=generic" id="49e0c814-9c88-4a03-a214-e2f9780154d2" editor-version="2.0" version="0.0.0" api-version="6.0.0" restartMode="1" resumeFromFailedMode="0">
+    <display-name>get hosts from cluster</display-name>
+    <position y="50.0" x="100.0"/>
+    <input>
+        <param name="in_cluster" type="VC:ClusterComputeResource"/>
+    </input>
+    <output/>
+    <attrib name="var_hosts" type="Array/VC:HostSystem">
+        <value encoded="n">[]</value>
+    </attrib>
+    <attrib name="var_hostnames" type="Array/string">
+        <value encoded="n"/>
+    </attrib>
+    <workflow-item name="item0" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="50.0" x="540.0"/>
+    </workflow-item>
+    <workflow-item name="item1" out-name="item2" type="task" script-module="com.vmware.library.vc.cluster/getAllHostSystemsOfCluster" comparator="0">
+        <display-name>getAllHostSystemsOfCluster</display-name>
+        <script encoded="false">//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vc.cluster").getAllHostSystemsOfCluster(cluster);
+</script>
+        <in-binding>
+            <bind name="cluster" type="VC:ClusterComputeResource" export-name="in_cluster">
+                <description></description>
+            </bind>
+        </in-binding>
+        <out-binding>
+            <bind name="actionResult" type="Array/VC:HostSystem" export-name="var_hosts"/>
+        </out-binding>
+        <description>Add a note to the workflow schema.</description>
+        <position y="60.0" x="180.0"/>
+    </workflow-item>
+    <workflow-item name="item2" out-name="item0" type="task" comparator="0">
+        <display-name>Scriptable task</display-name>
+        <script encoded="false">var hostlist = new Array();&#13;
+for each(host in var_hosts){&#13;
+    System.log("Hostname: " + host.name);&#13;
+    hostlist.push(host.name);&#13;
+}&#13;
+var_hostnames = hostlist;</script>
+        <in-binding>
+            <bind name="var_hosts" type="Array/VC:HostSystem" export-name="var_hosts"/>
+        </in-binding>
+        <out-binding>
+            <bind name="var_hostnames" type="Array/string" export-name="var_hostnames"/>
+        </out-binding>
+        <description>Simple task with custom script capability.</description>
+        <position y="60.0" x="320.0"/>
+    </workflow-item>
+</ns2:workflow>

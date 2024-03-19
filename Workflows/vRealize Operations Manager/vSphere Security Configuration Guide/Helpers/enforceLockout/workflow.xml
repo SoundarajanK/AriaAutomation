@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="363ef6b7-23fb-4098-8f4b-52d648ce1ce8" version="0.0.1" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[enforceLockout]]></display-name>
+  <description><![CDATA[This workflow will set your ESXi Account Lockout Failures to comply with the vSphere Security Hardening Guide alerts in vRealize Operations 7.0.  The following settings are modified:
+
+- Sets Security.AccountLockoutFailiures to 3
+- Sets Security.AccountUnlockTime to 900 seconds
+
+This addresses the following compliance symptoms:
+- RP 1,2,3 - ESXi.set-account-lockout - The count of failed login attempts before which the account gets locked out exceeds the maximum permissible value (6.0/6.5 Security Configuration Guide)
+- RP 1,2,3 - ESXi.set-account-auto-unlock-time - The time after which a locked account is automatically unlocked is not meeting the criteria (6.0/6.5 Security Configuration Guide)]]></description>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="host" type="VC:HostSystem"/>
+  </input>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="384.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item0" type="task">
+    <display-name><![CDATA[Set Account Lockout]]></display-name>
+    <script encoded="false"><![CDATA[optionManager = host.configManager.advancedOption;
+var lockoutFailures=optionManager.queryOptions('Security.AccountLockFailures');
+
+lockoutFailures[0].value_IntValue=3;
+
+optionManager.updateOptions(lockoutFailures);
+
+optionManager = host.configManager.advancedOption;
+var unlockTime=optionManager.queryOptions('Security.AccountUnlockTime');
+
+unlockTime[0].value_IntValue=900;
+
+optionManager.updateOptions(unlockTime);
+
+
+
+
+
+
+]]></script>
+    <in-binding>
+      <bind name="host" type="VC:HostSystem" export-name="host"/>
+    </in-binding>
+    <out-binding/>
+    <position y="55.40909090909091" x="204.5"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="host">
+      <desc><![CDATA[host]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

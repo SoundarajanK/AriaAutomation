@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="0857192e-b376-4364-b7fa-ccc6f74a9b05" version="0.0.0" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Remove or Delete Unused Templates]]></display-name>
+  <description><![CDATA[Remove or Delete Unused Templates
+
+Inputs:
+	1. hostSystem	: host system to which the template belongs.
+	2. dataStore	: datastore to which the template belongs.
+	3. template	: template that needs to be deleted.]]></description>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="hostSystem" type="VC:HostSystem">
+      <description><![CDATA[Select the Host System from which the template is selected]]></description>
+    </param>
+    <param name="dataStore" type="VC:Datastore">
+      <description><![CDATA[Select the datastore from to which the template]]></description>
+    </param>
+    <param name="template" type="VC:VirtualMachine">
+      <description><![CDATA[Select the template that needs to be deleted]]></description>
+    </param>
+  </input>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="384.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item0" type="task">
+    <display-name><![CDATA[Delete Template from vCenter]]></display-name>
+    <script encoded="false"><![CDATA[System.log("Host System : "+hostSystem.name);
+System.log("DataStore : " +dataStore.name);
+
+//obtaining all virtual machines types available in datastore
+var vms = System.getModule("com.vmware.library.vc.datastore").getAllVMsOfDatastore(dataStore);
+
+var templateAvailable = false;
+
+//Checking if the template is available or not
+for each(var vm in vms){
+	System.log("vm : " +vm.name+" type : "+vm.type);
+	if(vm.name == template.name){	
+		templateAvailable = true;
+		break;
+	}
+}
+
+if(templateAvailable){
+		//destory or deleting the template
+		template.destroy_Task();
+		System.log("Template got deleted successfully");
+}
+else{
+	System.log("Template is not avaialble");
+}]]></script>
+    <in-binding>
+      <bind name="dataStore" type="VC:Datastore" export-name="dataStore"/>
+      <bind name="hostSystem" type="VC:HostSystem" export-name="hostSystem"/>
+      <bind name="template" type="VC:VirtualMachine" export-name="template"/>
+    </in-binding>
+    <out-binding/>
+    <position y="55.40909090909091" x="204.5"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="hostSystem">
+      <desc><![CDATA[Select the Host System from which the template is selected]]></desc>
+    </p-param>
+    <p-param name="dataStore">
+      <desc><![CDATA[Select the datastore from to which the template]]></desc>
+    </p-param>
+    <p-param name="template">
+      <desc><![CDATA[Select the template that needs to be deleted]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

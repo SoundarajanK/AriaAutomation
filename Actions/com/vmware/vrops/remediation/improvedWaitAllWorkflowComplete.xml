@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="improvedWaitAllWorkflowComplete" result-type="Array/Properties" api-version="6.0.0" id="c6d54c5d-41c5-47fd-88ad-90b158b50779" version="0.1.4" allowed-operations="evf" category-name="com.vmware.vrops.remediation">
+  <description><![CDATA[Now with workflow name! :)]]></description>
+  <param n="tokens" t="Array/WorkflowToken"/>
+  <script encoded="false"><![CDATA[var result = new Array();
+if (tokens != null && tokens.length > 0) {
+	result[tokens.length-1] = null; // init the array with the good size but full of null
+	
+	var allFinished = false;
+	while (! allFinished) {
+		System.sleep(500);
+	
+		allFinished = true;
+		
+		for (var i in tokens) {
+			if (tokens[i].state == "completed" || tokens[i].state == "failed" || tokens[i].state == "canceled") {
+				allFinished &= true;
+				if (result[i] == null) {
+					var prop = tokens[i].getOutputParameters();	// Properties
+					if (prop == null) prop = new Properties();
+					prop.put("__wfname", tokens[i].name);
+					prop.put("__state", tokens[i].state);
+					if (tokens[i].state == "failed")
+						prop.put("__exception", tokens[i].exception);
+					result[i] = prop;
+				}
+			}
+			else {
+				allFinished = false;
+			}
+		}
+	}	
+}
+return result;]]></script>
+</dunes-script-module>

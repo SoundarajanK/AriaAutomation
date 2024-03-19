@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="760a1e3f-49a5-4de9-bc2e-5691491e8242" version="0.0.2" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[enforceDisableMob]]></display-name>
+  <description><![CDATA[This workflow will set your ESXi Host to comply with the vSphere Security Hardening Guide alerts in vRealize Operations 7.0.  The following settings are modified:
+
+- Config.HostAgent.plugins.solo.enableMob is set to false
+
+This addresses the following compliance symptoms:
+
+- RP 1,2,3 - ESXi.disable-mob - Managed Object Browser (MOB) is enabled]]></description>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="host" type="VC:HostSystem"/>
+  </input>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="384.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item0" type="task">
+    <display-name><![CDATA[Disable MOB]]></display-name>
+    <script encoded="false"><![CDATA[optionManager = host.configManager.advancedOption;
+var mobSetting=optionManager.queryOptions('Config.HostAgent.plugins.solo.enableMob');
+
+mobSetting[0].value_AnyValue=false;
+
+optionManager.updateOptions(mobSetting);
+
+
+
+
+
+
+]]></script>
+    <in-binding>
+      <bind name="host" type="VC:HostSystem" export-name="host"/>
+    </in-binding>
+    <out-binding/>
+    <position y="55.40909090909091" x="204.5"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="host">
+      <desc><![CDATA[host]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

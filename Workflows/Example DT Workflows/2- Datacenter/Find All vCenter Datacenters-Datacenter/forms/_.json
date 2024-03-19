@@ -1,0 +1,1 @@
+{"schema":{"parentId":{"id":"parentId","type":{"dataType":"string"},"label":"parentId"}},"layout":{"pages":[{"id":"page_1","title":"Inputs","sections":[{"id":"section_0","fields":[{"id":"parentId","display":"textField"}]}]}]},"itemId":""}

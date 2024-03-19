@@ -1,0 +1,117 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="471e9360-2b7d-4188-afdc-9321fac21639" version="0.0.0" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Wait for Maintenance Mode]]></display-name>
+  <description><![CDATA[Waits for a specific amount of time for a host to enter maintenance mode.]]></description>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="host" type="VC:HostSystem"/>
+    <param name="timeout" type="number">
+      <description><![CDATA[How long to before we give up waiting (minutes)]]></description>
+    </param>
+    <param name="delay" type="number">
+      <description><![CDATA[Time to wait between checking (seconds)]]></description>
+    </param>
+  </input>
+  <attrib name="endDate" type="Date" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="errorCodeTimeout" type="string" read-only="false">
+    <value encoded="n"><![CDATA[Timed out waiting for the virtual machine to power off.]]></value>
+  </attrib>
+  <attrib name="actualDelay" type="number" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="844.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item2" type="task">
+    <display-name><![CDATA[Check variables]]></display-name>
+    <script encoded="false"><![CDATA[if (host == null) {
+	throw "ReferenceError: host is not defined for waiting for power-off";
+}
+
+if (host.name == null) {
+	throw "ReferenceError: host is not initialized for waiting for power-off";
+}
+endDate = new Date((new Date()).getTime() + timeout * 60 * 1000);
+actualDelay = delay;]]></script>
+    <in-binding>
+      <bind name="host" type="VC:HostSystem" export-name="host"/>
+      <bind name="timeout" type="number" export-name="timeout"/>
+      <bind name="delay" type="number" export-name="delay"/>
+    </in-binding>
+    <out-binding>
+      <bind name="endDate" type="Date" export-name="endDate"/>
+      <bind name="actualDelay" type="number" export-name="actualDelay"/>
+    </out-binding>
+    <position y="55.40909090909091" x="204.5"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item4" type="custom-condition" alt-out-name="item3">
+    <display-name><![CDATA[Keep running?]]></display-name>
+    <script encoded="false"><![CDATA[return (endDate > new Date());]]></script>
+    <in-binding>
+      <bind name="endDate" type="Date" export-name="endDate"/>
+    </in-binding>
+    <position y="45.40909090909091" x="344.5"/>
+  </workflow-item>
+  <workflow-item name="item4" out-name="item0" type="custom-condition" alt-out-name="item6">
+    <display-name><![CDATA[Check maint status]]></display-name>
+    <script encoded="false"><![CDATA[return host.runtime.inMaintenanceMode;]]></script>
+    <in-binding>
+      <bind name="host" type="VC:HostSystem" export-name="host"/>
+    </in-binding>
+    <position y="45.90909090909091" x="605.0"/>
+  </workflow-item>
+  <workflow-item name="item6" out-name="item7" type="task">
+    <display-name><![CDATA[Adjust timeout]]></display-name>
+    <script encoded="false"><![CDATA[var timeUntilTimeout = (endDate.getTime() - (new Date().getTime())) / 1000;
+if( timeUntilTimeout < actualDelay )
+{
+	System.log("Adjusting delay in the last loop to " + timeUntilTimeout);
+	actualDelay = timeUntilTimeout + 1;
+}]]></script>
+    <in-binding>
+      <bind name="timeout" type="number" export-name="timeout">
+        <description><![CDATA[How long to before we give up waiting (minutes)]]></description>
+      </bind>
+      <bind name="endDate" type="Date" export-name="endDate"/>
+      <bind name="actualDelay" type="number" export-name="actualDelay"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actualDelay" type="number" export-name="actualDelay"/>
+    </out-binding>
+    <position y="119.04545454545453" x="605.0"/>
+  </workflow-item>
+  <workflow-item name="item7" out-name="item2" type="link" linked-workflow-id="3e0c3e47-9f09-4157-8a1c-afd2b191d035">
+    <display-name><![CDATA[Improved Sleep]]></display-name>
+    <in-binding>
+      <bind name="delay" type="number" export-name="actualDelay">
+        <description><![CDATA[Time to wait (seconds)]]></description>
+      </bind>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Politely pauses a workflow for the specified time.  If the requested delay is more than 5 seconds just sleeps.]]></description>
+    <position y="119.04545454545453" x="464.5"/>
+  </workflow-item>
+  <workflow-item name="item3" throw-bind-name="errorCodeTimeout" type="end" end-mode="1">
+    <position y="118.13636363636363" x="385.0"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="host">
+      <desc><![CDATA[host]]></desc>
+      <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+    </p-param>
+    <p-param name="timeout">
+      <desc><![CDATA[How long to before we give up waiting (minutes)]]></desc>
+      <p-qual kind="static" name="minNumberValue" type="Number"><![CDATA[1.0]]></p-qual>
+      <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+      <p-qual kind="static" name="numberFormat" type="String"><![CDATA[###]]></p-qual>
+    </p-param>
+    <p-param name="delay">
+      <desc><![CDATA[Time to wait between checking (seconds)]]></desc>
+      <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+      <p-qual kind="static" name="minNumberValue" type="Number"><![CDATA[1.0]]></p-qual>
+      <p-qual kind="static" name="numberFormat" type="String"><![CDATA[####]]></p-qual>
+    </p-param>
+  </presentation>
+</workflow>

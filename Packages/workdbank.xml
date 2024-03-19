@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<package>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='d0e1fd82-5ba9-4e23-95f8-4e0cd307fd71'&dunesName='Action'&name='getERPSID'&category='com.custom.erp']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='da99e6ae-6254-4f5d-ab72-578c6a14af20'&dunesName='Workflow']]></elm>
+</package>

@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="powercligetcluster" result-type="Array/string" api-version="6.0.0" id="c4e7c9b0-b5fa-4657-9b27-3ba88dbfd5e4" version="0.0.0" category-name="com.vmware.library.powershell" memory-limit="300000000">
+  <runtime><![CDATA[powercli:12-powershell-7.1]]></runtime>
+  <param n="password" t="string"/>
+  <script encoded="false"><![CDATA[function Handler($context, $inputs) {
+    $inputsString = $inputs | ConvertTo-Json -Compress
+
+    Write-Host "Inputs were $inputsString"
+    $connection = Connect-VIServer -Server s360srv001.eng.vmware.com -User administrator@vsphere.local -Password $inputs.password -force
+    $cluster = get-cluster|select name
+    $clustername = @()
+    $clustername = $cluster.name
+    $as = disconnect-viserver -Server s360srv001.eng.vmware.com -confirm:$False
+        
+
+    return $clustername
+}
+]]></script>
+</dunes-script-module>

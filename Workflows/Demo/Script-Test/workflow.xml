@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item2" object-name="workflow:name=generic" id="21b4ea66-5cee-4f28-ae9c-0423030753f0" editor-version="2.0" version="0.0.0" api-version="6.0.0" restartMode="1" resumeFromFailedMode="0">
+    <display-name>Script-Test</display-name>
+    <position y="50.0" x="100.0"/>
+    <input/>
+    <output>
+        <param name="actionResult" type="string"/>
+    </output>
+    <attrib name="server" type="string" conf-id="75423818-737f-427c-bd9e-c542242f9629" conf-key="server"/>
+    <attrib name="user" type="string" conf-id="75423818-737f-427c-bd9e-c542242f9629" conf-key="user"/>
+    <attrib name="password" type="SecureString" conf-id="75423818-737f-427c-bd9e-c542242f9629" conf-key="password"/>
+    <workflow-item name="item0" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="50.0" x="400.0"/>
+    </workflow-item>
+    <workflow-item name="item1" out-name="item0" type="task" comparator="0">
+        <display-name>Scriptable task</display-name>
+        <runtime>powercli:12-powershell-7.1</runtime>
+        <script encoded="false">function Handler($context, $inputs) {
+
+    Set-PowerCLIConfiguration -InvalidCertificateAction Ignore -ParticipateInCeip:$false -Scope Session -Confirm:$false
+
+    Connect-VIServer -Server s360srv001.eng.vmware.com -Protocol https -User administrator@vsphere.local  -Password L@bS360#1!
+
+    return $output
+}
+</script>
+        <in-binding/>
+        <out-binding/>
+        <description>Simple task with custom script capability.</description>
+        <position y="60.0" x="260.0"/>
+    </workflow-item>
+    <workflow-item name="item2" out-name="item1" type="task" script-module="com.vmware.library.powershell/TestPowercli" comparator="0">
+        <display-name>TestPowercli</display-name>
+        <script encoded="false">//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.powershell").TestPowercli();
+</script>
+        <in-binding/>
+        <out-binding>
+            <bind name="actionResult" type="string" export-name="actionResult"/>
+        </out-binding>
+        <description>Add a note to the workflow schema.</description>
+        <position y="60.0" x="170.0"/>
+    </workflow-item>
+</ns2:workflow>

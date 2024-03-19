@@ -1,0 +1,116 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="Workflow:name=generic" id="BD808080808080808080808080808080CCC280800122528313869552e41805bb1" version="0.3.1" api-version="6.0.0" allowed-operations="vf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Start virtual machine and wait]]></display-name>
+  <description><![CDATA[Starts a virtual machine and waits for VMware Tools to start.]]></description>
+  <ref-types><![CDATA[(VC:VirtualMachine)]]></ref-types>
+  <position y="0.0" x="120.0"/>
+  <input>
+    <param name="vm" type="VC:VirtualMachine">
+      <description><![CDATA[Virtual machine to start]]></description>
+    </param>
+    <param name="host" type="VC:HostSystem">
+      <description><![CDATA[[Optional] The host on which to power on the virtual machine. The host must be part of the same compute resource with which the virtual machine is currently associated. Uses the currently associated host if you do not specify a new host or if you specify an incompatible host.]]></description>
+    </param>
+  </input>
+  <attrib name="task" type="VC:Task" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+    <description><![CDATA[Task to await]]></description>
+  </attrib>
+  <attrib name="pollRate" type="number" read-only="false">
+    <value encoded="n"><![CDATA[1.0]]></value>
+    <description><![CDATA[Polling rate for the task state, in seconds]]></description>
+  </attrib>
+  <attrib name="timeout" type="number" read-only="false">
+    <value encoded="n"><![CDATA[5.0]]></value>
+    <description><![CDATA[Timeout before throwing a timeout exception, in minutes]]></description>
+  </attrib>
+  <workflow-item name="item1" out-name="item7" type="custom-condition" alt-out-name="item0">
+    <display-name><![CDATA[VM is poweredOn?]]></display-name>
+    <script encoded="false"><![CDATA[return vm.runtime.powerState.value == "poweredOn";]]></script>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+    </in-binding>
+    <position y="50.0" x="80.0"/>
+  </workflow-item>
+  <workflow-item name="item7" out-name="item5" type="task" interaction="l">
+    <display-name><![CDATA[Already started]]></display-name>
+    <script encoded="false"><![CDATA[System.log("VM already started");]]></script>
+    <in-binding/>
+    <out-binding/>
+    <position y="120.0" x="80.0"/>
+  </workflow-item>
+  <workflow-item name="item5" out-name="item2" type="task" script-module="com.vmware.library.vc.vm.tools/vim3WaitToolsStarted">
+    <display-name><![CDATA[vim3WaitToolsStarted]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+System.getModule("com.vmware.library.vc.vm.tools").vim3WaitToolsStarted(vm,pollingRate,timeout) ;]]></script>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm">
+        <description><![CDATA[VM in which the action look to get the new DNS Name]]></description>
+      </bind>
+      <bind name="timeout" type="number" export-name="timeout">
+        <description><![CDATA[Timeout before throwing a timeout exception [minutes]]]></description>
+      </bind>
+      <bind name="pollingRate" type="number" export-name="pollRate">
+        <description><![CDATA[Time between all request information on the tools [seconds]]]></description>
+      </bind>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Wait for the VMware tools to be up and the guest running
+
+Exception:
+- Timeout: When timeout is reached
+- ReferenceError: When vm is not setted correctly]]></description>
+    <position y="180.0" x="180.0"/>
+  </workflow-item>
+  <workflow-item name="item2" type="end" end-mode="0">
+    <position y="210.0" x="220.0"/>
+  </workflow-item>
+  <workflow-item name="item0" out-name="item3" type="task" script-module="com.vmware.library.vc.vm.power/startVM">
+    <display-name><![CDATA[startVM]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vc.vm.power").startVM(vm,host) ;]]></script>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm">
+        <description><![CDATA[VM to start or resume]]></description>
+      </bind>
+      <bind name="host" type="VC:HostSystem" export-name="host">
+        <description><![CDATA[[Optional] The host where the virtual machine is to be powered on. If no host is specified, the current associated host is used. This field must specify a host that is part of the same compute resource that the virtual machine is currently associated with. If this host is not compatible, the current host association is used. ]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="VC:Task" export-name="task"/>
+    </out-binding>
+    <description><![CDATA[Start / Resume a VM. Return the start task]]></description>
+    <position y="60.0" x="280.0"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item5" type="link" linked-workflow-id="B8808080808080808080808080808080C480808001231146624761b79546544c2">
+    <display-name><![CDATA[Wait for task and answer virtual machine question]]></display-name>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm">
+        <description><![CDATA[Virtual machine for which the task runs]]></description>
+      </bind>
+      <bind name="task" type="VC:Task" export-name="task">
+        <description><![CDATA[Task to await]]></description>
+      </bind>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Waits for a vCenter task to complete or for the virtual machine to ask a question. If the virtual machine requires an answer, accepts user input and answers the question.]]></description>
+    <position y="120.0" x="280.0"/>
+  </workflow-item>
+  <presentation>
+    <p-qual name="autostart" type="boolean"><![CDATA[]]></p-qual>
+    <p-group>
+      <title><![CDATA[Virtual Machine]]></title>
+      <desc><![CDATA[Virtual Machine to start.]]></desc>
+      <p-param name="vm">
+        <desc><![CDATA[Virtual machine to start]]></desc>
+        <p-qual name="contextualParameter" type="void"><![CDATA[]]></p-qual>
+        <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+      <p-param name="host">
+        <desc><![CDATA[Host on which to power on the virtual machine [Optional]]]></desc>
+        <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[false]]></p-qual>
+      </p-param>
+    </p-group>
+  </presentation>
+</workflow>

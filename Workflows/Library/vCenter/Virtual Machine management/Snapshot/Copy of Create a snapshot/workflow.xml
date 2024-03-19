@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item0" object-name="Workflow:name=generic" id="2a4c55fa-eacd-420a-b747-630e42777ac5" editor-version="2.0" version="0.2.0" api-version="6.0.0" allowed-operations="vef" restartMode="1" resumeFromFailedMode="0">
+    <display-name>Copy of Create a snapshot</display-name>
+    <description>Creates a snapshot.</description>
+    <ref-types>(VC:VirtualMachine)</ref-types>
+    <position y="30.0" x="60.0"/>
+    <input>
+        <param name="vm" type="VC:VirtualMachine">
+            <description>Virtual machine of which to create a snapshot</description>
+        </param>
+        <param name="name" type="string">
+            <description>Snapshot name. The name need not be unique for this virtual machine.</description>
+        </param>
+        <param name="description" type="string">
+            <description>Snapshot description.</description>
+        </param>
+        <param name="memory" type="boolean">
+            <description>If TRUE, the snapshot includes a dump of the internal state of the virtual machine (a memory dump). </description>
+        </param>
+        <param name="quiesce" type="boolean">
+            <description>If TRUE and the virtual machine is powered on when the snapshot is taken, VMware Tools are used to quiesce the file system in the virtual machine.</description>
+        </param>
+    </input>
+    <output>
+        <param name="snapshot" type="VC:VirtualMachineSnapshot">
+            <description>The snapshot created</description>
+        </param>
+    </output>
+    <attrib name="task" type="VC:Task">
+        <value encoded="n"/>
+        <description>Task to await</description>
+    </attrib>
+    <attrib name="progress" type="boolean">
+        <value encoded="n">false</value>
+        <description>Log progress while waiting for the task to complete</description>
+    </attrib>
+    <attrib name="pollRate" type="number">
+        <value encoded="n">2.0</value>
+        <description>Polling rate for the task state, in seconds</description>
+    </attrib>
+    <workflow-item name="item0" out-name="item1" type="task" script-module="com.vmware.library.vc.vm.snapshot/createSnapshot" comparator="0">
+        <display-name>createSnapshot</display-name>
+        <script encoded="false">//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vc.vm.snapshot").createSnapshot(vm,name,description,memory,quiesce) ;</script>
+        <in-binding>
+            <bind name="vm" type="VC:VirtualMachine" export-name="vm">
+                <description>The VM on which to create a snapshot</description>
+            </bind>
+            <bind name="quiesce" type="boolean" export-name="quiesce">
+                <description>If TRUE and the virtual machine is powered on when the snapshot is taken, VMware Tools is used to quiesce the file system in the virtual machine.</description>
+            </bind>
+            <bind name="name" type="string" export-name="name">
+                <description>The name for this snapshot. The name need not be unique for this virtual machine. </description>
+            </bind>
+            <bind name="memory" type="boolean" export-name="memory">
+                <description>If TRUE, a dump of the internal state of the virtual machine (basically a memory dump) is included in the snapshot. </description>
+            </bind>
+            <bind name="description" type="string" export-name="description">
+                <description>A description for this snapshot. If omitted, a default description may be provided. </description>
+            </bind>
+        </in-binding>
+        <out-binding>
+            <bind name="actionResult" type="VC:Task" export-name="task"/>
+        </out-binding>
+        <description>Creates a new snapshot of this virtual machine. As a side effect, this updates the current snapshot. 
+Any % (percent) character used in this name parameter must be escaped, unless it is used to start an escape sequence. Clients may also escape any other characters in this name parameter. </description>
+        <position y="30.0" x="260.0"/>
+    </workflow-item>
+    <workflow-item name="item1" out-name="item2" type="task" script-module="com.vmware.library.vc.basic/vim3WaitTaskEnd" comparator="0">
+        <display-name>vim3WaitTaskEnd</display-name>
+        <script encoded="false">//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vc.basic").vim3WaitTaskEnd(task,progress,pollRate) ;</script>
+        <in-binding>
+            <bind name="task" type="VC:Task" export-name="task">
+                <description>Task to Wait for</description>
+            </bind>
+            <bind name="progress" type="boolean" export-name="progress">
+                <description>Log progess while waiting for the task</description>
+            </bind>
+            <bind name="pollRate" type="number" export-name="pollRate">
+                <description>Polling rate for the task state [seconds]</description>
+            </bind>
+        </in-binding>
+        <out-binding>
+            <bind name="actionResult" type="Any" export-name="snapshot"/>
+        </out-binding>
+        <description>Wait a VIM 3 Task to end.
+When task ended, return the </description>
+        <position y="30.0" x="440.0"/>
+    </workflow-item>
+    <workflow-item name="item2" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="20.0" x="640.0"/>
+    </workflow-item>
+</ns2:workflow>

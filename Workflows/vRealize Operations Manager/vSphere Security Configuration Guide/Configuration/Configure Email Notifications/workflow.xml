@@ -1,0 +1,197 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item2" object-name="Workflow:name=generic" id="f9420ff8-18fe-414b-be67-4e7ead8735e6" version="0.0.9" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Configure Email Notifications]]></display-name>
+  <description><![CDATA[Configure SDO Email Options.
+]]></description>
+  <position y="20.0" x="180.0"/>
+  <input>
+    <param name="useStartTls" type="boolean">
+      <description><![CDATA[If true, enables the use of the STARTTLS command (if supported by the server) to switch the connection to a TLS-protected connection before issuing any login commands]]></description>
+    </param>
+    <param name="smtpHost" type="string">
+      <description><![CDATA[SMTP host]]></description>
+    </param>
+    <param name="smtpPort" type="number">
+      <description><![CDATA[SMTP port]]></description>
+    </param>
+    <param name="username" type="string">
+      <description><![CDATA[Username for authentication]]></description>
+    </param>
+    <param name="password" type="SecureString">
+      <description><![CDATA[Password for authentication]]></description>
+    </param>
+    <param name="fromName" type="string">
+      <description><![CDATA[Sender's name]]></description>
+    </param>
+    <param name="fromAddress" type="string">
+      <description><![CDATA[Sender's address]]></description>
+    </param>
+    <param name="toAddressList" type="Array/string">
+      <description><![CDATA[List of destination addresses]]></description>
+    </param>
+    <param name="ccList" type="Array/string">
+      <description><![CDATA[List of carbon copy addresses]]></description>
+    </param>
+    <param name="bccList" type="Array/string">
+      <description><![CDATA[List of blind carbon copy addresses]]></description>
+    </param>
+    <param name="useSsl" type="boolean">
+      <description><![CDATA[If set to true, use SSL to connect ]]></description>
+    </param>
+  </input>
+  <output>
+    <param name="emailConfig" type="ConfigurationElement"/>
+  </output>
+  <attrib name="categoryPath" type="string" read-only="false">
+    <value encoded="n"><![CDATA[Configurations]]></value>
+    <description><![CDATA[Config element category path name]]></description>
+  </attrib>
+  <attrib name="configName" type="string" read-only="false">
+    <value encoded="n"><![CDATA[Email Config]]></value>
+    <description><![CDATA[Config element name]]></description>
+  </attrib>
+  <attrib name="configuration" type="ConfigurationElement" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <workflow-item name="item0" out-name="item1" type="task">
+    <display-name><![CDATA[Update Email Configuration]]></display-name>
+    <script encoded="false"><![CDATA[configuration.setAttributeWithKey("smtpHost",smtpHost);
+configuration.setAttributeWithKey("smtpPort",smtpPort);
+if (username){
+	configuration.setAttributeWithKey("username",username);
+} else {
+	configuration.setAttributeWithKey("username","");
+}
+if (password){
+	configuration.setAttributeWithKey("password",password);
+} else {
+	configuration.setAttributeWithKey("password","");
+}
+configuration.setAttributeWithKey("fromName",fromName);
+configuration.setAttributeWithKey("fromAddress",fromAddress);
+configuration.setAttributeWithKey("toAddressList",toAddressList);
+if (!ccList){
+	configuration.setAttributeWithKey("ccList",[]);
+} else {
+	configuration.setAttributeWithKey("ccList",ccList);
+	
+}
+if (!bccList){
+	configuration.setAttributeWithKey("bccList",[]);
+} else {
+	configuration.setAttributeWithKey("bccList",bccList);
+}
+configuration.setAttributeWithKey("useSsl",useSsl);
+configuration.setAttributeWithKey("useStartTls",useStartTls);
+
+
+emailConfig = configuration;
+
+
+
+
+
+]]></script>
+    <in-binding>
+      <bind name="smtpHost" type="string" export-name="smtpHost"/>
+      <bind name="smtpPort" type="number" export-name="smtpPort"/>
+      <bind name="username" type="string" export-name="username"/>
+      <bind name="password" type="SecureString" export-name="password"/>
+      <bind name="fromName" type="string" export-name="fromName"/>
+      <bind name="fromAddress" type="string" export-name="fromAddress"/>
+      <bind name="toAddressList" type="Array/string" export-name="toAddressList"/>
+      <bind name="ccList" type="Array/string" export-name="ccList"/>
+      <bind name="bccList" type="Array/string" export-name="bccList"/>
+      <bind name="useSsl" type="boolean" export-name="useSsl">
+        <description><![CDATA[If set to true, use SSL to connect ]]></description>
+      </bind>
+      <bind name="useStartTls" type="boolean" export-name="useStartTls">
+        <description><![CDATA[If true, enables the use of the STARTTLS command (if supported by the server) to switch the connection to a TLS-protected connection before issuing any login commands]]></description>
+      </bind>
+      <bind name="configuration" type="ConfigurationElement" export-name="configuration"/>
+    </in-binding>
+    <out-binding>
+      <bind name="emailConfig" type="ConfigurationElement" export-name="emailConfig"/>
+    </out-binding>
+    <position y="28.136363636363633" x="445.0"/>
+  </workflow-item>
+  <workflow-item name="item1" type="end" end-mode="0">
+    <position y="18.136363636363633" x="625.0"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item0" type="task" script-module="com.vmware.vrops.remediation/createConfigElement">
+    <display-name><![CDATA[createConfigElement]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.vrops.remediation").createConfigElement(categoryPath,configName) ;]]></script>
+    <in-binding>
+      <bind name="categoryPath" type="string" export-name="categoryPath">
+        <description><![CDATA[Configuration Element Category Path]]></description>
+      </bind>
+      <bind name="configName" type="string" export-name="configName">
+        <description><![CDATA[Desired Config Element Name]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="ConfigurationElement" export-name="configuration"/>
+    </out-binding>
+    <position y="28.636363636363633" x="305.0"/>
+  </workflow-item>
+  <presentation>
+    <p-step>
+      <title><![CDATA[SMTP Server Information]]></title>
+      <p-param name="smtpHost">
+        <desc><![CDATA[SMTP host]]></desc>
+        <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+        <p-qual kind="ognl" name="defaultValue" type="string"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #categoryPath , #configName , "smtpHost" )]]></p-qual>
+      </p-param>
+      <p-param name="smtpPort">
+        <desc><![CDATA[SMTP port]]></desc>
+        <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+        <p-qual kind="ognl" name="defaultValue" type="number"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #categoryPath , #configName , "smtpPort" )]]></p-qual>
+      </p-param>
+      <p-param name="useStartTls">
+        <desc><![CDATA[If true, enables the use of the STARTTLS command (if supported by the server) to switch the connection to a TLS-protected connection before issuing any login commands]]></desc>
+        <p-qual kind="ognl" name="defaultValue" type="boolean"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #categoryPath , #configName , "useStartTls" )]]></p-qual>
+      </p-param>
+      <p-param name="useSsl">
+        <desc><![CDATA[If set to true, use SSL to connect ]]></desc>
+        <p-qual kind="ognl" name="defaultValue" type="boolean"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #categoryPath , #configName , "UseSsl" )]]></p-qual>
+      </p-param>
+    </p-step>
+    <p-step>
+      <title><![CDATA[Credentials and Sender Information]]></title>
+      <p-param name="username">
+        <desc><![CDATA[Username for authentication]]></desc>
+        <p-qual kind="ognl" name="defaultValue" type="string"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #categoryPath , #configName , "username" )]]></p-qual>
+      </p-param>
+      <p-param name="password">
+        <desc><![CDATA[Password for authentication]]></desc>
+      </p-param>
+      <p-param name="fromName">
+        <desc><![CDATA[Sender's name]]></desc>
+        <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+        <p-qual kind="ognl" name="defaultValue" type="string"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #categoryPath , #configName , "fromName" )]]></p-qual>
+      </p-param>
+      <p-param name="fromAddress">
+        <desc><![CDATA[Sender's address]]></desc>
+        <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+        <p-qual kind="ognl" name="defaultValue" type="string"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #categoryPath , #configName , "fromAddress" )]]></p-qual>
+      </p-param>
+    </p-step>
+    <p-step>
+      <title><![CDATA[Configure Mailing Lists]]></title>
+      <p-param name="toAddressList">
+        <desc><![CDATA[List of destination addresses, at least one address is required.]]></desc>
+        <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+        <p-qual kind="ognl" name="defaultValue" type="Array/string"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #categoryPath , #configName , "toAddressList" )]]></p-qual>
+      </p-param>
+      <p-param name="ccList">
+        <desc><![CDATA[List of carbon copy addresses, optional]]></desc>
+        <p-qual kind="ognl" name="defaultValue" type="Array/string"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #categoryPath , #configName , "ccList" )]]></p-qual>
+      </p-param>
+      <p-param name="bccList">
+        <desc><![CDATA[List of blind carbon copy addresses, optional]]></desc>
+        <p-qual kind="ognl" name="defaultValue" type="Array/string"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #categoryPath , #configName , "bccList" )]]></p-qual>
+      </p-param>
+    </p-step>
+  </presentation>
+</workflow>

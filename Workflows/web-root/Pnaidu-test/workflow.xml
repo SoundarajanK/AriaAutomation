@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item2" object-name="workflow:name=generic" id="20c7e2ee-f10e-4e83-88a7-5f52257fbdd9" editor-version="2.0" version="0.0.0" api-version="6.0.0" restartMode="1" resumeFromFailedMode="0">
+    <display-name>Pnaidu-test</display-name>
+    <position y="50.0" x="100.0"/>
+    <input>
+        <param name="inputProperties" type="Properties"/>
+    </input>
+    <output>
+        <param name="outputProperties" type="Properties"/>
+    </output>
+    <attrib name="var_flavor" type="string">
+        <value encoded="n"></value>
+    </attrib>
+    <attrib name="var_ipaddress" type="Array/string">
+        <value encoded="n"/>
+    </attrib>
+    <workflow-item name="item0" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="50.0" x="540.0"/>
+    </workflow-item>
+    <workflow-item name="item1" out-name="item0" type="task" comparator="0">
+        <display-name>IP Allocation</display-name>
+        <script encoded="false">System.log("This will be flavor: " + var_flavor)&#13;
+//System.log("This is the IP address from the request: " + var_ipaddress[1] )</script>
+        <in-binding>
+            <bind name="var_flavor" type="string" export-name="var_flavor"/>
+            <bind name="var_ipaddress" type="Array/string" export-name="var_ipaddress"/>
+        </in-binding>
+        <out-binding/>
+        <description>Simple task with custom script capability.</description>
+        <position y="60.0" x="340.0"/>
+    </workflow-item>
+    <workflow-item name="item2" out-name="item1" type="task" comparator="0">
+        <display-name>Parse Payload</display-name>
+        <script encoded="false">function dumpProperties(props,lvl){&#13;
+         var keys = props.keys;&#13;
+         var prefix = ""&#13;
+     for (var i=0; i&lt;lvl; i++){&#13;
+                   prefix = prefix + "";&#13;
+          }&#13;
+          for (k in keys){&#13;
+                 var key = keys[k];&#13;
+                 var value = props.get(keys[k])&#13;
+                 if ("Properties" == System.getObjectType(value)){&#13;
+                  System.log(prefix + key + "[")&#13;
+                  dumpProperties(value,(lvl+2));&#13;
+                  System.log(prefix+ "]")&#13;
+                 } else{&#13;
+                   System.log( prefix + key + ":" + value)&#13;
+                 }&#13;
+                 }&#13;
+   }&#13;
+&#13;
+   dumpProperties(inputProperties, 0)&#13;
+&#13;
+   customProps = inputProperties.get("customProperties")&#13;
+   var_flavor = customProps.get("flavor")&#13;
+   //var_ipaddress = inputProperties.get("addresses")</script>
+        <in-binding>
+            <bind name="inputProperties" type="Properties" export-name="inputProperties"/>
+        </in-binding>
+        <out-binding>
+            <bind name="var_flavor" type="string" export-name="var_flavor"/>
+        </out-binding>
+        <description>Simple task with custom script capability.</description>
+        <position y="60.0" x="180.0"/>
+    </workflow-item>
+</ns2:workflow>

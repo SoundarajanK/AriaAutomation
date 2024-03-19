@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item0" object-name="Workflow:name=generic" id="e68bf383-65b4-49ba-bba9-52143dfbd0e9" editor-version="2.0" version="0.4.0" api-version="6.0.0" allowed-operations="vef" restartMode="1" resumeFromFailedMode="0">
+    <display-name>Copy of Migrate virtual machine with vMotion</display-name>
+    <description>Migrates a virtual machine from one host to another by using MigrateVM_Task from the vSphere API.</description>
+    <ref-types>(VC:VirtualMachine)</ref-types>
+    <position y="30.0" x="180.0"/>
+    <input>
+        <param name="vm" type="VC:VirtualMachine">
+            <description>Virtual machine to migrate</description>
+        </param>
+        <param name="pool" type="VC:ResourcePool">
+            <description>Destination resource pool for the virtual machine. If you do not set the resource pool parameter, the current resource pool is used as the destination pool</description>
+        </param>
+        <param name="host" type="VC:HostSystem">
+            <description>Destination host to which to migrate the virtual machine</description>
+        </param>
+        <param name="priority" type="VC:VirtualMachineMovePriority">
+            <description>Priority of the migration task</description>
+        </param>
+        <param name="state" type="VC:VirtualMachinePowerState">
+            <description>(Optional) Only migrate the virtual machine if its power on state matches the specified state</description>
+        </param>
+    </input>
+    <output/>
+    <attrib name="task" type="VC:Task">
+        <value encoded="n"/>
+        <description>Task to await</description>
+    </attrib>
+    <attrib name="progress" type="boolean">
+        <value encoded="n">false</value>
+        <description>Log progress while waiting for the task</description>
+    </attrib>
+    <attrib name="pollRate" type="number">
+        <value encoded="n">1.0</value>
+        <description>Polling rate for the task state, in seconds</description>
+    </attrib>
+    <workflow-item name="item0" out-name="item1" type="task" comparator="0">
+        <display-name>Migrate VM</display-name>
+        <script encoded="false">var movePriority = null
+if (priority != null) {
+	movePriority = VcVirtualMachineMovePriority.fromString(priority.name);
+}
+
+var exState = null
+if (state != null) {
+	exState = VcVirtualMachinePowerState.fromString(state.name);
+}
+
+task = vm.migrateVM_Task(pool, host, movePriority, exState);</script>
+        <in-binding>
+            <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+            <bind name="state" type="VC:VirtualMachinePowerState" export-name="state"/>
+            <bind name="priority" type="VC:VirtualMachineMovePriority" export-name="priority"/>
+            <bind name="pool" type="VC:ResourcePool" export-name="pool"/>
+            <bind name="host" type="VC:HostSystem" export-name="host"/>
+        </in-binding>
+        <out-binding>
+            <bind name="task" type="VC:Task" export-name="task"/>
+        </out-binding>
+        <position y="80.0" x="140.0"/>
+    </workflow-item>
+    <workflow-item name="item2" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="190.0" x="180.0"/>
+    </workflow-item>
+    <workflow-item name="item1" out-name="item2" type="task" script-module="com.vmware.library.vc.basic/vim3WaitTaskEnd" comparator="0">
+        <display-name>vim3WaitTaskEnd</display-name>
+        <script encoded="false">//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vc.basic").vim3WaitTaskEnd(task,progress,pollRate) ;</script>
+        <in-binding>
+            <bind name="task" type="VC:Task" export-name="task">
+                <description>Task to Wait for</description>
+            </bind>
+            <bind name="progress" type="boolean" export-name="progress">
+                <description>Log progess while waiting for the task</description>
+            </bind>
+            <bind name="pollRate" type="number" export-name="pollRate">
+                <description>Polling rate for the task state [seconds]</description>
+            </bind>
+        </in-binding>
+        <out-binding>
+            <bind name="actionResult" type="Any" export-name="NULL"/>
+        </out-binding>
+        <description>Wait a VIM 3 Task to end.
+When task ended, return the </description>
+        <position y="140.0" x="140.0"/>
+    </workflow-item>
+</ns2:workflow>

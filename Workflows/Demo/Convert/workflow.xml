@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item1" object-name="workflow:name=generic" id="60abc7a9-d6b2-4f90-8edf-3663305bac55" editor-version="2.0" version="0.0.0" api-version="6.0.0" restartMode="1" resumeFromFailedMode="0">
+    <display-name>Convert</display-name>
+    <position y="50.0" x="100.0"/>
+    <input>
+        <param name="name" type="string"/>
+    </input>
+    <output>
+        <param name="vmname" type="VC:VirtualMachine"/>
+    </output>
+    <attrib name="vmname1" type="VC:VirtualMachine">
+        <value encoded="n"/>
+    </attrib>
+    <attrib name="snapShotRequired" type="boolean">
+        <value encoded="n">false</value>
+    </attrib>
+    <workflow-item name="item0" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="50.0" x="570.0"/>
+    </workflow-item>
+    <workflow-item name="item1" out-name="item3" type="task" comparator="0">
+        <display-name>Scriptable task</display-name>
+        <script encoded="false">query = "xpath:name='"+name+"'";&#13;
+&#13;
+name = Server.findAllForType("VC:VirtualMachine", query);&#13;
+&#13;
+vmname = name[0];1&#13;
+vmname1 = name[0];1</script>
+        <in-binding>
+            <bind name="name" type="string" export-name="name"/>
+        </in-binding>
+        <out-binding>
+            <bind name="vmname" type="VC:VirtualMachine" export-name="vmname"/>
+            <bind name="vmname1" type="VC:VirtualMachine" export-name="vmname1"/>
+        </out-binding>
+        <description>Simple task with custom script capability.</description>
+        <position y="60.0" x="170.0"/>
+    </workflow-item>
+    <workflow-item name="item2" out-name="item0" type="link" linked-workflow-id="04267dc7-c56c-4427-809c-080ac6cf7cc9" comparator="0">
+        <display-name>GetVmPowerState</display-name>
+        <script encoded="false"></script>
+        <in-binding>
+            <bind name="targetVM" type="VC:VirtualMachine" export-name="vmname1"/>
+            <bind name="snapShotRequired" type="boolean" export-name="snapShotRequired"/>
+            <bind name="CorrelationId" type="string" export-name=""/>
+            <bind name="targetVMName" type="string" export-name=""/>
+        </in-binding>
+        <out-binding>
+            <bind name="vmStateOut" type="string" export-name=""/>
+            <bind name="statusOut" type="boolean" export-name=""/>
+            <bind name="snapShotPowerOff" type="boolean" export-name=""/>
+        </out-binding>
+        <description> </description>
+        <position y="60.0" x="370.0"/>
+    </workflow-item>
+    <workflow-item name="item3" out-name="item2" type="link" linked-workflow-id="BD80808080808080808080808080808058C180800122528313869552e41805bb1" comparator="0">
+        <display-name>Power off virtual machine and wait</display-name>
+        <script encoded="false"></script>
+        <in-binding>
+            <bind name="vm" type="VC:VirtualMachine" export-name="vmname1">
+                <description>Virtual machine to power off</description>
+            </bind>
+        </in-binding>
+        <out-binding/>
+        <description> </description>
+        <position y="60.0" x="275.0"/>
+    </workflow-item>
+</ns2:workflow>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<package>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='0bba79d7-d37f-44ee-a575-cf0eca626075'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='5d3a1899-a40b-47ed-87c1-dc01ba7dc90c'&dunesName='Action'&name='getDate30DaysAgo'&category='actions.mayank.goyal']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='e053fdb5-e6a7-464e-af6a-9b9629df8ba6'&dunesName='Action'&name='getCurrentDateInISOFormat'&category='actions.mayank.goyal']]></elm>
+</package>

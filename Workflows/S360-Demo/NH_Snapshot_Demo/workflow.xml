@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item1" object-name="workflow:name=generic" id="e92018fd-2106-44c3-ad27-3d085499ad1d" editor-version="2.0" version="1.0.0" api-version="6.0.0" restartMode="1" resumeFromFailedMode="0">
+    <display-name>NH_Snapshot_Demo</display-name>
+    <position y="50.0" x="100.0"/>
+    <input>
+        <param name="vmName" type="VC:VirtualMachine"/>
+        <param name="SnapshotName" type="string">
+            <description>Enter the name of snapshot</description>
+        </param>
+    </input>
+    <output/>
+    <attrib name="memory" type="boolean">
+        <value encoded="n">true</value>
+    </attrib>
+    <attrib name="quiesce" type="boolean">
+        <value encoded="n">true</value>
+    </attrib>
+    <attrib name="snapshot" type="VC:VirtualMachineSnapshot">
+        <value encoded="n"/>
+    </attrib>
+    <workflow-item name="item0" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="50.0" x="300.0"/>
+    </workflow-item>
+    <workflow-item name="item1" out-name="item0" type="link" linked-workflow-id="BD80808080808080808080808080808053C180800122528313869552e41805bb1" comparator="0">
+        <display-name>Create a snapshot</display-name>
+        <script encoded="false"></script>
+        <in-binding>
+            <bind name="vm" type="VC:VirtualMachine" export-name="vmName">
+                <description>Virtual machine of which to create a snapshot</description>
+            </bind>
+            <bind name="name" type="string" export-name="SnapshotName">
+                <description>Snapshot name. The name need not be unique for this virtual machine.</description>
+            </bind>
+            <bind name="description" type="string" export-name="">
+                <description>Snapshot description.</description>
+            </bind>
+            <bind name="memory" type="boolean" export-name="memory">
+                <description>If TRUE, the snapshot includes a dump of the internal state of the virtual machine (a memory dump). </description>
+            </bind>
+            <bind name="quiesce" type="boolean" export-name="quiesce">
+                <description>If TRUE and the virtual machine is powered on when the snapshot is taken, VMware Tools are used to quiesce the file system in the virtual machine.</description>
+            </bind>
+        </in-binding>
+        <out-binding>
+            <bind name="snapshot" type="VC:VirtualMachineSnapshot" export-name="snapshot">
+                <description>The snapshot created</description>
+            </bind>
+        </out-binding>
+        <description> </description>
+        <position y="60.0" x="150.0"/>
+    </workflow-item>
+</ns2:workflow>

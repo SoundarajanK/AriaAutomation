@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="checkvcacconfig" result-type="boolean" api-version="6.0.0" id="30e2922b-2f8f-40b8-bb24-24e98a9a531a" version="0.0.0" allowed-operations="evf" category-name="com.vmware.vrops.remediation">
+  <script encoded="false"><![CDATA[var vcacConfigOk = false;
+try{
+	pluginTypes = Server.getAllPluginInfo();
+
+	var foundvCAC = false;
+	var foundvCACCAFE = false;
+
+
+	for each (var plugin in pluginTypes){ 
+		System.log("Found " + plugin.name); 
+		if(plugin.name == "vCAC"){
+			foundvCAC = true; }
+		if(plugin.name == "vCACCAFE"){
+			foundvCACCAFE = true;
+		}
+	}
+	vcacConfigOk  = (foundvCAC && foundvCACCAFE);
+	if (vcacConfigOk){
+
+		var vCACHosts = Server.findAllForType("VCAC:VCACHost",null);
+
+		if( vCACHosts == null || vCACHosts.length == 0){
+			throw "No IAAS Hosts Found";
+		}
+		for each (var host in vCACHosts){
+			host.validate();
+		}
+
+		var vCACCAFEHosts = Server.findAllForType("vCACCAFE:VCACHost",null);
+		if(vCACCAFEHosts == null || vCACCAFEHosts.length == 0){
+			throw "No vCACCAFE Hosts Found";
+		}
+		for each (var host in vCACCAFEHosts){
+			host.validate();
+		}
+		vcacConfigOk = true;
+	}
+	else {
+		System.log("vCO does NOT have vCAVC plugin installed");
+	}	
+}
+catch (exception) {
+	System.log("Error validating vCAC Config: " + exception);
+	vcacConfigOk = false;
+}
+finally {
+	return vcacConfigOk;	
+}]]></script>
+</dunes-script-module>

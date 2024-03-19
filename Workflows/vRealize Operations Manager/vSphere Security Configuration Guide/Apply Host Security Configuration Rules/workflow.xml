@@ -1,0 +1,320 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item4" object-name="workflow:name=generic" id="d479a132-57f0-44d5-ab7e-4ee352b877e8" version="0.0.21" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Apply Host Security Configuration Rules]]></display-name>
+  <description><![CDATA[Apply security hardening guidelines for ESXi hosts monitored by vRealize Operations.  This workflow can be used to address the configuration settings that will trigger symptoms for 6.7U1 ESXi hosts.  
+
+To use, you must run the companion workflow to configure your organization's preferred settings for some host configuration values.]]></description>
+  <position y="45.90909090909091" x="185.0"/>
+  <input>
+    <param name="Host" type="VC:HostSystem"/>
+    <param name="vrops_alert_id" type="string"/>
+  </input>
+  <attrib name="sdoHostSecurityHardeningOptions" type="ConfigurationElement" read-only="false">
+    <value encoded="n"><![CDATA[dunes://service.dunes.ch/ConfigurationElement?id='5477703e-f0be-4626-b3c1-d78d94fcf99b'&dunesName='ConfigurationElement']]></value>
+  </attrib>
+  <attrib name="workflowTokens" type="Array/WorkflowToken" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="workflowResults" type="Array/Properties" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="symptoms" type="Array/string" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="SymptomMapping" type="ConfigurationElement" read-only="false">
+    <value encoded="n"><![CDATA[dunes://service.dunes.ch/ConfigurationElement?id='48028322-ae85-4447-a420-51f68e78d52a'&dunesName='ConfigurationElement']]></value>
+  </attrib>
+  <attrib name="sdoEmailSettings" type="ConfigurationElement" read-only="false">
+    <value encoded="n"><![CDATA[dunes://service.dunes.ch/ConfigurationElement?id='fb155c55-91b6-4b70-98c6-e45764ff6534'&dunesName='ConfigurationElement']]></value>
+  </attrib>
+  <attrib name="errorCode" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="emailBody" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="1224.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item2" type="task">
+    <display-name><![CDATA[Enforce Compliance]]></display-name>
+    <script encoded="false"><![CDATA[configAttributes = sdoHostSecurityHardeningOptions.attributes;
+workflowTokens = new Array();
+
+
+for each (var symptom in symptoms) {
+	symptomMap = SymptomMapping.getAttributeWithKey(symptom);
+	    if (symptomMap) {
+		var enforceRule = sdoHostSecurityHardeningOptions.getAttributeWithKey(symptomMap.value);
+		var hasRun = false;
+		for (i=0;i<workflowTokens.length;i++) { 
+			if (workflowTokens[i].rootWorkflow.name == enforceRule.name) { hasRun = true; }
+		}
+		if (enforceRule.value && !hasRun)
+		{
+			var enforceWorkflow = System.getModule("com.vmware.library.vcac").getWorkflowByName(enforceRule.name);
+			var inputParameters = new Properties();
+			inputParameters.put("host",vcHost);
+			workflowToken = enforceWorkflow.execute(inputParameters);
+			var currentWorkflowToken = [workflowToken];
+			workflowTokens.push(workflowToken);
+			System.log("Remediation of " + enforceRule.name + " initiated.");
+			System.getModule("com.vmware.vrops.remediation").improvedWaitAllWorkflowComplete(currentWorkflowToken) 
+		} else {
+			System.log(symptom + " was not remediated or remediation already run.");
+		}
+	} else {
+		System.log("There is no remediation workflow for " + symptom);
+	}
+}
+
+]]></script>
+    <in-binding>
+      <bind name="sdoHostSecurityHardeningOptions" type="ConfigurationElement" export-name="sdoHostSecurityHardeningOptions"/>
+      <bind name="vcHost" type="VC:HostSystem" export-name="Host"/>
+      <bind name="symptoms" type="Array/string" export-name="symptoms"/>
+      <bind name="SymptomMapping" type="ConfigurationElement" export-name="SymptomMapping"/>
+    </in-binding>
+    <out-binding>
+      <bind name="workflowTokens" type="Array/WorkflowToken" export-name="workflowTokens"/>
+    </out-binding>
+    <position y="55.40909090909091" x="484.5"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item7" throw-bind-name="errorCode" type="task">
+    <display-name><![CDATA[Prepare Email Body]]></display-name>
+    <script encoded="false"><![CDATA[function getWfResultsProp(results, wfname) {
+	for each (res in results) {
+		if (res.__wfname == wfname) { return res };
+	}
+}
+//Prepare email body
+var body = "<!DOCTYPE html>\n";
+body += "<html>\n";
+body += "<head>\n";
+body += "<title> vRealize Operations detected a host out of compliance with the vSphere Security Configuration Guide</title>\n";
+body += "</head>\n";
+body += "<body style='font-family: Arial; text-align: left;'>\n";
+body += "<h1>Automated Compliance Remediation Report</h1>\n";
+body += "<p>vRealize Operations detected a host out of compliance with the vSphere Security Configuration Guide.  The table below provides details on conditions detected and automated remediation actions taken.\n";
+
+body += "<table style='border:1px solid black; font-family: Arial;border-collapse: collapse;'>\n";
+body += "<tr style='background #005fbf;'>\n";
+body += "<td colspan='3' style='font-weight: bold;color: #000;font-size: 14px;text-align: center;vertical-align: middle;'> Host name: " + vcHost.name + "</td>\n";
+body += "</tr>\n";
+body += "<tr style='background: #005fbf;'>\n";
+body += "\
+<th style='font-weight: bold;font-size: 12px;color: #FFF;border: 1px solid black;padding: 3px;'>Condition Detected </th>\
+<th style='font-weight: bold;font-size: 12px;color: #FFF;border: 1px solid black;padding: 3px;'>Workflow Executed </th>\
+<th style='font-weight: bold;font-size: 12px;color: #FFF;border: 1px solid black;padding: 3px;'>Workflow Success </th>\
+\n";
+
+for each (symptom in symptoms) {
+	var workflowExecuted = new String();
+	var workflowState = new String();
+	var symptomMap = SymptomMapping.getAttributeWithKey(symptom);
+	if (symptomMap) {
+		var enforceRule = sdoHostSecurityHardeningOptions.getAttributeWithKey(symptomMap.value);
+		if (enforceRule.value) {
+			workflowExecuted = getWfResultsProp(workflowResults,symptomMap.value).__wfname;
+			workflowSuccess = getWfResultsProp(workflowResults,symptomMap.value).__state;
+		} else {
+			workflowExecuted = "Not enforced";
+			workflowSuccess = "N/A";
+		}
+	} else {
+		workflowExecuted = "Not enforcable";
+		workflowSuccess = "N/A";
+	}
+	
+	body += "<tr style='background: #ffffff;'>\n";
+	body += "\
+	<td style='font-weight: bold;font-size: 12px;color: #000;border: 1px solid black;padding: 3px;'>" + symptom + "</td>\
+	<td style='font-weight: bold;font-size: 12px;color: #000;border: 1px solid black;padding: 3px;'>" + workflowExecuted + " </td>\
+	<td style='font-weight: bold;font-size: 12px;color: #000;border: 1px solid black;padding: 3px;'>" + workflowSuccess + " </td>\
+	\n";
+}
+
+body += "</tr>\n";
+body += "</table>\n";
+body += "<p>Workflow Executed 'Not enforced' indicates you do not wish to automatically remediate the symptom. \n";
+body += "<p>Workflow Executed 'Not enforceable' means there is no automated remediation action available for the symptom. \n";
+body += "<p>See the <a href='https://www.vmware.com/security/hardening-guides.html'>VMware Security Hardening Guides</a> for more information. \n";
+body +="</body>\n";
+
+emailBody = body;
+
+
+]]></script>
+    <in-binding>
+      <bind name="workflowResults" type="Array/Properties" export-name="workflowResults"/>
+      <bind name="vcHost" type="VC:HostSystem" export-name="Host"/>
+      <bind name="symptoms" type="Array/string" export-name="symptoms"/>
+      <bind name="SymptomMapping" type="ConfigurationElement" export-name="SymptomMapping"/>
+      <bind name="sdoHostSecurityHardeningOptions" type="ConfigurationElement" export-name="sdoHostSecurityHardeningOptions"/>
+    </in-binding>
+    <out-binding>
+      <bind name="emailBody" type="string" export-name="emailBody"/>
+    </out-binding>
+    <position y="55.40909090909091" x="904.5"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item5" type="task" script-module="com.vmware.vrops.remediation/improvedWaitAllWorkflowComplete">
+    <display-name><![CDATA[improvedWaitAllWorkflowComplete]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.vrops.remediation").improvedWaitAllWorkflowComplete(tokens) ;]]></script>
+    <in-binding>
+      <bind name="tokens" type="Array/WorkflowToken" export-name="workflowTokens"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Array/Properties" export-name="workflowResults"/>
+    </out-binding>
+    <description><![CDATA[Now with workflow name! :)]]></description>
+    <position y="55.40909090909091" x="624.5"/>
+  </workflow-item>
+  <workflow-item name="item4" out-name="item1" type="task">
+    <display-name><![CDATA[Get Alert Triggered  Symptoms]]></display-name>
+    <script encoded="false"><![CDATA[symptoms = [];
+
+//Workflow expects an alertId from vROps, if not provided throw error
+//workflow can only be run from alert actions or alert automation
+if (!vrops_alert_id) {
+  throw "No alertId was provided, cannot evaluate symptoms of alert!";
+}
+
+var restHost = RESTHostManager.createHost("transientvrops");
+var opsUser = config.getAttributeWithKey("vropsUser").value;
+var opsPass = config.getAttributeWithKey("vropsPassword").value;
+var authSource = config.getAttributeWithKey("authSource").value;
+
+restHost.url = "https://" + config.getAttributeWithKey("vropsREST").value + "/suite-api";
+restHost.name = "transientvrops";
+restHost.hostVerification = false;
+restHost.proxyHost = null;
+restHost.proxyPort = 0;
+var authDetails = ["Shared Session", opsUser, opsPass];
+//restHost.authentication = RESTAuthenticationManager.createAuthentication("Basic", authDetails);
+restHost = RESTHostManager.createTransientHostFrom(restHost);
+
+var content = '{"username":"'+opsUser+'","authSource":"'+authSource+'","password":"'+opsPass+'"}';
+
+var request = restHost.createRequest('POST','/api/auth/token/acquire',content);
+request.setHeader("Accept","application/json");
+request.setHeader("Content-Type","application/json");
+
+response = request.execute();
+var token = undefined;
+
+if (response.statusCode == 200) {
+	content = JSON.parse(response.contentAsString);
+	token = "vRealizeOpsToken " + content["token"];
+} else {
+	throw("Problem retriving token from vROps " + response.statusCode);
+}
+request = restHost.createRequest("GET","/api/alerts/" + vrops_alert_id,"");
+request.setHeader("Accept","application/json");
+request.setHeader("Authorization",token);
+
+var response = request.execute();
+
+if (response.statusCode == 200) {
+	var alertDetails = JSON.parse(response.contentAsString);
+	System.log("Alert Description: " + alertDetails["alertDefinitionName"]);
+} else {
+	throw("Problem retrieving alert - response code is " + response.statusCode);
+}
+
+request = restHost.createRequest("GET","/api/alerts/contributingsymptoms?id=" + vrops_alert_id,"");
+request.setHeader("Accept","application/json");
+request.setHeader("Authorization",token);
+response = request.execute();
+
+if (response.statusCode == 200) {
+	var alertSymptoms = JSON.parse(response.contentAsString);
+	for (n=0; n<alertSymptoms["contributingSymptoms"][0]["contributingSymptoms"]["contributingSymptoms"].length; n++) {
+		symptoms.push(alertSymptoms["contributingSymptoms"][0]["contributingSymptoms"]["contributingSymptoms"][n]["symptomDefinitionsIds"][0])
+	}
+} else {
+	throw("Problem retrieving alert symptoms - response code is " + response.statusCode);
+}
+
+
+]]></script>
+    <in-binding>
+      <bind name="vrops_alert_id" type="string" export-name="vrops_alert_id"/>
+      <bind name="config" type="ConfigurationElement" export-name="sdoHostSecurityHardeningOptions"/>
+    </in-binding>
+    <out-binding>
+      <bind name="symptoms" type="Array/string" export-name="symptoms"/>
+    </out-binding>
+    <position y="55.40909090909091" x="344.5"/>
+  </workflow-item>
+  <workflow-item name="item5" out-name="item3" type="custom-condition" alt-out-name="item6">
+    <display-name><![CDATA[Custom decision]]></display-name>
+    <script encoded="false"><![CDATA[return sdoHostSecurityHardeningOptions.getAttributeWithKey("emailNotification").value]]></script>
+    <in-binding>
+      <bind name="sdoHostSecurityHardeningOptions" type="ConfigurationElement" export-name="sdoHostSecurityHardeningOptions"/>
+    </in-binding>
+    <position y="45.40909090909091" x="764.5"/>
+  </workflow-item>
+  <workflow-item name="item6" type="end" end-mode="0">
+    <position y="109.04545454545453" x="804.5"/>
+  </workflow-item>
+  <workflow-item name="item7" out-name="item0" type="task">
+    <display-name><![CDATA[Send Email to List]]></display-name>
+    <script encoded="false"><![CDATA[function convertToComaSeparatedList( arrayList ){
+	// Build Coma Seperated list from an Array
+	
+	if ( arrayList == null || arrayList.length == 0) {
+		return null
+	}
+	
+	var outStr = "";
+	for ( var i=0; i<arrayList.length; i++ ){
+		outStr += arrayList[i] + ",";
+	}
+	if ( outStr.length > 0 ){
+		outStr = outStr.substring( 0, ( outStr.length-1 ) );
+	}
+	return outStr;
+}
+
+var message = new EmailMessage();
+
+message.smtpHost = sdoEmailSettings.getAttributeWithKey("smtpHost").value;
+message.smtpPort = sdoEmailSettings.getAttributeWithKey("smtpPort").value;
+
+message.fromName = sdoEmailSettings.getAttributeWithKey("fromName").value;
+message.fromAddress = sdoEmailSettings.getAttributeWithKey("fromAddress").value;
+message.useSsl = sdoEmailSettings.getAttributeWithKey("useSsl").value;
+message.useStartTls = sdoEmailSettings.getAttributeWithKey("useStartTls").value;
+message.username = sdoEmailSettings.getAttributeWithKey("username").value;
+message.password = sdoEmailSettings.getAttributeWithKey("password").value;
+
+// Build Address Lists
+message.toAddress = convertToComaSeparatedList(sdoEmailSettings.getAttributeWithKey("toAddressList").value);
+message.ccAddress = convertToComaSeparatedList(sdoEmailSettings.getAttributeWithKey("ccList").value);
+message.bccAddress = convertToComaSeparatedList(sdoEmailSettings.getAttributeWithKey("bccList").value);
+
+message.subject = "vRealize Operations has detected a host with security violations";
+message.addMimePart(content,"text/html; charset=UTF-8");
+
+System.log( "sending mail to host: " + message.smtpHost + ":" + message.smtpPort + " with user:" + message.username 
+			+ ", from:" + message.fromAddress + ", to:" + message.toAddress );
+			
+message.sendMessage();
+]]></script>
+    <in-binding>
+      <bind name="sdoEmailSettings" type="ConfigurationElement" export-name="sdoEmailSettings"/>
+      <bind name="content" type="string" export-name="emailBody"/>
+    </in-binding>
+    <out-binding/>
+    <position y="55.40909090909091" x="1044.5"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="Host">
+      <desc><![CDATA[vcHost]]></desc>
+    </p-param>
+    <p-param name="vrops_alert_id">
+      <desc><![CDATA[vrops_alert_id]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

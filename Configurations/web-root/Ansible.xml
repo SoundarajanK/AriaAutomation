@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<config-element id="1661661b-279a-4a8d-b511-44c94de3f881" version="0.0.0">
+  <display-name><![CDATA[Ansible]]></display-name>
+  <atts>
+    <att name="ansibleHost" type="string" read-only="false">
+      <value encoded="n"><![CDATA[10.176.144.90]]></value>
+    </att>
+    <att name="ansibleUser" type="string" read-only="false">
+      <value encoded="n"><![CDATA[root]]></value>
+    </att>
+    <att name="ansiblePassword" type="SecureString" read-only="false">
+      <value encoded="n"><![CDATA[__NULL__]]></value>
+    </att>
+  </atts>
+</config-element>

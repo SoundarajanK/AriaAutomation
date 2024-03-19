@@ -1,0 +1,96 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item3" object-name="workflow:name=generic" id="2a5a8833-dc5c-45c2-8a45-97cf5ac239e4" version="0.0.0" api-version="6.0.0" allowed-operations="vfe" editor-version="2.0" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Migrate and Maintenance]]></display-name>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="vm" type="VC:VirtualMachine"/>
+    <param name="pool" type="VC:ResourcePool"/>
+    <param name="host" type="VC:HostSystem"/>
+    <param name="HostToPutOnMaintenance" type="VC:HostSystem"/>
+  </input>
+  <attrib name="priority" type="VC:VirtualMachineMovePriority" read-only="false">
+    <value encoded="n"><![CDATA[dunes://service.dunes.ch/CustomSDKObject?id='highPriority'&dunesName='VC:VirtualMachineMovePriority']]></value>
+  </attrib>
+  <attrib name="state" type="VC:VirtualMachinePowerState" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="timeout" type="number" read-only="false">
+    <value encoded="n"><![CDATA[500.0]]></value>
+  </attrib>
+  <attrib name="vsanMode" type="string" read-only="false">
+    <value encoded="n"><![CDATA[ensureObjectAccessibility]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <in-binding/>
+    <position y="50.0" x="720.0"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item4" type="link" linked-workflow-id="BD8080808080808080808080808080803DC180800122528313869552e41805bb1">
+    <display-name><![CDATA[Migrate virtual machine with vMotion]]></display-name>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm">
+        <description><![CDATA[Virtual machine to migrate]]></description>
+      </bind>
+      <bind name="pool" type="VC:ResourcePool" export-name="pool">
+        <description><![CDATA[Destination resource pool for the virtual machine. If you do not set the resource pool parameter, the current resource pool is used as the destination pool]]></description>
+      </bind>
+      <bind name="host" type="VC:HostSystem" export-name="host">
+        <description><![CDATA[Destination host to which to migrate the virtual machine]]></description>
+      </bind>
+      <bind name="priority" type="VC:VirtualMachineMovePriority" export-name="priority">
+        <description><![CDATA[Priority of the migration task]]></description>
+      </bind>
+      <bind name="state" type="VC:VirtualMachinePowerState" export-name="state">
+        <description><![CDATA[(Optional) Only migrate the virtual machine if its power on state matches the specified state]]></description>
+      </bind>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[ ]]></description>
+    <position y="60.0" x="320.0"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item0" type="link" linked-workflow-id="BD808080808080808080808080808080B8C280800122528313869552e41805bb1">
+    <display-name><![CDATA[Enter maintenance mode]]></display-name>
+    <in-binding>
+      <bind name="host" type="VC:HostSystem" export-name="HostToPutOnMaintenance">
+        <description><![CDATA[Host to put in maintenance mode]]></description>
+      </bind>
+      <bind name="timeout" type="number" export-name="timeout">
+        <description><![CDATA[Timeout for the task. The timeout is specified in seconds (if <= 0, then no timeout).]]></description>
+      </bind>
+      <bind name="evacuatePoweredOffVms" type="boolean" export-name="">
+        <description><![CDATA[Evacuate powered-off virtual machines]]></description>
+      </bind>
+      <bind name="vsanMode" type="string" export-name="vsanMode">
+        <description><![CDATA[VSAN host decommission mode]]></description>
+      </bind>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[ ]]></description>
+    <position y="60.0" x="580.0"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item1" type="link" linked-workflow-id="BD80808080808080808080808080808058C180800122528313869552e41805bb1">
+    <display-name><![CDATA[Power off virtual machine and wait]]></display-name>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm">
+        <description><![CDATA[Virtual machine to power off]]></description>
+      </bind>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[ ]]></description>
+    <position y="60.0" x="180.0"/>
+  </workflow-item>
+  <workflow-item name="item4" out-name="item2" type="link" linked-workflow-id="BD808080808080808080808080808080CCC280800122528313869552e41805bb1">
+    <display-name><![CDATA[Start virtual machine and wait]]></display-name>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm">
+        <description><![CDATA[Virtual machine to start]]></description>
+      </bind>
+      <bind name="host" type="VC:HostSystem" export-name="host">
+        <description><![CDATA[[Optional] The host on which to power on the virtual machine. The host must be part of the same compute resource with which the virtual machine is currently associated. Uses the currently associated host if you do not specify a new host or if you specify an incompatible host.]]></description>
+      </bind>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[ ]]></description>
+    <position y="60.0" x="440.0"/>
+  </workflow-item>
+  <presentation/>
+</workflow>

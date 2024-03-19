@@ -1,0 +1,101 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item5" object-name="Workflow:name=generic" id="0b772a98-228f-4743-9e15-a7d222a8ab75" version="0.3.0" api-version="6.0.0" allowed-operations="vfe" editor-version="2.0" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Maintenance mode]]></display-name>
+  <description><![CDATA[Puts the host into maintenance mode. You can cancel the task.]]></description>
+  <ref-types><![CDATA[(VC:HostSystem)]]></ref-types>
+  <position y="30.0" x="180.0"/>
+  <input>
+    <param name="host" type="VC:HostSystem">
+      <description><![CDATA[Host to put in maintenance mode]]></description>
+    </param>
+    <param name="timeout" type="number">
+      <description><![CDATA[Timeout for the task. The timeout is specified in seconds (if <= 0, then no timeout).]]></description>
+    </param>
+    <param name="evacuatePoweredOffVms" type="boolean">
+      <description><![CDATA[Evacuate powered-off virtual machines]]></description>
+    </param>
+    <param name="vsanMode" type="string">
+      <description><![CDATA[VSAN host decommission mode]]></description>
+    </param>
+  </input>
+  <attrib name="task" type="VC:Task" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+    <description><![CDATA[Task to await]]></description>
+  </attrib>
+  <attrib name="progress" type="boolean" read-only="false">
+    <value encoded="n"><![CDATA[false]]></value>
+    <description><![CDATA[Log progress while waiting for the task to complete]]></description>
+  </attrib>
+  <attrib name="pollRate" type="number" read-only="false">
+    <value encoded="n"><![CDATA[1.0]]></value>
+    <description><![CDATA[Polling rate for the task state, in seconds]]></description>
+  </attrib>
+  <workflow-item name="item4" type="end" end-mode="0">
+    <in-binding/>
+    <position y="70.0" x="460.0"/>
+  </workflow-item>
+  <workflow-item name="item0" out-name="item1" type="task">
+    <display-name><![CDATA[Enter Maintenance mode]]></display-name>
+    <script encoded="false"><![CDATA[var maintenanceSpec = new VcHostMaintenanceSpec();
+maintenanceSpec.vsanMode = new VcVsanHostDecommissionMode();
+maintenanceSpec.vsanMode.objectAction = vsanMode;
+
+task = host.enterMaintenanceMode_Task(timeout, evacuatePoweredOffVms, maintenanceSpec);]]></script>
+    <in-binding>
+      <bind name="host" type="VC:HostSystem" export-name="host"/>
+      <bind name="timeout" type="number" export-name="timeout"/>
+      <bind name="evacuatePoweredOffVms" type="boolean" export-name="evacuatePoweredOffVms"/>
+      <bind name="vsanMode" type="string" export-name="vsanMode"/>
+    </in-binding>
+    <out-binding>
+      <bind name="task" type="VC:Task" export-name="task"/>
+    </out-binding>
+    <position y="140.0" x="140.0"/>
+  </workflow-item>
+  <workflow-item name="item5" out-name="item0" type="custom-condition" alt-out-name="item6">
+    <display-name><![CDATA[Not in maintenance?]]></display-name>
+    <script encoded="false"><![CDATA[return ! host.runtime.inMaintenanceMode;]]></script>
+    <in-binding>
+      <bind name="host" type="VC:HostSystem" export-name="host"/>
+    </in-binding>
+    <out-binding/>
+    <position y="70.0" x="140.0"/>
+  </workflow-item>
+  <workflow-item name="item6" out-name="item4" type="task" interaction="l">
+    <display-name><![CDATA[Log info]]></display-name>
+    <script encoded="false"><![CDATA[System.log("Server already in maintenance mode");
+Server.log("Server already in maintenance mode", "HostSystem: " + host.name);]]></script>
+    <in-binding>
+      <bind name="host" type="VC:HostSystem" export-name="host"/>
+    </in-binding>
+    <out-binding/>
+    <position y="80.0" x="300.0"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item2" type="task" script-module="com.vmware.library.vc.basic/vim3WaitTaskEnd">
+    <display-name><![CDATA[vim3WaitTaskEnd]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vc.basic").vim3WaitTaskEnd(task,progress,pollRate) ;]]></script>
+    <in-binding>
+      <bind name="task" type="VC:Task" export-name="task">
+        <description><![CDATA[Task to Wait for]]></description>
+      </bind>
+      <bind name="progress" type="boolean" export-name="progress">
+        <description><![CDATA[Log progess while waiting for the task]]></description>
+      </bind>
+      <bind name="pollRate" type="number" export-name="pollRate">
+        <description><![CDATA[Polling rate for the task state [seconds]]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Any" export-name="NULL"/>
+    </out-binding>
+    <description><![CDATA[Wait a VIM 3 Task to end.
+When task ended, return the ]]></description>
+    <position y="200.0" x="140.0"/>
+  </workflow-item>
+  <workflow-item name="item2" type="end" end-mode="0">
+    <in-binding/>
+    <position y="230.0" x="180.0"/>
+  </workflow-item>
+  <presentation/>
+</workflow>

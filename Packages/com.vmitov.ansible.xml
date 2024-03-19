@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<package>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='772baaed-b8e6-4e12-ba91-fc374ed230c5'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='90808080808080808080808080808080D28080800120523434428525559a3425f'&dunesName='Workflow']]></elm>
+<used-plugin name='SSH' version='7.3.0' />
+</package>

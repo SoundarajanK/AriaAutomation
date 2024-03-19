@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="createSnapshot_Copy" result-type="VC:Task" api-version="6.0.0" id="d226f393-3956-4a6c-bcd9-89572658a446" version="0.2.0" category-name="com.vmware.library.vc.vm.snapshot">
+  <description><![CDATA[Creates a new snapshot of this virtual machine. As a side effect, this updates the current snapshot. 
+Any % (percent) character used in this name parameter must be escaped, unless it is used to start an escape sequence. Clients may also escape any other characters in this name parameter. ]]></description>
+  <param n="vm" t="VC:VirtualMachine"><![CDATA[The VM on which to create a snapshot]]></param>
+  <param n="name" t="string"><![CDATA[The name for this snapshot. The name need not be unique for this virtual machine. ]]></param>
+  <script encoded="false"><![CDATA[if (vm == null) {
+	throw "ReferenceError: VM cannot be null";
+}
+if (name == null || name == "") {
+	throw "ReferenceError: Name cannot be null or empty string";
+}
+return vm.createSnapshot_Task(name, vm, '-snapshot');]]></script>
+</dunes-script-module>

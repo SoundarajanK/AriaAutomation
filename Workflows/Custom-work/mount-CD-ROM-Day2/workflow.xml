@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item1" object-name="workflow:name=generic" id="a66c440a-b112-4f15-b21f-a0b3ae7bbfdd" editor-version="2.0" version="0.0.0" api-version="6.0.0" restartMode="1" resumeFromFailedMode="0">
+    <display-name>mount-CD-ROM-Day2</display-name>
+    <position y="50.0" x="100.0"/>
+    <input>
+        <param name="vm" type="VRA:Machine"/>
+    </input>
+    <output/>
+    <workflow-item name="item0" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="50.0" x="400.0"/>
+    </workflow-item>
+    <workflow-item name="item1" out-name="item0" type="task" comparator="0">
+        <display-name>Retrieve the virtual machine object</display-name>
+        <script encoded="false">// Retrieve the vCenter Server endpoint&#13;
+var endpoint = vm.cloudAccountIds;&#13;
+&#13;
+// Retrieve the VC:VirtualMachine object associated with the VM&#13;
+var vCenterVM = endpoint.getEntityByMoRef("VC:VirtualMachine", vm.entity().getProperty("VirtualMachineID"));&#13;
+&#13;
+// Specify the datastore and CD-ROM ISO file path&#13;
+var datastoreName = "NFS-Datastore";&#13;
+var isoFilePath = "/ISO/Win10_22H2_English_x64.iso";&#13;
+&#13;
+// Retrieve the VC:Datastore object by its name&#13;
+var datastores = vCenterVM.datastore();&#13;
+var datastore = datastores.find(function(ds) {&#13;
+  return ds.name == datastoreName;&#13;
+});&#13;
+&#13;
+if (datastore) {&#13;
+  // Create the CD-ROM backing info&#13;
+  var cdrom = new VcVirtualCdrom();&#13;
+  cdrom.backing = new VcVirtualCdromIsoBackingInfo();&#13;
+  cdrom.backing.datastore = datastore;&#13;
+  cdrom.backing.fileName = isoFilePath;&#13;
+&#13;
+  // Retrieve the virtual device node for the CD-ROM&#13;
+  var devices = vCenterVM.config.hardware.device;&#13;
+  var cdromDevices = devices.filter(function(device) {&#13;
+    return device instanceof VcVirtualCdrom;&#13;
+  });&#13;
+  var deviceNode = cdromDevices.length + 1;&#13;
+&#13;
+  // Add the CD-ROM device to the VM configuration&#13;
+  var newDevice = new VcVirtualDeviceConfigSpec();&#13;
+  newDevice.device = cdrom;&#13;
+  newDevice.operation = VcVirtualDeviceConfigSpecOperation.add;&#13;
+  newDevice.fileOperation = VcVirtualDeviceConfigSpecFileOperation.create;&#13;
+  newDevice.device.controllerKey = devices[0].key;&#13;
+  newDevice.device.key = -1;&#13;
+  newDevice.device.unitNumber = deviceNode;&#13;
+  newDevice.device.connectable = new VcVirtualDeviceConnectInfo();&#13;
+  newDevice.device.connectable.startConnected = true;&#13;
+  newDevice.device.connectable.allowGuestControl = true;&#13;
+  devices.push(newDevice);&#13;
+&#13;
+  // Update the VM configuration&#13;
+  var configSpec = new VcVirtualMachineConfigSpec();&#13;
+  configSpec.deviceChange = devices.map(function(device) {&#13;
+    return {&#13;
+      device: device.device,&#13;
+      operation: device.operation,&#13;
+      fileOperation: device.fileOperation&#13;
+    };&#13;
+  });&#13;
+&#13;
+  vCenterVM.reconfigVM_Task(configSpec);&#13;
+  System.log("CD-ROM mounted successfully to VM: " + vm.name);&#13;
+} else {&#13;
+  System.error("Datastore '" + datastoreName + "' not found.");&#13;
+}&#13;
+</script>
+        <in-binding>
+            <bind name="vm" type="VRA:Machine" export-name="vm"/>
+        </in-binding>
+        <out-binding/>
+        <description>Simple task with custom script capability.</description>
+        <position y="70.0" x="160.0"/>
+    </workflow-item>
+</ns2:workflow>

@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="SAP_Action" result-type="string" api-version="6.0.0" id="0121a6a4-4a7f-495e-ad26-f3e44929de19" version="0.0.0" category-name="com.vmware.library.powershell" memory-limit="512000000" timeout="180">
+  <runtime><![CDATA[powercli:12-powershell-7.1]]></runtime>
+  <script encoded="false"><![CDATA[function Handler($context, $inputs) {
+    
+    $connection = Set-PowerCLIConfiguration -InvalidCertificateAction Ignore -ParticipateInCeip:$false -Scope Session -Confirm:$false
+
+    Write-Host "Connect to vSphere Envrironment"
+
+    $vCenterConnection = Connect-VIServer -Server s360srv001.eng.vmware.com -Protocol https -User administrator@vsphere.local  -Password L@bS360#1!
+
+    Write-Host $vCenterConnection
+
+    Write-Host "Connected to vSphere Environment"
+
+    Write-Host "Get-VMs"
+
+    Get-VM | Sort-Object Name | foreach {
+
+        Write-Host $_.Name
+    }
+
+
+    $output=@{status = 'done'}
+
+    return $output
+}
+]]></script>
+</dunes-script-module>

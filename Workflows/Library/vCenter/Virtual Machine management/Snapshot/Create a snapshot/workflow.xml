@@ -1,0 +1,125 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item0" object-name="Workflow:name=generic" id="BD80808080808080808080808080808053C180800122528313869552e41805bb1" version="0.2.0" api-version="6.0.0" allowed-operations="vf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Create a snapshot]]></display-name>
+  <description><![CDATA[Creates a snapshot.]]></description>
+  <ref-types><![CDATA[(VC:VirtualMachine)]]></ref-types>
+  <position y="10.0" x="160.0"/>
+  <input>
+    <param name="vm" type="VC:VirtualMachine">
+      <description><![CDATA[Virtual machine of which to create a snapshot]]></description>
+    </param>
+    <param name="name" type="string">
+      <description><![CDATA[Snapshot name. The name need not be unique for this virtual machine.]]></description>
+    </param>
+    <param name="description" type="string">
+      <description><![CDATA[Snapshot description.]]></description>
+    </param>
+    <param name="memory" type="boolean">
+      <description><![CDATA[If TRUE, the snapshot includes a dump of the internal state of the virtual machine (a memory dump). ]]></description>
+    </param>
+    <param name="quiesce" type="boolean">
+      <description><![CDATA[If TRUE and the virtual machine is powered on when the snapshot is taken, VMware Tools are used to quiesce the file system in the virtual machine.]]></description>
+    </param>
+  </input>
+  <output>
+    <param name="snapshot" type="VC:VirtualMachineSnapshot">
+      <description><![CDATA[The snapshot created]]></description>
+    </param>
+  </output>
+  <attrib name="task" type="VC:Task" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+    <description><![CDATA[Task to await]]></description>
+  </attrib>
+  <attrib name="progress" type="boolean" read-only="false">
+    <value encoded="n"><![CDATA[false]]></value>
+    <description><![CDATA[Log progress while waiting for the task to complete]]></description>
+  </attrib>
+  <attrib name="pollRate" type="number" read-only="false">
+    <value encoded="n"><![CDATA[2.0]]></value>
+    <description><![CDATA[Polling rate for the task state, in seconds]]></description>
+  </attrib>
+  <workflow-item name="item0" out-name="item1" type="task" script-module="com.vmware.library.vc.vm.snapshot/createSnapshot">
+    <display-name><![CDATA[createSnapshot]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vc.vm.snapshot").createSnapshot(vm,name,description,memory,quiesce) ;]]></script>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm">
+        <description><![CDATA[The VM on which to create a snapshot]]></description>
+      </bind>
+      <bind name="quiesce" type="boolean" export-name="quiesce">
+        <description><![CDATA[If TRUE and the virtual machine is powered on when the snapshot is taken, VMware Tools is used to quiesce the file system in the virtual machine.]]></description>
+      </bind>
+      <bind name="name" type="string" export-name="name">
+        <description><![CDATA[The name for this snapshot. The name need not be unique for this virtual machine. ]]></description>
+      </bind>
+      <bind name="memory" type="boolean" export-name="memory">
+        <description><![CDATA[If TRUE, a dump of the internal state of the virtual machine (basically a memory dump) is included in the snapshot. ]]></description>
+      </bind>
+      <bind name="description" type="string" export-name="description">
+        <description><![CDATA[A description for this snapshot. If omitted, a default description may be provided. ]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="VC:Task" export-name="task"/>
+    </out-binding>
+    <description><![CDATA[Creates a new snapshot of this virtual machine. As a side effect, this updates the current snapshot. 
+Any % (percent) character used in this name parameter must be escaped, unless it is used to start an escape sequence. Clients may also escape any other characters in this name parameter. ]]></description>
+    <position y="80.0" x="120.0"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item2" type="task" script-module="com.vmware.library.vc.basic/vim3WaitTaskEnd">
+    <display-name><![CDATA[vim3WaitTaskEnd]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vc.basic").vim3WaitTaskEnd(task,progress,pollRate) ;]]></script>
+    <in-binding>
+      <bind name="task" type="VC:Task" export-name="task">
+        <description><![CDATA[Task to Wait for]]></description>
+      </bind>
+      <bind name="progress" type="boolean" export-name="progress">
+        <description><![CDATA[Log progess while waiting for the task]]></description>
+      </bind>
+      <bind name="pollRate" type="number" export-name="pollRate">
+        <description><![CDATA[Polling rate for the task state [seconds]]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Any" export-name="snapshot"/>
+    </out-binding>
+    <description><![CDATA[Wait a VIM 3 Task to end.
+When task ended, return the ]]></description>
+    <position y="160.0" x="120.0"/>
+  </workflow-item>
+  <workflow-item name="item2" type="end" end-mode="0">
+    <position y="190.0" x="160.0"/>
+  </workflow-item>
+  <presentation>
+    <p-step>
+      <title><![CDATA[Snapshot information]]></title>
+      <p-group>
+        <title><![CDATA[Choose the VM]]></title>
+        <p-param name="vm">
+          <desc><![CDATA[The virtual machine of which to create a snapshot]]></desc>
+          <p-qual name="contextualParameter"><![CDATA[]]></p-qual>
+          <p-qual name="mandatory"><![CDATA[]]></p-qual>
+        </p-param>
+      </p-group>
+      <p-group>
+        <title><![CDATA[Enter snapshot creation parameters]]></title>
+        <p-param name="name">
+          <desc><![CDATA[Snapshot name. The name need not be unique for this virtual machine.]]></desc>
+          <p-qual name="mandatory"><![CDATA[]]></p-qual>
+        </p-param>
+        <p-param name="description">
+          <desc><![CDATA[Snapshot description. If omitted, a default description may be provided.]]></desc>
+        </p-param>
+        <p-param name="memory">
+          <desc><![CDATA[Include a dump of the internal state of the virtual machine (a memory dump) in the snapshot?]]></desc>
+          <p-qual name="mandatory"><![CDATA[]]></p-qual>
+        </p-param>
+        <p-param name="quiesce">
+          <desc><![CDATA[Use VMware Tools to quiesce the file system in the virtual machine if the virtual machine is powered on when the snapshot is taken?]]></desc>
+          <p-qual name="mandatory"><![CDATA[]]></p-qual>
+        </p-param>
+      </p-group>
+    </p-step>
+  </presentation>
+</workflow>

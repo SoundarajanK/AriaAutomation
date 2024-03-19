@@ -1,0 +1,954 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item4" object-name="workflow:name=generic" id="ee973f22-464f-432f-81ce-707389fbf20c" version="0.0.26" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[vRO Change vRAM on VM]]></display-name>
+  <description><![CDATA[Change vRAM in increments of 25%, 50%, 75% or 100% with option to reboot immediately.
+
+Attribute minMemory sets lower threshold for VM RAM changes (i.e. no changes allowed that will set vRAM below 512MB)
+
+vRAM can be increased to maximum configured host memory.]]></description>
+  <position y="0.0" x="65.0"/>
+  <input>
+    <param name="targetId" type="string">
+      <description><![CDATA[The Uuid of the VM to modify]]></description>
+    </param>
+    <param name="correlationId" type="string">
+      <description><![CDATA[The correlationId for the workflow used for logging purposes. ]]></description>
+    </param>
+    <param name="targetvCenteruuid" type="string">
+      <description><![CDATA[UUID of the vCenter where the target VM resides]]></description>
+    </param>
+    <param name="hotAdd" type="boolean">
+      <description><![CDATA[Yes/True if Memory to be Hot Added - otherwise VM is shut down and restarted for memory change]]></description>
+    </param>
+    <param name="memSize" type="number"/>
+    <param name="newCpuCount" type="number"/>
+  </input>
+  <output>
+    <param name="STATUS" type="string"/>
+  </output>
+  <attrib name="status" type="boolean" read-only="false">
+    <value encoded="n"><![CDATA[false]]></value>
+  </attrib>
+  <attrib name="eventOut" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="eventDetails" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="targetVmName" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="targetVM" type="VC:VirtualMachine" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="severity" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="requestedMemConfig" type="number" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="changeVRAMTask" type="VC:Task" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="waitVRAMTaskPollRate" type="number" read-only="false">
+    <value encoded="n"><![CDATA[5.0]]></value>
+    <description><![CDATA[Polling rate for the task state [seconds]]]></description>
+  </attrib>
+  <attrib name="logProgressofVCTask" type="boolean" read-only="false">
+    <value encoded="n"><![CDATA[false]]></value>
+    <description><![CDATA[Log progess while waiting for the task]]></description>
+  </attrib>
+  <attrib name="originalPowerState" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="reconfigureException" type="string" read-only="false">
+    <value encoded="n"><![CDATA[Reconfigure Memory Operation Failed, check the vSphere logs for more details]]></value>
+  </attrib>
+  <attrib name="sleepTime" type="number" read-only="false">
+    <value encoded="n"><![CDATA[120.0]]></value>
+    <description><![CDATA[Time to sleep in seconds]]></description>
+  </attrib>
+  <workflow-note x="40.0" y="0.0" w="820.0" h="145.45454545454544" color="a1d7a1ff">
+    <description><![CDATA[Validation and Common Starting Tasks]]></description>
+  </workflow-note>
+  <workflow-note x="40.0" y="154.54545454545456" w="840.0" h="92.0909090909091">
+    <description><![CDATA[Hot Add = NO]]></description>
+  </workflow-note>
+  <workflow-note x="1040.0" y="154.5454545454545" w="420.0" h="236.36363636363635">
+    <description><![CDATA[Hot Add = YES]]></description>
+  </workflow-note>
+  <workflow-note x="40.0" y="254.54545454545453" w="400.0" h="209.09090909090907">
+    <description><![CDATA[Check vRA VM Exists and try reconfigure]]></description>
+  </workflow-note>
+  <workflow-note x="480.0" y="254.5454545454545" w="400.0" h="127.27272727272727">
+    <description><![CDATA[No vRA VM Exists]]></description>
+  </workflow-note>
+  <workflow-note x="1500.0" y="154.54545454545453" w="320.0" h="81.81818181818181">
+    <description><![CDATA[Check vRA Exists and try reconfigure]]></description>
+  </workflow-note>
+  <workflow-note x="1500.0" y="245.4545454545454" w="320.0" h="145.45454545454544">
+    <description><![CDATA[No vRA VM Exists]]></description>
+  </workflow-note>
+  <workflow-item name="item1" out-name="item2" type="link" linked-workflow-id="ec1a8692-4711-4b73-8de4-e342131a6cb7">
+    <display-name><![CDATA[ValidateTarget]]></display-name>
+    <in-binding>
+      <bind name="targetId" type="string" export-name="targetId"/>
+      <bind name="correlationId" type="string" export-name="correlationId"/>
+    </in-binding>
+    <out-binding>
+      <bind name="status" type="boolean" export-name="status"/>
+      <bind name="eventOut" type="string" export-name="eventOut"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+    </out-binding>
+    <position y="9.954545454545453" x="264.5"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item12" type="condition" alt-out-name="item19" comparator="0">
+    <display-name><![CDATA[Valid Target Id]]></display-name>
+    <script encoded="false"><![CDATA[//Generated by the system, cannot be edited
+return (status == true) ;]]></script>
+    <in-binding>
+      <bind name="status" type="boolean" export-name="status"/>
+    </in-binding>
+    <condition name="status" type="boolean" comparator="0" label="null">false</condition>
+    <position y="0.0" x="385.0"/>
+  </workflow-item>
+  <workflow-item name="item5" out-name="item10" type="condition" alt-out-name="item0" comparator="0">
+    <display-name><![CDATA[Target VM Found]]></display-name>
+    <script encoded="false"><![CDATA[//Generated by the system, cannot be edited
+return (status == true) ;]]></script>
+    <in-binding>
+      <bind name="status" type="boolean" export-name="status"/>
+    </in-binding>
+    <condition name="status" type="boolean" comparator="0" label="null">false</condition>
+    <position y="0.0" x="625.0"/>
+  </workflow-item>
+  <workflow-item name="item18" out-name="item3" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="eventOut"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="CorrelationId" type="string" export-name="correlationId"/>
+      <bind name="targetVMName" type="string" export-name="targetVmName"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="64.5" x="505.0"/>
+  </workflow-item>
+  <workflow-item name="item24" out-name="item30" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="eventOut"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="CorrelationId" type="string" export-name="correlationId"/>
+      <bind name="targetVMName" type="string" export-name="targetVmName"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="482.68181818181813" x="1784.5"/>
+  </workflow-item>
+  <workflow-item name="item12" out-name="item5" type="link" linked-workflow-id="6ff24a3a-d83e-47fd-9661-cdfbed7b7c22">
+    <display-name><![CDATA[Find VM by MOID]]></display-name>
+    <in-binding>
+      <bind name="targetId" type="string" export-name="targetId"/>
+      <bind name="CorrelationId" type="string" export-name="correlationId"/>
+      <bind name="targetvCenteruuid" type="string" export-name="targetvCenteruuid">
+        <description><![CDATA[UUID of the vCenter where the target VM is located]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="statusOut" type="boolean" explicitly-not-bound="true"/>
+      <bind name="targetVM" type="VC:VirtualMachine" export-name="targetVM"/>
+      <bind name="targetVmName" type="string" export-name="targetVmName"/>
+    </out-binding>
+    <position y="9.954545454545453" x="505.0"/>
+  </workflow-item>
+  <workflow-item name="item4" out-name="item1" type="task">
+    <display-name><![CDATA[Status Running]]></display-name>
+    <script encoded="false"><![CDATA[STATUS = "Running";]]></script>
+    <in-binding/>
+    <out-binding>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+    </out-binding>
+    <position y="9.954545454545453" x="145.0"/>
+  </workflow-item>
+  <workflow-item name="item19" out-name="item18" type="task">
+    <display-name><![CDATA[Status Failed]]></display-name>
+    <script encoded="false"><![CDATA[STATUS = "Failed";
+eventOut = "Validate Target";
+eventDetails = "Not a valid UUID";
+severity = "error";]]></script>
+    <in-binding/>
+    <out-binding>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+      <bind name="severity" type="string" export-name="severity"/>
+      <bind name="eventOut" type="string" export-name="eventOut"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+    </out-binding>
+    <position y="64.5" x="385.0"/>
+  </workflow-item>
+  <workflow-item name="item3" type="end" end-mode="0">
+    <position y="109.04545454545453" x="544.5"/>
+  </workflow-item>
+  <workflow-item name="item10" out-name="item43" catch-name="item6" throw-bind-name="eventDetails" type="task">
+    <display-name><![CDATA[Calculate New Mem Config]]></display-name>
+    <script encoded="false"><![CDATA[//check to make sure request isn't going to violate
+//host capabilities 
+var host = targetVM.runtime.host;
+var hostInstalledMemMB = host.hardware.memorySize/1024/1024;
+//remove this later
+System.log("Host memory " + hostInstalledMemMB);
+var requestedMemConfig;
+var currentMem = targetVM.config.hardware.memoryMB;
+
+requestedMemConfig =  memSize
+System.log("New memory config will be "+requestedMemConfig+".");
+
+]]></script>
+    <in-binding>
+      <bind name="targetVM" type="VC:VirtualMachine" export-name="targetVM"/>
+      <bind name="hotAdd" type="boolean" export-name="hotAdd">
+        <description><![CDATA[Yes/True if Memory to be Hot Added - otherwise VM is shut down and restarted for memory change]]></description>
+      </bind>
+      <bind name="memSize" type="number" export-name="memSize"/>
+    </in-binding>
+    <out-binding>
+      <bind name="requestedMemConfig" type="number" export-name="requestedMemConfig"/>
+    </out-binding>
+    <position y="9.954545454545453" x="745.0"/>
+  </workflow-item>
+  <workflow-item name="item30" type="end" end-mode="0">
+    <position y="536.3181818181818" x="1824.5"/>
+  </workflow-item>
+  <workflow-item name="item0" out-name="item18" type="task">
+    <display-name><![CDATA[Status Failed]]></display-name>
+    <script encoded="false"><![CDATA[STATUS = "Failed";
+eventOut = "Find VM by MOID";
+eventDetails = "Could not find VM by MOID";
+severity = "error";]]></script>
+    <in-binding/>
+    <out-binding>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+      <bind name="eventOut" type="string" export-name="eventOut"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </out-binding>
+    <position y="64.5" x="625.0"/>
+  </workflow-item>
+  <workflow-item name="item6" out-name="item24" type="task">
+    <display-name><![CDATA[Status Failed]]></display-name>
+    <script encoded="false"><![CDATA[STATUS = "Failed";
+eventOut = "Calculate New Memory Config";
+severity = "error";]]></script>
+    <in-binding/>
+    <out-binding>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+      <bind name="eventOut" type="string" export-name="eventOut"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </out-binding>
+    <position y="9.954545454545453" x="1785.0"/>
+  </workflow-item>
+  <workflow-item name="item11" out-name="item25" type="task">
+    <display-name><![CDATA[Status Failed]]></display-name>
+    <script encoded="false"><![CDATA[STATUS = "Failed";
+eventOut = "Reconfigure Failed";
+eventDetails = "Reconfigure Operation for " + targetVmName + " was sent to vRA/VCAC but failed to complete. Please check the vRA Logs for more details";
+severity = "error";]]></script>
+    <in-binding>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="targetVmName" type="string" export-name="targetVmName"/>
+    </in-binding>
+    <out-binding>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+      <bind name="eventOut" type="string" export-name="eventOut"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </out-binding>
+    <position y="482.68181818181813" x="44.5"/>
+  </workflow-item>
+  <workflow-item name="item16" out-name="item8" catch-name="item17" throw-bind-name="reconfigureException" type="task" script-module="com.vmware.library.vc.vm/changeVMRAM">
+    <display-name><![CDATA[changeVMRAM]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vc.vm").changeVMRAM(vm,memory) ;]]></script>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="targetVM">
+        <description><![CDATA[The VM to change]]></description>
+      </bind>
+      <bind name="memory" type="number" export-name="requestedMemConfig">
+        <description><![CDATA[New memory value]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="VC:Task" export-name="changeVRAMTask"/>
+    </out-binding>
+    <description><![CDATA[Change the VM memory size.]]></description>
+    <position y="273.59090909090907" x="504.5"/>
+  </workflow-item>
+  <workflow-item name="item8" out-name="item32" catch-name="item17" throw-bind-name="reconfigureException" type="task" script-module="com.vmware.library.vc.basic/vim3WaitTaskEnd">
+    <display-name><![CDATA[vim3WaitTaskEnd]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vc.basic").vim3WaitTaskEnd(task,progress,pollRate) ;]]></script>
+    <in-binding>
+      <bind name="task" type="VC:Task" export-name="changeVRAMTask">
+        <description><![CDATA[Task to Wait for]]></description>
+      </bind>
+      <bind name="progress" type="boolean" export-name="logProgressofVCTask">
+        <description><![CDATA[Log progess while waiting for the task]]></description>
+      </bind>
+      <bind name="pollRate" type="number" export-name="waitVRAMTaskPollRate">
+        <description><![CDATA[Polling rate for the task state [seconds]]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Any" explicitly-not-bound="true" export-name="NULL"/>
+    </out-binding>
+    <description><![CDATA[Wait for a VC Task to end.
+When task ended, return the task result if any. ]]></description>
+    <position y="273.59090909090907" x="624.5"/>
+  </workflow-item>
+  <workflow-item name="item22" out-name="item49" catch-name="item51" throw-bind-name="eventDetails" type="link" linked-workflow-id="BD808080808080808080808080808080CCC280800122528313869552e41805bb1">
+    <display-name><![CDATA[Start virtual machine and wait]]></display-name>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="targetVM">
+        <description><![CDATA[Virtual machine to start]]></description>
+      </bind>
+      <bind name="host" type="VC:HostSystem" explicitly-not-bound="true" export-name="NULL">
+        <description><![CDATA[[Optional] The host on which to power on the virtual machine. The host must be part of the same compute resource with which the virtual machine is currently associated. Uses the currently associated host if you do not specify a new host or if you specify an incompatible host.]]></description>
+      </bind>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Starts a virtual machine and waits for VMware Tools to start.]]></description>
+    <position y="337.2272727272727" x="664.5"/>
+  </workflow-item>
+  <workflow-item name="item26" type="end" end-mode="0">
+    <position y="590.8636363636363" x="84.5"/>
+  </workflow-item>
+  <workflow-item name="item32" out-name="item22" type="custom-condition" alt-out-name="item49">
+    <display-name><![CDATA[Original Power State?]]></display-name>
+    <script encoded="false"><![CDATA[return(originalPowerState == "poweredOn");]]></script>
+    <in-binding>
+      <bind name="originalPowerState" type="string" export-name="originalPowerState"/>
+    </in-binding>
+    <position y="263.59090909090907" x="744.5"/>
+  </workflow-item>
+  <workflow-item name="item39" out-name="item36" type="custom-condition" alt-out-name="item31">
+    <display-name><![CDATA[Is vCAC Plugins Configured?]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+return System.getModule("com.vmware.vrops.remediation").checkvcacconfig() ;
+]]></script>
+    <in-binding/>
+    <position y="163.59090909090907" x="45.0"/>
+  </workflow-item>
+  <workflow-item name="item43" out-name="item45" type="condition" alt-out-name="item27" comparator="0">
+    <display-name><![CDATA[Hot Add?]]></display-name>
+    <script encoded="false"><![CDATA[//Generated by the system, cannot be edited
+return (hotAdd == true) ;]]></script>
+    <in-binding>
+      <bind name="hotAdd" type="boolean" export-name="hotAdd"/>
+    </in-binding>
+    <condition name="hotAdd" type="boolean" comparator="0" label="null">false</condition>
+    <position y="54.5" x="745.0"/>
+  </workflow-item>
+  <workflow-item name="item45" out-name="item56" catch-name="item53" throw-bind-name="eventDetails" type="task">
+    <display-name><![CDATA[Check HotAdd Flag]]></display-name>
+    <script encoded="false"><![CDATA[if (!targetVM.config.memoryHotAddEnabled) {
+  throw("Memory HotAdd not enabled for this VM and it is powered on. Please Shutdown or enable HotAdd Memory in vSphere");
+}
+]]></script>
+    <in-binding>
+      <bind name="targetVM" type="VC:VirtualMachine" export-name="targetVM"/>
+    </in-binding>
+    <out-binding/>
+    <position y="173.59090909090907" x="1044.5"/>
+  </workflow-item>
+  <workflow-item name="item27" out-name="item39" type="task">
+    <display-name><![CDATA[get Power State]]></display-name>
+    <script encoded="false"><![CDATA[originalPowerState = targetVM.summary.runtime.powerState.value;]]></script>
+    <in-binding>
+      <bind name="targetVM" type="VC:VirtualMachine" export-name="targetVM"/>
+    </in-binding>
+    <out-binding>
+      <bind name="originalPowerState" type="string" export-name="originalPowerState"/>
+    </out-binding>
+    <position y="173.59090909090907" x="744.5"/>
+  </workflow-item>
+  <workflow-item name="item35" out-name="item29" type="condition" alt-out-name="item11" comparator="0">
+    <display-name><![CDATA[NOT Managed by vCAC]]></display-name>
+    <script encoded="false"><![CDATA[//Generated by the system, cannot be edited
+return (reconfigureException == "VM does not exist in vCAC") ;]]></script>
+    <in-binding>
+      <bind name="reconfigureException" type="string" export-name="reconfigureException"/>
+    </in-binding>
+    <condition name="reconfigureException" type="string" comparator="0" label="null">VM does not exist in vCAC</condition>
+    <position y="336.3181818181818" x="45.0"/>
+  </workflow-item>
+  <workflow-item name="item36" out-name="item13" catch-name="item35" throw-bind-name="eventDetails" type="link" linked-workflow-id="e2498866-6118-42d8-8c4d-61d06a2a8c82">
+    <display-name><![CDATA[Reconfigure vCAC VM by External Reference ID]]></display-name>
+    <in-binding>
+      <bind name="newCpuCount" type="number" export-name="newCpuCount">
+        <description><![CDATA[New CPU count for the VM]]></description>
+      </bind>
+      <bind name="newMemorySizeMB" type="number" export-name="memSize">
+        <description><![CDATA[New memory size for the VM in MB]]></description>
+      </bind>
+      <bind name="hotAdd" type="boolean" export-name="hotAdd">
+        <description><![CDATA[Enable hot add?]]></description>
+      </bind>
+      <bind name="vcenterinstanceuuid" type="string" export-name="targetvCenteruuid"/>
+      <bind name="vm" type="VC:VirtualMachine" export-name="targetVM"/>
+    </in-binding>
+    <out-binding/>
+    <position y="273.59090909090907" x="45.0"/>
+  </workflow-item>
+  <workflow-item name="item15" type="end" end-mode="0">
+    <position y="536.3181818181818" x="784.5"/>
+  </workflow-item>
+  <workflow-item name="item17" out-name="item23" type="task">
+    <display-name><![CDATA[Status Failed]]></display-name>
+    <script encoded="false"><![CDATA[STATUS = "Failed";
+eventOut = "Reconfigure Failed";
+eventDetails = "Reconfigure Operation for " + targetVmName + "failed with exception " + reconfigureException;
+severity = "error";]]></script>
+    <in-binding>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="targetVmName" type="string" export-name="targetVmName"/>
+      <bind name="reconfigureException" type="string" export-name="reconfigureException"/>
+    </in-binding>
+    <out-binding>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+      <bind name="eventOut" type="string" export-name="eventOut"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </out-binding>
+    <position y="428.1363636363636" x="524.5"/>
+  </workflow-item>
+  <workflow-item name="item23" out-name="item37" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="eventOut"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="CorrelationId" type="string" export-name="correlationId"/>
+      <bind name="targetVMName" type="string" export-name="targetVmName"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="482.68181818181813" x="524.5"/>
+  </workflow-item>
+  <workflow-item name="item37" type="end" end-mode="0">
+    <position y="536.3181818181818" x="564.5"/>
+  </workflow-item>
+  <workflow-item name="item38" out-name="item40" type="task">
+    <display-name><![CDATA[Status Success]]></display-name>
+    <script encoded="false"><![CDATA[STATUS = "Success";
+eventOut = "vRA Reconfigure Succeeded";
+eventDetails = "Reconfigure Operation for " + targetVmName + "Succeeded. New Memory set to " + memSize + ". Machine was repowered on to it's original state";
+severity = "info";]]></script>
+    <in-binding>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="targetVmName" type="string" export-name="targetVmName"/>
+      <bind name="reconfigureException" type="string" export-name="reconfigureException"/>
+      <bind name="memSize" type="number" export-name="memSize"/>
+    </in-binding>
+    <out-binding>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+      <bind name="eventOut" type="string" export-name="eventOut"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </out-binding>
+    <position y="482.68181818181813" x="324.5"/>
+  </workflow-item>
+  <workflow-item name="item40" out-name="item41" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="eventOut"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="CorrelationId" type="string" export-name="correlationId"/>
+      <bind name="targetVMName" type="string" export-name="targetVmName"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="546.3181818181818" x="324.5"/>
+  </workflow-item>
+  <workflow-item name="item41" type="end" end-mode="0">
+    <position y="590.8636363636363" x="364.5"/>
+  </workflow-item>
+  <workflow-item name="item42" out-name="item33" type="custom-condition" alt-out-name="item38">
+    <display-name><![CDATA[Original Power State?]]></display-name>
+    <script encoded="false"><![CDATA[return(originalPowerState == "poweredOn");]]></script>
+    <in-binding>
+      <bind name="originalPowerState" type="string" export-name="originalPowerState"/>
+    </in-binding>
+    <position y="263.59090909090907" x="324.5"/>
+  </workflow-item>
+  <workflow-item name="item44" out-name="item38" catch-name="item46" throw-bind-name="eventDetails" type="link" linked-workflow-id="BD808080808080808080808080808080CCC280800122528313869552e41805bb1">
+    <display-name><![CDATA[Start virtual machine and wait]]></display-name>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="targetVM">
+        <description><![CDATA[Virtual machine to start]]></description>
+      </bind>
+      <bind name="host" type="VC:HostSystem" explicitly-not-bound="true">
+        <description><![CDATA[[Optional] The host on which to power on the virtual machine. The host must be part of the same compute resource with which the virtual machine is currently associated. Uses the currently associated host if you do not specify a new host or if you specify an incompatible host.]]></description>
+      </bind>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Starts a virtual machine and waits for VMware Tools to start.]]></description>
+    <position y="437.2272727272727" x="244.5"/>
+  </workflow-item>
+  <workflow-item name="item46" out-name="item47" type="task">
+    <display-name><![CDATA[Status Success]]></display-name>
+    <script encoded="false"><![CDATA[STATUS = "Success";
+eventOut = "vRA Reconfigure Succeeded";
+eventDetails = "Reconfigure Operation for " + targetVmName + "Succeeded. New Memory set to " + memSize + " However, the machine failed to start. Please check the vSphere logs for more details.";
+severity = "info";]]></script>
+    <in-binding>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="targetVmName" type="string" export-name="targetVmName"/>
+      <bind name="reconfigureException" type="string" export-name="reconfigureException"/>
+      <bind name="memSize" type="number" export-name="memSize"/>
+    </in-binding>
+    <out-binding>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+      <bind name="eventOut" type="string" export-name="eventOut"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </out-binding>
+    <position y="482.68181818181813" x="244.5"/>
+  </workflow-item>
+  <workflow-item name="item47" out-name="item48" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="eventOut"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="CorrelationId" type="string" export-name="correlationId"/>
+      <bind name="targetVMName" type="string" export-name="targetVmName"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="546.3181818181818" x="244.5"/>
+  </workflow-item>
+  <workflow-item name="item48" type="end" end-mode="0">
+    <position y="590.8636363636363" x="284.5"/>
+  </workflow-item>
+  <workflow-item name="item49" out-name="item50" type="task">
+    <display-name><![CDATA[Status Success]]></display-name>
+    <script encoded="false"><![CDATA[STATUS = "Success";
+eventOut = "vRA Reconfigure Succeeded";
+eventDetails = "Reconfigure Operation for " + targetVmName + "Succeeded. New Memory set to " + memSize + ". Machine was re-powered on to it's original state.";
+severity = "info";]]></script>
+    <in-binding>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="targetVmName" type="string" export-name="targetVmName"/>
+      <bind name="reconfigureException" type="string" export-name="reconfigureException"/>
+      <bind name="memSize" type="number" export-name="memSize"/>
+    </in-binding>
+    <out-binding>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+      <bind name="eventOut" type="string" export-name="eventOut"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </out-binding>
+    <position y="428.1363636363636" x="744.5"/>
+  </workflow-item>
+  <workflow-item name="item50" out-name="item15" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="eventOut"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="CorrelationId" type="string" export-name="correlationId"/>
+      <bind name="targetVMName" type="string" export-name="targetVmName"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="482.68181818181813" x="744.5"/>
+  </workflow-item>
+  <workflow-item name="item51" out-name="item52" type="task">
+    <display-name><![CDATA[Status Success]]></display-name>
+    <script encoded="false"><![CDATA[STATUS = "Success";
+eventOut = "vRA Reconfigure Succeeded";
+eventDetails = "Reconfigure Operation for " + targetVmName + "Succeeded. New Memory set to " + memSize + ". However, machine was unable to power on. Please check the vSphere logs for more details.";
+severity = "info";]]></script>
+    <in-binding>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="targetVmName" type="string" export-name="targetVmName"/>
+      <bind name="reconfigureException" type="string" export-name="reconfigureException"/>
+      <bind name="memSize" type="number" export-name="memSize"/>
+    </in-binding>
+    <out-binding>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+      <bind name="eventOut" type="string" export-name="eventOut"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </out-binding>
+    <position y="428.1363636363636" x="644.5"/>
+  </workflow-item>
+  <workflow-item name="item52" out-name="item15" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="eventOut"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="CorrelationId" type="string" export-name="correlationId"/>
+      <bind name="targetVMName" type="string" export-name="targetVmName"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="482.68181818181813" x="644.5"/>
+  </workflow-item>
+  <workflow-item name="item53" out-name="item54" type="task">
+    <display-name><![CDATA[Status Failed]]></display-name>
+    <script encoded="false"><![CDATA[STATUS = "Failed";
+eventOut = "Reconfigure Failed";
+eventDetails = "Reconfigure Operation for " + targetVmName + "failed. You chose to Hot Add Memory, but HotAdd is not enabled";
+severity = "error";]]></script>
+    <in-binding>
+      <bind name="targetVmName" type="string" export-name="targetVmName"/>
+      <bind name="reconfigureException" type="string" export-name="reconfigureException"/>
+    </in-binding>
+    <out-binding>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+      <bind name="eventOut" type="string" export-name="eventOut"/>
+      <bind name="severity" type="string" export-name="severity"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+    </out-binding>
+    <position y="428.1363636363636" x="1044.5"/>
+  </workflow-item>
+  <workflow-item name="item54" out-name="item55" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="eventOut"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="CorrelationId" type="string" export-name="correlationId"/>
+      <bind name="targetVMName" type="string" export-name="targetVmName"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="482.68181818181813" x="1044.5"/>
+  </workflow-item>
+  <workflow-item name="item55" type="end" end-mode="0">
+    <position y="536.3181818181818" x="1084.5"/>
+  </workflow-item>
+  <workflow-item name="item56" out-name="item57" type="custom-condition" alt-out-name="item7">
+    <display-name><![CDATA[Is vCAC Plugins Configured?]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+return System.getModule("com.vmware.vrops.remediation").checkvcacconfig() ;
+]]></script>
+    <in-binding/>
+    <position y="163.59090909090907" x="1224.5"/>
+  </workflow-item>
+  <workflow-item name="item57" out-name="item68" catch-name="item61" throw-bind-name="reconfigureException" type="link" linked-workflow-id="e2498866-6118-42d8-8c4d-61d06a2a8c82">
+    <display-name><![CDATA[Reconfigure vCAC VM by External Reference ID]]></display-name>
+    <in-binding>
+      <bind name="newCpuCount" type="number" export-name="newCpuCount">
+        <description><![CDATA[New CPU count for the VM]]></description>
+      </bind>
+      <bind name="newMemorySizeMB" type="number" export-name="memSize">
+        <description><![CDATA[New memory size for the VM in MB]]></description>
+      </bind>
+      <bind name="hotAdd" type="boolean" export-name="hotAdd">
+        <description><![CDATA[Enable hot add?]]></description>
+      </bind>
+      <bind name="vcenterinstanceuuid" type="string" export-name="targetvCenteruuid"/>
+      <bind name="vm" type="VC:VirtualMachine" export-name="targetVM"/>
+    </in-binding>
+    <out-binding/>
+    <position y="173.59090909090907" x="1584.5"/>
+  </workflow-item>
+  <workflow-item name="item7" out-name="item9" catch-name="item58" throw-bind-name="eventDetails" type="task" script-module="com.vmware.library.vc.vm/changeVMRAM">
+    <display-name><![CDATA[changeVMRAM]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vc.vm").changeVMRAM(vm,memory) ;]]></script>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="targetVM">
+        <description><![CDATA[The VM to change]]></description>
+      </bind>
+      <bind name="memory" type="number" export-name="requestedMemConfig">
+        <description><![CDATA[New memory value]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="VC:Task" export-name="changeVRAMTask"/>
+    </out-binding>
+    <description><![CDATA[Change the VM memory size.]]></description>
+    <position y="273.59090909090907" x="1544.5"/>
+  </workflow-item>
+  <workflow-item name="item9" out-name="item21" catch-name="item58" throw-bind-name="reconfigureException" type="task" script-module="com.vmware.library.vc.basic/vim3WaitTaskEnd">
+    <display-name><![CDATA[vim3WaitTaskEnd]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vc.basic").vim3WaitTaskEnd(task,progress,pollRate) ;]]></script>
+    <in-binding>
+      <bind name="task" type="VC:Task" export-name="changeVRAMTask">
+        <description><![CDATA[Task to Wait for]]></description>
+      </bind>
+      <bind name="progress" type="boolean" export-name="logProgressofVCTask">
+        <description><![CDATA[Log progess while waiting for the task]]></description>
+      </bind>
+      <bind name="pollRate" type="number" export-name="waitVRAMTaskPollRate">
+        <description><![CDATA[Polling rate for the task state [seconds]]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Any" explicitly-not-bound="true" export-name="NULL"/>
+    </out-binding>
+    <description><![CDATA[Wait for a VC Task to end.
+When task ended, return the task result if any. ]]></description>
+    <position y="337.2272727272727" x="1484.5"/>
+  </workflow-item>
+  <workflow-item name="item58" out-name="item59" type="task">
+    <display-name><![CDATA[Status Failed]]></display-name>
+    <script encoded="false"><![CDATA[STATUS = "Failed";
+eventOut = "Reconfigure Failed";
+eventDetails = "Reconfigure Operation for " + targetVmName + "failed with exception " + reconfigureException + ". Please Check vSphere log for more details.";
+severity = "error";]]></script>
+    <in-binding>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="targetVmName" type="string" export-name="targetVmName"/>
+      <bind name="reconfigureException" type="string" export-name="reconfigureException"/>
+    </in-binding>
+    <out-binding>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+      <bind name="eventOut" type="string" export-name="eventOut"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </out-binding>
+    <position y="428.1363636363636" x="1524.5"/>
+  </workflow-item>
+  <workflow-item name="item59" out-name="item60" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="eventOut"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="CorrelationId" type="string" export-name="correlationId"/>
+      <bind name="targetVMName" type="string" export-name="targetVmName"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="482.68181818181813" x="1524.5"/>
+  </workflow-item>
+  <workflow-item name="item60" type="end" end-mode="0">
+    <position y="536.3181818181818" x="1564.5"/>
+  </workflow-item>
+  <workflow-item name="item61" out-name="item7" type="condition" alt-out-name="item62" comparator="0">
+    <display-name><![CDATA[NOT Managed by vCAC]]></display-name>
+    <script encoded="false"><![CDATA[//Generated by the system, cannot be edited
+return (reconfigureException == "VM does not exist in vCAC") ;]]></script>
+    <in-binding>
+      <bind name="reconfigureException" type="string" export-name="reconfigureException"/>
+    </in-binding>
+    <condition name="reconfigureException" type="string" comparator="0" label="null">VM does not exist in vCAC</condition>
+    <position y="263.59090909090907" x="1224.5"/>
+  </workflow-item>
+  <workflow-item name="item62" out-name="item63" type="task">
+    <display-name><![CDATA[Status Failed]]></display-name>
+    <script encoded="false"><![CDATA[STATUS = "Failed";
+eventOut = "Reconfigure Failed";
+eventDetails = "Reconfigure Operation for " + targetVmName + " was sent to vRA/VCAC but failed to complete. Please check the vRA Logs for more details. Exception is " + reconfigureException;
+severity = "error";]]></script>
+    <in-binding>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="targetVmName" type="string" export-name="targetVmName"/>
+      <bind name="reconfigureException" type="string" export-name="reconfigureException"/>
+    </in-binding>
+    <out-binding>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+      <bind name="eventOut" type="string" export-name="eventOut"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </out-binding>
+    <position y="428.1363636363636" x="1224.5"/>
+  </workflow-item>
+  <workflow-item name="item63" out-name="item64" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="eventOut"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="CorrelationId" type="string" export-name="correlationId"/>
+      <bind name="targetVMName" type="string" export-name="targetVmName"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="482.68181818181813" x="1224.5"/>
+  </workflow-item>
+  <workflow-item name="item64" type="end" end-mode="0">
+    <position y="536.3181818181818" x="1264.5"/>
+  </workflow-item>
+  <workflow-item name="item68" out-name="item69" type="task">
+    <display-name><![CDATA[Status Success]]></display-name>
+    <script encoded="false"><![CDATA[STATUS = "Success";
+eventOut = "vRA Reconfigure Succeeded";
+eventDetails = "Reconfigure Operation for " + targetVmName + "Succeeded. New Memory set to " + memSize;
+severity = "info";]]></script>
+    <in-binding>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="targetVmName" type="string" export-name="targetVmName"/>
+      <bind name="reconfigureException" type="string" export-name="reconfigureException"/>
+      <bind name="memSize" type="number" export-name="memSize"/>
+    </in-binding>
+    <out-binding>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+      <bind name="eventOut" type="string" export-name="eventOut"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </out-binding>
+    <position y="428.1363636363636" x="1604.5"/>
+  </workflow-item>
+  <workflow-item name="item69" out-name="item70" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="eventOut"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="CorrelationId" type="string" export-name="correlationId"/>
+      <bind name="targetVMName" type="string" export-name="targetVmName"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="482.68181818181813" x="1604.5"/>
+  </workflow-item>
+  <workflow-item name="item70" type="end" end-mode="0">
+    <position y="536.3181818181818" x="1644.5"/>
+  </workflow-item>
+  <workflow-item name="item20" type="end" end-mode="0">
+    <position y="536.3181818181818" x="1464.5"/>
+  </workflow-item>
+  <workflow-item name="item21" out-name="item28" type="task">
+    <display-name><![CDATA[Status Success]]></display-name>
+    <script encoded="false"><![CDATA[STATUS = "Success";
+eventOut = "vRA Reconfigure Succeeded";
+eventDetails = "Reconfigure Operation for " + targetVmName + "Succeeded. New Memory set to " + memSize + ". Machine was re-powered on to it's original state.";
+severity = "info";]]></script>
+    <in-binding>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="targetVmName" type="string" export-name="targetVmName"/>
+      <bind name="reconfigureException" type="string" export-name="reconfigureException"/>
+      <bind name="memSize" type="number" export-name="memSize"/>
+    </in-binding>
+    <out-binding>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+      <bind name="eventOut" type="string" export-name="eventOut"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </out-binding>
+    <position y="428.1363636363636" x="1424.5"/>
+  </workflow-item>
+  <workflow-item name="item28" out-name="item20" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="eventOut"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="CorrelationId" type="string" export-name="correlationId"/>
+      <bind name="targetVMName" type="string" export-name="targetVmName"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="491.77272727272725" x="1424.5"/>
+  </workflow-item>
+  <workflow-item name="item13" prototype-id="sleep" out-name="item42" content-mode="x" type="task">
+    <display-name><![CDATA[Sleep]]></display-name>
+    <script encoded="false"><![CDATA[//Auto-generated script
+if ( sleepTime != null )  {
+	System.sleep(sleepTime*1000);
+}
+else  {
+	throw "'sleepTime' is NULL";
+}
+]]></script>
+    <in-binding>
+      <bind name="sleepTime" type="number" export-name="sleepTime">
+        <description><![CDATA[Time to sleep in seconds]]></description>
+      </bind>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Sleep a given number of seconds]]></description>
+    <position y="273.59090909090907" x="184.5"/>
+  </workflow-item>
+  <workflow-item name="item29" out-name="item14" throw-bind-name="eventDetails" type="link" linked-workflow-id="BD80808080808080808080808080808075C280800122528313869552e41805bb1">
+    <display-name><![CDATA[Shut down guest OS and wait]]></display-name>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="targetVM">
+        <description><![CDATA[Virtual machine to shut down]]></description>
+      </bind>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Shuts down a guest operating system and waits for the process to complete.]]></description>
+    <position y="209.95454545454544" x="484.5"/>
+  </workflow-item>
+  <workflow-item name="item14" prototype-id="sleep" out-name="item16" content-mode="x" type="task">
+    <display-name><![CDATA[Sleep]]></display-name>
+    <script encoded="false"><![CDATA[//Auto-generated script
+if ( sleepTime != null )  {
+	System.sleep(sleepTime*1000);
+}
+else  {
+	throw "'sleepTime' is NULL";
+}
+]]></script>
+    <in-binding>
+      <bind name="sleepTime" type="number" export-name="sleepTime">
+        <description><![CDATA[Time to sleep in seconds]]></description>
+      </bind>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Sleep a given number of seconds]]></description>
+    <position y="209.95454545454544" x="704.5"/>
+  </workflow-item>
+  <workflow-item name="item31" out-name="item29" type="custom-condition" alt-out-name="item16">
+    <display-name><![CDATA[powered On?]]></display-name>
+    <script encoded="false"><![CDATA[var state = targetVM.summary.runtime.powerState.value;
+
+return(state == "poweredOn");]]></script>
+    <in-binding>
+      <bind name="targetVM" type="VC:VirtualMachine" export-name="targetVM"/>
+    </in-binding>
+    <position y="199.95454545454544" x="284.5"/>
+  </workflow-item>
+  <workflow-item name="item33" out-name="item34" type="task">
+    <display-name><![CDATA[get Power State]]></display-name>
+    <script encoded="false"><![CDATA[originalPowerState = targetVM.summary.runtime.powerState.value;]]></script>
+    <in-binding>
+      <bind name="targetVM" type="VC:VirtualMachine" export-name="targetVM"/>
+    </in-binding>
+    <out-binding>
+      <bind name="originalPowerState" type="string" export-name="originalPowerState"/>
+    </out-binding>
+    <position y="328.1363636363636" x="244.5"/>
+  </workflow-item>
+  <workflow-item name="item34" out-name="item38" type="custom-condition" alt-out-name="item44">
+    <display-name><![CDATA[powered On?]]></display-name>
+    <script encoded="false"><![CDATA[var state = targetVM.summary.runtime.powerState.value;
+
+return(state == "poweredOn");]]></script>
+    <in-binding>
+      <bind name="targetVM" type="VC:VirtualMachine" export-name="targetVM"/>
+    </in-binding>
+    <position y="372.68181818181813" x="244.5"/>
+  </workflow-item>
+  <workflow-item name="item25" out-name="item26" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="eventOut"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="CorrelationId" type="string" export-name="correlationId"/>
+      <bind name="targetVMName" type="string" export-name="targetVmName"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="546.3181818181818" x="44.5"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="correlationId">
+      <desc><![CDATA[correlationId]]></desc>
+      <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[false]]></p-qual>
+    </p-param>
+    <p-param name="targetId">
+      <desc><![CDATA[targetId]]></desc>
+    </p-param>
+    <p-param name="targetvCenteruuid">
+      <desc><![CDATA[UUID of the vCenter where the target VM is located]]></desc>
+    </p-param>
+    <p-param name="hotAdd">
+      <desc><![CDATA[Yes/True to restart guest OS after change (Requires VMTools)]]></desc>
+    </p-param>
+    <p-param name="memSize">
+      <desc><![CDATA[memSize]]></desc>
+    </p-param>
+    <p-param name="newCpuCount">
+      <desc><![CDATA[newCpuCount]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

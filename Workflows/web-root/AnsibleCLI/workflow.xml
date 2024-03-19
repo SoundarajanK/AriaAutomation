@@ -1,0 +1,145 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="772baaed-b8e6-4e12-ba91-fc374ed230c5" version="1.0.0" api-version="6.0.0" allowed-operations="vfe" editor-version="2.0" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[AnsibleCLI]]></display-name>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="Variables" type="Array/string"/>
+    <param name="Module" type="string"/>
+    <param name="Limit" type="string"/>
+    <param name="Tags" type="Array/string"/>
+    <param name="User" type="string"/>
+    <param name="Playbook" type="string"/>
+  </input>
+  <output>
+    <param name="Result" type="string"/>
+  </output>
+  <attrib name="AnsibleControlNode" type="SSH:Host" read-only="false">
+    <value encoded="n"><![CDATA[dunes://service.dunes.ch/CustomSDKObject?id='8fb5eb58-1914-40c9-b213-281e85f94ad0'&dunesName='SSH:Host']]></value>
+  </attrib>
+  <attrib name="Command" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="AnsibleHost" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="AnsibleUser" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="AnsiblePort" type="number" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="AnsiblePass" type="SecureString" read-only="false">
+    <value encoded="n"><![CDATA[8BR56G4DJ77X61M72N65O31G21UBBAA144S8D30F6DMA2779CUCDC1AECN11B4B4AS3DC2B1DH921989AZ274D2BDN7C0747FOFE72CBW93B8F9AN3996DB7Y59521E6U688D468KF791667G413D654T68D01FEH22E91F1S3C9E4BCNB8F76AFVA8D68E7V6703DD8Q87046ECY91C936DY]]></value>
+  </attrib>
+  <attrib name="AnsiblePasswordAuthentication" type="boolean" read-only="false">
+    <value encoded="n"><![CDATA[true]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <in-binding/>
+    <position y="50.0" x="540.0"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item4" type="task">
+    <display-name><![CDATA[Prepare Ansible Command]]></display-name>
+    <script encoded="false"><![CDATA[var cmd = "ansible-playbook " + Playbook
+if (Inventory && Inventory.length > 0) {
+    for (var inv in Inventory) {
+        cmd += ' -i "' + inventory + '"';
+    }
+}
+if (Module.length > 0) {
+    cmd += " -m " + Module + "";
+}
+if (Module.length > 0) {
+    cmd += " -u " + User + "";
+}
+if (Variables && Variables.length > 0) {
+    cmd += ' --extra-vars "' + Variables.join(' ') + '"';
+}
+if (Tags  && Tags.length > 0) {
+    cmd += ' --tags "' + Tags.join(',') + '"';
+}
+if (Limit.length > 0) {
+    cmd += ' --limit "' + Limit + '"' ;
+}
+var Command = cmd
+System.log("Ansible Command: " + Command)
+]]></script>
+    <in-binding>
+      <bind name="Module" type="string" export-name="Module"/>
+      <bind name="Tags" type="Array/string" export-name="Tags"/>
+      <bind name="Variables" type="Array/string" export-name="Variables"/>
+      <bind name="User" type="string" export-name="User"/>
+      <bind name="Limit" type="string" export-name="Limit"/>
+      <bind name="AnsibleHost" type="SSH:Host" export-name="AnsibleControlNode"/>
+      <bind name="Playbook" type="string" export-name="Playbook"/>
+      <bind name="Inventory" type="Array/string"/>
+    </in-binding>
+    <out-binding>
+      <bind name="Command" type="string" export-name="Command"/>
+    </out-binding>
+    <description><![CDATA[Simple task with custom script capability.]]></description>
+    <position y="60.0" x="160.0"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item0" type="link" linked-workflow-id="90808080808080808080808080808080D28080800120523434428525559a3425f">
+    <display-name><![CDATA[Execute Ansible Playbook]]></display-name>
+    <in-binding>
+      <bind name="hostNameOrIP" type="string" export-name="AnsibleHost">
+        <description><![CDATA[Hostname or IP address of the SSH host]]></description>
+      </bind>
+      <bind name="port" type="number" export-name="AnsiblePort">
+        <description><![CDATA[Target port]]></description>
+      </bind>
+      <bind name="username" type="string" export-name="AnsibleUser">
+        <description><![CDATA[Username]]></description>
+      </bind>
+      <bind name="password" type="SecureString" export-name="AnsiblePass">
+        <description><![CDATA[Password]]></description>
+      </bind>
+      <bind name="cmd" type="string" export-name="Command">
+        <description><![CDATA[The SSH command to run]]></description>
+      </bind>
+      <bind name="passwordAuthentication" type="boolean" export-name="AnsiblePasswordAuthentication">
+        <description><![CDATA[Sets authentication to password or key file]]></description>
+      </bind>
+      <bind name="path" type="Path" export-name="">
+        <description><![CDATA[Path to the private key]]></description>
+      </bind>
+      <bind name="passphrase" type="SecureString" export-name="">
+        <description><![CDATA[Private key pass-phrase]]></description>
+      </bind>
+      <bind name="encoding" type="string" export-name="">
+        <description><![CDATA[The encoding to be used. Leave this field empty to use the default system encoding. (Example values: "UTF-8", "ISO-8859-1"...)]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="result" type="number" export-name="">
+        <description><![CDATA[0 = OK, Negative = Error, Positive = Number of values returned, after error text]]></description>
+      </bind>
+      <bind name="errorText" type="string" export-name="">
+        <description><![CDATA[Error text, if any]]></description>
+      </bind>
+      <bind name="outputText" type="string" export-name="Result">
+        <description><![CDATA[Result of running the SSH command]]></description>
+      </bind>
+    </out-binding>
+    <description><![CDATA[ ]]></description>
+    <position y="60.0" x="380.0"/>
+  </workflow-item>
+  <workflow-item name="item4" out-name="item3" type="task">
+    <display-name><![CDATA[Prepare SSH Host access details]]></display-name>
+    <script encoded="false"><![CDATA[var AnsibleHost = AnsibleControlNode.sshHostConfiguration.hostname
+var AnsibleUser = AnsibleControlNode.sshHostConfiguration.username
+var AnsiblePort = AnsibleControlNode.sshHostConfiguration.port]]></script>
+    <in-binding>
+      <bind name="AnsibleControlNode" type="SSH:Host" export-name="AnsibleControlNode"/>
+    </in-binding>
+    <out-binding>
+      <bind name="AnsibleHost" type="string" export-name="AnsibleHost"/>
+      <bind name="AnsibleUser" type="string" export-name="AnsibleUser"/>
+      <bind name="AnsiblePort" type="number" export-name="AnsiblePort"/>
+    </out-binding>
+    <description><![CDATA[Simple task with custom script capability.]]></description>
+    <position y="60.0" x="270.0"/>
+  </workflow-item>
+  <presentation/>
+</workflow>

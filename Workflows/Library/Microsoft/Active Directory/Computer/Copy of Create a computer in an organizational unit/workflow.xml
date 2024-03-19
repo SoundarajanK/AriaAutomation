@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item0" object-name="Workflow:name=generic" id="d4a0f517-a09b-4f04-bff2-414f2c7becfc" editor-version="2.0" version="1.1.0" api-version="3.1.0" allowed-operations="vef" restartMode="1">
+    <display-name>Copy of Create a computer in an organizational unit</display-name>
+    <description>Creates an Active Directory computer in an organizational unit.</description>
+    <ref-types>(AD:OrganizationalUnit)</ref-types>
+    <position y="20.0" x="180.0"/>
+    <input>
+        <param name="ou" type="AD:OrganizationalUnit">
+            <description>Parent organizational unit for the new computer</description>
+        </param>
+        <param name="computerName" type="string">
+            <description>Name for the new computer</description>
+        </param>
+        <param name="domainName" type="string">
+            <description>Domain name in form: company.sample (optional)</description>
+        </param>
+    </input>
+    <output>
+        <param name="newComputer" type="AD:ComputerAD"/>
+    </output>
+    <workflow-item name="item2" type="end" end-mode="0" comparator="0">
+        <position y="190.0" x="180.0"/>
+    </workflow-item>
+    <workflow-item name="item0" out-name="item1" type="task" script-module="com.vmware.library.microsoft.activeDirectory/createComputer" comparator="0">
+        <display-name>createComputer</display-name>
+        <script encoded="false">//Auto generated script, cannot be modified !
+System.getModule("com.vmware.library.microsoft.activeDirectory").createComputer(parent,computerName,domainName) ;</script>
+        <in-binding>
+            <bind name="computerName" type="string" export-name="computerName">
+                <description>Name for the new computer</description>
+            </bind>
+            <bind name="domainName" type="string" export-name="domainName">
+                <description>Domain name if provided</description>
+            </bind>
+            <bind name="parent" type="Any" export-name="ou">
+                <description>Parent for the new computer</description>
+            </bind>
+        </in-binding>
+        <out-binding/>
+        <description>Create a computer in the Active Directory</description>
+        <position y="80.0" x="140.0"/>
+    </workflow-item>
+    <workflow-item name="item1" out-name="item2" type="task" script-module="com.vmware.library.microsoft.activeDirectory/getComputerFromContainer" comparator="0">
+        <display-name>getComputerFromContainer</display-name>
+        <script encoded="false">//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.microsoft.activeDirectory").getComputerFromContainer(container,computerName) ;</script>
+        <in-binding>
+            <bind name="computerName" type="string" export-name="computerName">
+                <description>Name of the computer</description>
+            </bind>
+            <bind name="container" type="Any" export-name="ou">
+                <description>Organizationl Unit / Group</description>
+            </bind>
+        </in-binding>
+        <out-binding>
+            <bind name="actionResult" type="AD:ComputerAD" export-name="newComputer"/>
+        </out-binding>
+        <description>Gets a computer by its name in the given OU or group (container).</description>
+        <position y="140.0" x="140.0"/>
+    </workflow-item>
+</ns2:workflow>

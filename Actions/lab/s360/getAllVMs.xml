@@ -1,0 +1,4 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getAllVMs" result-type="Array/VC:VirtualMachine" api-version="6.0.0" id="fb7d9c05-8a22-4d75-8f6e-b6a2dd436fcd" version="0.0.0" category-name="lab.s360">
+  <script encoded="false"><![CDATA[return VcPlugin.getAllVirtualMachines();]]></script>
+</dunes-script-module>

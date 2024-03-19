@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getAllFlavorMapping_Copy" result-type="Array/string" api-version="6.0.0" id="1a5d848f-a23e-4021-aaf2-c7c101a482fc" version="1.0.0" category-name="com.vmware.library.vra.infrastructure.flavor">
+  <description><![CDATA[Get all flavor mapping for a given vra host.]]></description>
+  <param n="host" t="VRA:Host"/>
+  <script encoded="false"><![CDATA[if(!host)
+    return null;
+return VraEntitiesFinder.getAllFlavorMapping(host)]]></script>
+</dunes-script-module>

@@ -1,0 +1,1 @@
+{"schema":{"OSType":{"id":"OSType","type":{"dataType":"string"},"label":"OSType"}},"layout":{"pages":[{"id":"page_hq7phzhe","title":"General","sections":[{"id":"section_5i1fnkje","fields":[{"id":"OSType","display":"textField","signpostPosition":"right-middle","state":{"visible":true,"read-only":false}}]}]}]},"itemId":""}

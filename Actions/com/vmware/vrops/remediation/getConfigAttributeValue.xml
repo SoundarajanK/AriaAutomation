@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getConfigAttributeValue" result-type="Any" api-version="6.0.0" id="f4a06d03-6ff0-4ba7-8313-e52615dd8982" version="0.0.0" allowed-operations="evf" category-name="com.vmware.vrops.remediation">
+  <param n="cfgPath" t="string"/>
+  <param n="cfgName" t="string"/>
+  <param n="cfgAttr" t="string"/>
+  <script encoded="false"><![CDATA[var category = Server.getConfigurationElementCategoryWithPath(cfgPath);  
+var cfgElements = category.configurationElements.filter(function(elem) {  
+  return elem.name == cfgName;  
+});  
+var attr = cfgElements[0].getAttributeWithKey(cfgAttr);  
+return (attr == null) ? null : attr.value;  ]]></script>
+</dunes-script-module>

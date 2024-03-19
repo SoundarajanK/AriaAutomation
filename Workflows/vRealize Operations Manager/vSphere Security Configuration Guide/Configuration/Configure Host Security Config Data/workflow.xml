@@ -1,0 +1,602 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item3" object-name="workflow:name=generic" id="12a3128f-c06c-484e-9399-bda3c1db2cf1" version="0.0.22" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Configure Host Security Config Data]]></display-name>
+  <description><![CDATA[Run this workflow to populate the Configuration Elements for SDO Workflows.  Passwords are stored as secure strings.]]></description>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="enforceNTP" type="boolean">
+      <description><![CDATA[Enforce Host NTP configuration?]]></description>
+    </param>
+    <param name="enforceSsh" type="boolean">
+      <description><![CDATA[Enforce SSH Service set to manually start?]]></description>
+    </param>
+    <param name="enforceDcui" type="boolean">
+      <description><![CDATA[Enforce DCUI authorized users and timeout?]]></description>
+    </param>
+    <param name="enforceSyslog" type="boolean">
+      <description><![CDATA[Enforce syslog configuration?]]></description>
+    </param>
+    <param name="enforcePersistentLogs" type="boolean">
+      <description><![CDATA[Enforce persistent logs?]]></description>
+    </param>
+    <param name="enforcePasswords" type="boolean">
+      <description><![CDATA[Enforce password policy?]]></description>
+    </param>
+    <param name="enforceBpdu" type="boolean">
+      <description><![CDATA[Enforce BPDU Filter setting?]]></description>
+    </param>
+    <param name="enforceDvFilter" type="boolean">
+      <description><![CDATA[Enforce DV Filter network setting?]]></description>
+    </param>
+    <param name="enforceESXiShellTimeouts" type="boolean">
+      <description><![CDATA[Enforce ESXi Shell Security settings?]]></description>
+    </param>
+    <param name="enforceLockout" type="boolean">
+      <description><![CDATA[Enforce ESXi account lockout settings?]]></description>
+    </param>
+    <param name="enforceJoinHostToAd" type="boolean">
+      <description><![CDATA[Enforce AD configuration on host?]]></description>
+    </param>
+    <param name="enforceHostImage" type="boolean">
+      <description><![CDATA[Enforce host image profile acceptance level?]]></description>
+    </param>
+    <param name="enforceTps" type="boolean">
+      <description><![CDATA[Enforce Intra VM Transparent Page Sharing configuration?]]></description>
+    </param>
+    <param name="enforceRejectMacChanges" type="boolean">
+      <description><![CDATA[Enforce Reject MAC address changes on standard switches?]]></description>
+    </param>
+    <param name="enforceRejectPromMode" type="boolean">
+      <description><![CDATA[Enforce Reject Promiscuous Mode on standard switches?]]></description>
+    </param>
+    <param name="enforceRejectForgedTrans" type="boolean">
+      <description><![CDATA[Enforce Reject Forged Transmits on standard switches?]]></description>
+    </param>
+    <param name="ntpServers" type="Array/string">
+      <description><![CDATA[One or more NTP Servers]]></description>
+    </param>
+    <param name="dcuiAuthUsers" type="Array/string">
+      <description><![CDATA[DCUI authorized local users (must already exist, root included by default)]]></description>
+    </param>
+    <param name="loggingPersistentPath" type="string">
+      <description><![CDATA[Datastore path for persistent logging]]></description>
+    </param>
+    <param name="loggingSyslog" type="Array/string">
+      <description><![CDATA[Syslog host addresses]]></description>
+    </param>
+    <param name="adDomain" type="string">
+      <description><![CDATA[Domain for ESXi Host to Join]]></description>
+    </param>
+    <param name="adUsername" type="string">
+      <description><![CDATA[Username for user with permissions to join ESXi host to domain]]></description>
+    </param>
+    <param name="adPassword" type="SecureString">
+      <description><![CDATA[Password for AD User for ESXi host to join domain]]></description>
+    </param>
+    <param name="hostProfile" type="string">
+      <description><![CDATA[Host Image Profile Acceptance Level]]></description>
+    </param>
+    <param name="emailNotification" type="boolean">
+      <description><![CDATA[Option to configure email notifications when workflow is run]]></description>
+    </param>
+    <param name="useStartTls" type="boolean">
+      <description><![CDATA[If true, enables the use of the STARTTLS command (if supported by the server) to switch the connection to a TLS-protected connection before issuing any login commands]]></description>
+    </param>
+    <param name="useSsl" type="boolean"/>
+    <param name="toAddressList" type="Array/string"/>
+    <param name="smtpPort" type="number"/>
+    <param name="smtpHost" type="string"/>
+    <param name="fromName" type="string"/>
+    <param name="fromAddress" type="string"/>
+    <param name="ccList" type="Array/string"/>
+    <param name="bccList" type="Array/string"/>
+    <param name="username" type="string"/>
+    <param name="password" type="SecureString"/>
+    <param name="enforceDisableMob" type="boolean"/>
+    <param name="vropsREST" type="string">
+      <description><![CDATA[FQDN or IP of vROps Node]]></description>
+    </param>
+    <param name="vropsUser" type="string">
+      <description><![CDATA[vROps user with API permissions]]></description>
+    </param>
+    <param name="vropsPassword" type="SecureString">
+      <description><![CDATA[vROps user password]]></description>
+    </param>
+    <param name="vropsIgnoreSslWarnings" type="boolean">
+      <description><![CDATA[Ignore SSL Certificate Warnings (for vROps using Self-Signed Certs, etc)?]]></description>
+    </param>
+    <param name="authSource" type="string">
+      <description><![CDATA[Authentication Source]]></description>
+    </param>
+  </input>
+  <attrib name="sdoHostOptions" type="ConfigurationElement" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="sdoEmailConfig" type="ConfigurationElement" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="configPath" type="string" read-only="false">
+    <value encoded="n"><![CDATA[Configurations]]></value>
+    <description><![CDATA[Host Options Configuration Element Category]]></description>
+  </attrib>
+  <attrib name="configName" type="string" read-only="false">
+    <value encoded="n"><![CDATA[Host Security Hardening Options]]></value>
+    <description><![CDATA[Host Options Configuration Element Name]]></description>
+  </attrib>
+  <attrib name="vropsURL" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="109.04545454545453" x="1064.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item6" type="task">
+    <display-name><![CDATA[Update Configurations]]></display-name>
+    <script encoded="false"><![CDATA[//set enforcement flags in configuration
+sdoHostOptions.setAttributeWithKey("enforceNTP",enforceNTP);
+sdoHostOptions.setAttributeWithKey("enforceSsh",enforceSsh);
+sdoHostOptions.setAttributeWithKey("enforceDcui",enforceDcui);
+sdoHostOptions.setAttributeWithKey("enforceSyslog",enforceSyslog);
+sdoHostOptions.setAttributeWithKey("enforcePasswords",enforcePasswords);
+sdoHostOptions.setAttributeWithKey("enforceBpdu",enforceBpdu);
+sdoHostOptions.setAttributeWithKey("enforceESXiShellTimeouts",enforceESXiShellTimeouts);
+sdoHostOptions.setAttributeWithKey("enforceLockout",enforceLockout);
+sdoHostOptions.setAttributeWithKey("enforceJoinHostToAd",enforceJoinHostToAd);
+sdoHostOptions.setAttributeWithKey("enforceHostImage",enforceHostImage);
+sdoHostOptions.setAttributeWithKey("enforceTps",enforceTps);
+sdoHostOptions.setAttributeWithKey("enforceDisableMob",enforceDisableMob);
+sdoHostOptions.setAttributeWithKey("enforcePersistentLogs",enforcePersistentLogs);
+sdoHostOptions.setAttributeWithKey("enforceDvFilter",enforceDvFilter);
+sdoHostOptions.setAttributeWithKey("enforceRejectMacChanges",enforceRejectMacChanges);
+sdoHostOptions.setAttributeWithKey("enforceRejectPromMode",enforceRejectPromMode);
+sdoHostOptions.setAttributeWithKey("enforceRejectForgedTrans",enforceRejectForgedTrans);
+
+//required user inputs
+if (enforceJoinHostToAd) {
+   sdoHostOptions.setAttributeWithKey("domainName",adDomain);
+   sdoHostOptions.setAttributeWithKey("username",adUsername);
+   sdoHostOptions.setAttributeWithKey("password",adPassword);
+}
+if (enforceNTP) {
+   sdoHostOptions.setAttributeWithKey("ntpServers",ntpServers);
+}
+if (enforceDcui) {
+   sdoHostOptions.setAttributeWithKey("trustedAccessListDCUI",dcuiAuthUsers);
+}
+if (enforceHostImage) {
+   sdoHostOptions.setAttributeWithKey("hostImageAcceptanceLevel",hostProfile);
+}
+if (enforcePersistentLogs) {
+   sdoHostOptions.setAttributeWithKey("logDir",loggingPersistentPath);
+}
+if (enforceSyslog){
+   sdoHostOptions.setAttributeWithKey("syslogServers",loggingSyslog);
+}
+
+sdoHostOptions.setAttributeWithKey("emailNotification",emailNotification);
+sdoHostOptions.setAttributeWithKey("vropsREST",vropsREST);
+sdoHostOptions.setAttributeWithKey("vropsUser",vropsUser);
+sdoHostOptions.setAttributeWithKey("vropsPassword",vropsPassword);
+sdoHostOptions.setAttributeWithKey("authSource",authSource);
+sdoHostOptions.setAttributeWithKey("vropsIgnoreSslWarnings",vropsIgnoreSslWarnings);]]></script>
+    <in-binding>
+      <bind name="enforceNTP" type="boolean" export-name="enforceNTP">
+        <description><![CDATA[Enforce Host NTP configuration?]]></description>
+      </bind>
+      <bind name="enforceSsh" type="boolean" export-name="enforceSsh">
+        <description><![CDATA[Enforce SSH Service set to manually start?]]></description>
+      </bind>
+      <bind name="enforceDcui" type="boolean" export-name="enforceDcui">
+        <description><![CDATA[Enforce DCUI authorized users and timeout?]]></description>
+      </bind>
+      <bind name="enforceSyslog" type="boolean" export-name="enforceSyslog">
+        <description><![CDATA[Enforce persistent logs and syslog configuration?]]></description>
+      </bind>
+      <bind name="enforcePasswords" type="boolean" export-name="enforcePasswords">
+        <description><![CDATA[Enforce password policy?]]></description>
+      </bind>
+      <bind name="enforceBpdu" type="boolean" export-name="enforceBpdu">
+        <description><![CDATA[Enforce BPDU Filter and DV Filter network settings?]]></description>
+      </bind>
+      <bind name="enforceESXiShellTimeouts" type="boolean" export-name="enforceESXiShellTimeouts">
+        <description><![CDATA[Enforce ESXi Shell Security settings?]]></description>
+      </bind>
+      <bind name="enforceLockout" type="boolean" export-name="enforceLockout">
+        <description><![CDATA[Enforce ESXi account lockout settings?]]></description>
+      </bind>
+      <bind name="enforceJoinHostToAd" type="boolean" export-name="enforceJoinHostToAd">
+        <description><![CDATA[Enforce AD configuration on host?]]></description>
+      </bind>
+      <bind name="enforceHostImage" type="boolean" export-name="enforceHostImage">
+        <description><![CDATA[Enforce host image profile acceptance level?]]></description>
+      </bind>
+      <bind name="enforceTps" type="boolean" export-name="enforceTps">
+        <description><![CDATA[Enforce Intra VM Transparent Page Sharing configuration?]]></description>
+      </bind>
+      <bind name="ntpServers" type="Array/string" export-name="ntpServers">
+        <description><![CDATA[One or more NTP Servers]]></description>
+      </bind>
+      <bind name="dcuiAuthUsers" type="Array/string" export-name="dcuiAuthUsers">
+        <description><![CDATA[DCUI authorized local users (must already exist, root included by default)]]></description>
+      </bind>
+      <bind name="loggingPersistentPath" type="string" export-name="loggingPersistentPath">
+        <description><![CDATA[Datastore path for persistent logging]]></description>
+      </bind>
+      <bind name="loggingSyslog" type="Array/string" export-name="loggingSyslog">
+        <description><![CDATA[Syslog host addresses]]></description>
+      </bind>
+      <bind name="adDomain" type="string" export-name="adDomain">
+        <description><![CDATA[Domain for ESXi Host to Join]]></description>
+      </bind>
+      <bind name="adUsername" type="string" export-name="adUsername">
+        <description><![CDATA[Username for user with permissions to join ESXi host to domain]]></description>
+      </bind>
+      <bind name="adPassword" type="SecureString" export-name="adPassword">
+        <description><![CDATA[Password for AD User for ESXi host to join domain]]></description>
+      </bind>
+      <bind name="sdoHostOptions" type="ConfigurationElement" export-name="sdoHostOptions"/>
+      <bind name="emailNotification" type="boolean" export-name="emailNotification">
+        <description><![CDATA[Option to configure email notifications when workflow is run]]></description>
+      </bind>
+      <bind name="hostProfile" type="string" export-name="hostProfile">
+        <description><![CDATA[Host Image Profile Acceptance Level]]></description>
+      </bind>
+      <bind name="enforceDisableMob" type="boolean" export-name="enforceDisableMob"/>
+      <bind name="enforcePersistentLogs" type="boolean" export-name="enforcePersistentLogs">
+        <description><![CDATA[Enforce persistent logs?]]></description>
+      </bind>
+      <bind name="enforceDvFilter" type="boolean" export-name="enforceDvFilter">
+        <description><![CDATA[Enforce DV Filter network setting?]]></description>
+      </bind>
+      <bind name="enforceRejectMacChanges" type="boolean" export-name="enforceRejectMacChanges">
+        <description><![CDATA[Enforce Reject MAC address changes on standard switches?]]></description>
+      </bind>
+      <bind name="enforceRejectPromMode" type="boolean" export-name="enforceRejectPromMode">
+        <description><![CDATA[Enforce Reject Promiscuous Mode on standard switches?]]></description>
+      </bind>
+      <bind name="enforceRejectForgedTrans" type="boolean" export-name="enforceRejectForgedTrans">
+        <description><![CDATA[Enforce Reject Forged Transmits on standard switches?]]></description>
+      </bind>
+      <bind name="vropsREST" type="string" export-name="vropsREST">
+        <description><![CDATA[FQDN or IP of vROps Node]]></description>
+      </bind>
+      <bind name="vropsUser" type="string" export-name="vropsUser">
+        <description><![CDATA[vROps user with API permissions]]></description>
+      </bind>
+      <bind name="vropsPassword" type="SecureString" export-name="vropsPassword">
+        <description><![CDATA[vROps user password]]></description>
+      </bind>
+      <bind name="vropsIgnoreSslWarnings" type="boolean" export-name="vropsIgnoreSslWarnings"/>
+      <bind name="authSource" type="string" export-name="authSource"/>
+    </in-binding>
+    <out-binding/>
+    <position y="55.40909090909091" x="344.5"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item5" type="link" linked-workflow-id="f9420ff8-18fe-414b-be67-4e7ead8735e6">
+    <display-name><![CDATA[Configure SDO Send notification to mailing list]]></display-name>
+    <in-binding>
+      <bind name="useStartTls" type="boolean" export-name="useStartTls">
+        <description><![CDATA[If true, enables the use of the STARTTLS command (if supported by the server) to switch the connection to a TLS-protected connection before issuing any login commands]]></description>
+      </bind>
+      <bind name="useSsl" type="boolean" export-name="useSsl"/>
+      <bind name="username" type="string" export-name="username"/>
+      <bind name="toAddressList" type="Array/string" export-name="toAddressList"/>
+      <bind name="smtpPort" type="number" export-name="smtpPort"/>
+      <bind name="smtpHost" type="string" export-name="smtpHost"/>
+      <bind name="password" type="SecureString" export-name="password"/>
+      <bind name="fromName" type="string" export-name="fromName"/>
+      <bind name="fromAddress" type="string" export-name="fromAddress"/>
+      <bind name="ccList" type="Array/string" export-name="ccList"/>
+      <bind name="bccList" type="Array/string" export-name="bccList"/>
+    </in-binding>
+    <out-binding>
+      <bind name="emailConfig" type="ConfigurationElement" export-name="sdoEmailConfig"/>
+    </out-binding>
+    <description><![CDATA[Sends an email with specified content to a given email address list, CC list, and BCC list.
+]]></description>
+    <position y="55.40909090909091" x="624.5"/>
+  </workflow-item>
+  <workflow-item name="item4" out-name="item0" type="link" linked-workflow-id="c5a874a2-e8e7-480d-bdde-d1a80b8a3011">
+    <display-name><![CDATA[Import a certificate from URL]]></display-name>
+    <in-binding>
+      <bind name="url" type="string" export-name="vropsURL">
+        <description><![CDATA[URL or just host:port for non-HTTPS SSL services:]]></description>
+      </bind>
+      <bind name="ignoreWarnings" type="boolean" export-name="vropsIgnoreSslWarnings">
+        <description><![CDATA[If set to true, the certificate is accepted silently and the certificate is added to the trusted store]]></description>
+      </bind>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Imports an SSL certificate into the server trust store.]]></description>
+    <position y="119.04545454545453" x="844.5"/>
+  </workflow-item>
+  <workflow-item name="item5" out-name="item4" type="task">
+    <display-name><![CDATA[Create URL]]></display-name>
+    <script encoded="false"><![CDATA[vropsURL = "https://" + vropsREST;]]></script>
+    <in-binding>
+      <bind name="vropsREST" type="string" export-name="vropsREST">
+        <description><![CDATA[FQDN or IP of vROps Node]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="vropsURL" type="string" export-name="vropsURL"/>
+    </out-binding>
+    <position y="119.04545454545453" x="624.5"/>
+  </workflow-item>
+  <workflow-item name="item6" out-name="item2" type="condition" alt-out-name="item5" comparator="0">
+    <display-name><![CDATA[Decision]]></display-name>
+    <script encoded="false"><![CDATA[//Generated by the system, cannot be edited
+return (emailNotification == true) ;]]></script>
+    <in-binding>
+      <bind name="emailNotification" type="boolean" export-name="emailNotification"/>
+    </in-binding>
+    <condition name="emailNotification" type="boolean" comparator="0" label="null">false</condition>
+    <position y="45.40909090909091" x="484.5"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item1" type="task" script-module="com.vmware.vrops.remediation/createConfigElement">
+    <display-name><![CDATA[createConfigElement]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.vrops.remediation").createConfigElement(categoryPath,configName) ;]]></script>
+    <in-binding>
+      <bind name="categoryPath" type="string" export-name="configPath">
+        <description><![CDATA[Configuration Element Category Path]]></description>
+      </bind>
+      <bind name="configName" type="string" export-name="configName">
+        <description><![CDATA[Desired Config Element Name]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="ConfigurationElement" export-name="sdoHostOptions"/>
+    </out-binding>
+    <position y="55.40909090909091" x="204.5"/>
+  </workflow-item>
+  <presentation>
+    <p-step>
+      <title><![CDATA[Options]]></title>
+      <p-group>
+        <title><![CDATA[Enforce Options]]></title>
+        <desc><![CDATA[Welcome to Self-Driving Operations (SDO) with the vRealize Operations Management Pack for vRealize Orchestrator!
+
+Each of the included workflows can be used to automatically remediate configuration problems found by the vRealize Operations compliance for vSphere security hardening.
+
+Some of the workflows require inputs because they are site specific.  Select one or more of the use cases below to store your configuration for those workflows.]]></desc>
+        <p-param name="enforceNTP">
+          <desc><![CDATA[Configure NTP time synchronization on hosts?
+]]></desc>
+          <p-qual kind="ognl" name="defaultValue" type="boolean"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , #configName , "enforceNTP" )]]></p-qual>
+        </p-param>
+        <p-param name="enforceSsh">
+          <desc><![CDATA[Enforce SSH Service set to manually start?]]></desc>
+          <p-qual kind="ognl" name="defaultValue" type="boolean"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , #configName , "enforceSsh" )]]></p-qual>
+        </p-param>
+        <p-param name="enforceDcui">
+          <desc><![CDATA[Enforce DCUI authorized users and timeout?]]></desc>
+          <p-qual kind="ognl" name="defaultValue" type="boolean"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , #configName , "enforceDcui" )]]></p-qual>
+        </p-param>
+        <p-param name="enforceSyslog">
+          <desc><![CDATA[Enforce syslog configuration?]]></desc>
+          <p-qual kind="ognl" name="defaultValue" type="boolean"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , #configName , "enforceSyslog" )]]></p-qual>
+        </p-param>
+        <p-param name="enforcePersistentLogs">
+          <desc><![CDATA[Enforce persistent logs?]]></desc>
+          <p-qual kind="ognl" name="defaultValue" type="boolean"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , #configName , "enforcePersistentLogs" )]]></p-qual>
+        </p-param>
+        <p-param name="enforcePasswords">
+          <desc><![CDATA[Enforce password policy?]]></desc>
+          <p-qual kind="ognl" name="defaultValue" type="boolean"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , #configName , "enforcePasswords" )]]></p-qual>
+        </p-param>
+        <p-param name="enforceBpdu">
+          <desc><![CDATA[Enforce BPDU Filter and DV Filter network settings?]]></desc>
+          <p-qual kind="ognl" name="defaultValue" type="boolean"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , #configName , "enforceBpdu" )]]></p-qual>
+        </p-param>
+        <p-param name="enforceDvFilter">
+          <desc><![CDATA[Enforce DV Filter network setting?]]></desc>
+          <p-qual kind="ognl" name="defaultValue" type="boolean"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , #configName , "enforceDvFilter" )]]></p-qual>
+        </p-param>
+        <p-param name="enforceESXiShellTimeouts">
+          <desc><![CDATA[Set recommended ESXi Shell timeout options on host?]]></desc>
+          <p-qual kind="ognl" name="defaultValue" type="boolean"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , #configName , "enforceESXiShellTimeouts" )]]></p-qual>
+        </p-param>
+        <p-param name="enforceLockout">
+          <desc><![CDATA[Enforce ESXi account lockout settings?]]></desc>
+          <p-qual kind="ognl" name="defaultValue" type="boolean"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , #configName , "enforceLockout" )]]></p-qual>
+        </p-param>
+        <p-param name="enforceJoinHostToAd">
+          <desc><![CDATA[Use Active Directory for local user authentication on hosts?
+]]></desc>
+          <p-qual kind="ognl" name="defaultValue" type="boolean"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , #configName , "enforceJoinHostToAd" )]]></p-qual>
+        </p-param>
+        <p-param name="enforceHostImage">
+          <desc><![CDATA[Enforce host image profile acceptance level?]]></desc>
+          <p-qual kind="ognl" name="defaultValue" type="boolean"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , #configName , "enforceHostImage" )]]></p-qual>
+        </p-param>
+        <p-param name="enforceTps">
+          <desc><![CDATA[Enforce Intra VM Transparent Page Sharing configuration?]]></desc>
+          <p-qual kind="ognl" name="defaultValue" type="boolean"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , #configName , "enforceTps" )]]></p-qual>
+        </p-param>
+        <p-param name="enforceDisableMob">
+          <desc><![CDATA[Disable MOB on Host?]]></desc>
+          <p-qual kind="ognl" name="defaultValue" type="boolean"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , #configName , "enforceDisableMob" )]]></p-qual>
+        </p-param>
+        <p-param name="enforceRejectMacChanges">
+          <desc><![CDATA[Enforce Reject MAC address changes on standard switches?]]></desc>
+          <p-qual kind="ognl" name="defaultValue" type="boolean"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , #configName , "enforceRejectMacChanges" )]]></p-qual>
+        </p-param>
+        <p-param name="enforceRejectPromMode">
+          <desc><![CDATA[Enforce Reject Promiscuous Mode on standard switches?]]></desc>
+          <p-qual kind="ognl" name="defaultValue" type="boolean"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , #configName , "enforceRejectPromMode" )]]></p-qual>
+        </p-param>
+        <p-param name="enforceRejectForgedTrans">
+          <desc><![CDATA[Enforce Reject Forged Transmits on standard switches?]]></desc>
+          <p-qual kind="ognl" name="defaultValue" type="boolean"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , #configName , "enforceRejectForgedTrans" )]]></p-qual>
+        </p-param>
+      </p-group>
+    </p-step>
+    <p-step>
+      <title><![CDATA[Configurations]]></title>
+      <desc><![CDATA[Additional user configurations for some remediations.]]></desc>
+      <p-group>
+        <title><![CDATA[NTP]]></title>
+        <desc><![CDATA[NTP Parameters]]></desc>
+        <p-qual kind="ognl" name="visible" type="boolean"><![CDATA[#enforceNTP]]></p-qual>
+        <p-param name="ntpServers">
+          <desc><![CDATA[One or more NTP Servers, using IP or FQDN.]]></desc>
+          <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+          <p-qual kind="ognl" name="defaultValue" type="Array/string"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , #configName , "ntpServers" )]]></p-qual>
+        </p-param>
+      </p-group>
+      <p-group>
+        <title><![CDATA[DCUI]]></title>
+        <p-qual kind="ognl" name="visible" type="boolean"><![CDATA[#enforceDcui]]></p-qual>
+        <p-param name="dcuiAuthUsers">
+          <desc><![CDATA[DCUI authorized local users (must already exist, root included by default)]]></desc>
+          <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+          <p-qual kind="ognl" name="defaultValue" type="Array/string"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , #configName , "trustedAccessListDCUI" )]]></p-qual>
+        </p-param>
+      </p-group>
+      <p-group>
+        <title><![CDATA[Persistent Logs]]></title>
+        <p-qual kind="ognl" name="visible" type="boolean"><![CDATA[#enforcePersistentLogs]]></p-qual>
+        <p-param name="loggingPersistentPath">
+          <desc><![CDATA[Datastore path for persistent logging, e.g. [datastore]\path]]></desc>
+          <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+          <p-qual kind="ognl" name="defaultValue" type="string"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , #configName , "logDir" )]]></p-qual>
+        </p-param>
+      </p-group>
+      <p-group>
+        <title><![CDATA[Syslog Configuration]]></title>
+        <p-qual kind="ognl" name="visible" type="boolean"><![CDATA[#enforceSyslog]]></p-qual>
+        <p-param name="loggingSyslog">
+          <desc><![CDATA[Syslog host addresses]]></desc>
+          <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+          <p-qual kind="ognl" name="defaultValue" type="Array/string"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , #configName , "syslogServers" )]]></p-qual>
+        </p-param>
+      </p-group>
+      <p-group>
+        <title><![CDATA[Active Directory]]></title>
+        <desc><![CDATA[Active Directory Parameters]]></desc>
+        <p-qual kind="ognl" name="visible" type="boolean"><![CDATA[#enforceJoinHostToAd]]></p-qual>
+        <p-param name="adDomain">
+          <desc><![CDATA[Domain for ESXi Host to Join]]></desc>
+          <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+          <p-qual kind="ognl" name="defaultValue" type="string"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , #configName , "domainName" )]]></p-qual>
+        </p-param>
+        <p-param name="adUsername">
+          <desc><![CDATA[Username for user with permissions to join ESXi host to domain]]></desc>
+          <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+          <p-qual kind="ognl" name="defaultValue" type="string"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , #configName , "username" )]]></p-qual>
+        </p-param>
+        <p-param name="adPassword">
+          <desc><![CDATA[Password for AD User for ESXi host to join domain]]></desc>
+          <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+        </p-param>
+      </p-group>
+      <p-group>
+        <title><![CDATA[Host Image Profile Acceptance Level]]></title>
+        <p-qual kind="ognl" name="visible" type="boolean"><![CDATA[#enforceHostImage]]></p-qual>
+        <p-param name="hostProfile">
+          <desc><![CDATA[Host Image Profile Acceptance Level]]></desc>
+          <p-qual kind="static" name="genericEnumeration" type="Array/string"><![CDATA[#{#string#vmware_certified#;#string#vmware_accepted#;#string#partner#}#]]></p-qual>
+        </p-param>
+      </p-group>
+    </p-step>
+    <p-step>
+      <title><![CDATA[Email Options]]></title>
+      <desc><![CDATA[Configure email options for notification of remediations.]]></desc>
+      <p-group>
+        <title><![CDATA[Send Email Notifications?]]></title>
+        <p-param name="emailNotification">
+          <desc><![CDATA[Option to configure email notifications when workflow is run]]></desc>
+          <p-qual kind="ognl" name="defaultValue" type="boolean"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , #configName , "emailNotification" )]]></p-qual>
+        </p-param>
+      </p-group>
+      <p-group>
+        <title><![CDATA[SMTP Server Information]]></title>
+        <p-qual kind="ognl" name="visible" type="boolean"><![CDATA[#emailNotification]]></p-qual>
+        <p-param name="smtpHost">
+          <desc><![CDATA[smtpHost]]></desc>
+          <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+          <p-qual kind="ognl" name="defaultValue" type="string"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , "Email Config" , "smtpHost" )]]></p-qual>
+        </p-param>
+        <p-param name="smtpPort">
+          <desc><![CDATA[smtpPort]]></desc>
+          <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+          <p-qual kind="ognl" name="defaultValue" type="number"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , "Email Config" , "smtpPort" )]]></p-qual>
+        </p-param>
+        <p-param name="useStartTls">
+          <desc><![CDATA[If true, enables the use of the STARTTLS command (if supported by the server) to switch the connection to a TLS-protected connection before issuing any login commands]]></desc>
+          <p-qual kind="ognl" name="defaultValue" type="boolean"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , "Email Config" , "useStartTls" )]]></p-qual>
+        </p-param>
+        <p-param name="useSsl">
+          <desc><![CDATA[useSsl]]></desc>
+          <p-qual kind="ognl" name="defaultValue" type="boolean"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , "Email Config" , "useSsl" )]]></p-qual>
+        </p-param>
+      </p-group>
+      <p-group>
+        <title><![CDATA[User Information]]></title>
+        <p-qual kind="ognl" name="visible" type="boolean"><![CDATA[#emailNotification]]></p-qual>
+        <p-param name="username">
+          <desc><![CDATA[Email user name if required for authentication]]></desc>
+          <p-qual kind="ognl" name="defaultValue" type="string"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , "Email Config" , "username" )]]></p-qual>
+        </p-param>
+        <p-param name="password">
+          <desc><![CDATA[Email password if required]]></desc>
+        </p-param>
+        <p-param name="fromName">
+          <desc><![CDATA[fromName]]></desc>
+          <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+          <p-qual kind="ognl" name="defaultValue" type="string"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , "Email Config" , "fromName" )]]></p-qual>
+        </p-param>
+        <p-param name="fromAddress">
+          <desc><![CDATA[fromAddress]]></desc>
+          <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+          <p-qual kind="ognl" name="defaultValue" type="string"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , "Email Config" , "fromAddress" )]]></p-qual>
+        </p-param>
+      </p-group>
+      <p-group>
+        <title><![CDATA[Notification Options]]></title>
+        <p-qual kind="ognl" name="visible" type="boolean"><![CDATA[#emailNotification]]></p-qual>
+        <p-param name="toAddressList">
+          <desc><![CDATA[Address list, manditory with at least one email address.]]></desc>
+          <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+          <p-qual kind="ognl" name="defaultValue" type="Array/string"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , "Email Config" , "toAddressList" )]]></p-qual>
+        </p-param>
+        <p-param name="ccList">
+          <desc><![CDATA[CC List, optional]]></desc>
+          <p-qual kind="ognl" name="defaultValue" type="Array/string"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , "Email Config" , "ccList" )]]></p-qual>
+        </p-param>
+        <p-param name="bccList">
+          <desc><![CDATA[BCC List, optional]]></desc>
+          <p-qual kind="ognl" name="defaultValue" type="Array/string"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , "Email Config" , "bccList" )]]></p-qual>
+        </p-param>
+      </p-group>
+    </p-step>
+    <p-step>
+      <title><![CDATA[vRealize Operations Connection]]></title>
+      <desc><![CDATA[The workflows will make REST API requests to vROps to retrieve additional information about the alert and the resources.]]></desc>
+      <p-param name="vropsREST">
+        <desc><![CDATA[FQDN or IP of vROps Node]]></desc>
+        <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+        <p-qual kind="static" name="inetAddress" type="String"><![CDATA[Host name or IP address]]></p-qual>
+        <p-qual kind="ognl" name="defaultValue" type="string"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , #configName , "vropsREST" )]]></p-qual>
+      </p-param>
+      <p-param name="vropsUser">
+        <desc><![CDATA[vROps user with API permissions]]></desc>
+        <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+        <p-qual kind="ognl" name="defaultValue" type="string"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , #configName , "vropsUser" )]]></p-qual>
+      </p-param>
+      <p-param name="vropsPassword">
+        <desc><![CDATA[vROps user password]]></desc>
+        <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+      <p-param name="authSource">
+        <desc><![CDATA[Authentication Source]]></desc>
+        <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+        <p-qual kind="ognl" name="defaultValue" type="string"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , #configName , "authSource" )]]></p-qual>
+      </p-param>
+      <p-param name="vropsIgnoreSslWarnings">
+        <desc><![CDATA[Ignore SSL Certificate Warnings (for vROps using Self-Signed Certs, etc)?]]></desc>
+        <p-qual kind="ognl" name="defaultValue" type="boolean"><![CDATA[GetAction("com.vmware.vrops.remediation","getConfigAttributeValue").call( #configPath , #configName , "vropsIgnoreSslWarnings" )]]></p-qual>
+      </p-param>
+    </p-step>
+  </presentation>
+</workflow>

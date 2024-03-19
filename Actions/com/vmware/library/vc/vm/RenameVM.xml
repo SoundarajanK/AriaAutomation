@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="RenameVM" result-type="string" api-version="6.0.0" id="fce4d846-78d9-4d17-ae44-b64574a61aa0" version="0.0.0" category-name="com.vmware.library.vc.vm" memory-limit="512000000" timeout="600">
+  <runtime><![CDATA[python:3.7]]></runtime>
+  <script encoded="false"><![CDATA[def handler(context, inputs):
+    Web1VM = inputs['customProperties']['Web1VM']
+    Web2VM = inputs['customProperties']['Web2VM']
+    AppVM = inputs['customProperties']['AppVM']
+    DBVM = inputs['customProperties']['DBVM']
+    returnobj = inputs
+    returnobj['resourceNames'][0] = Web1VM
+    returnobj['resourceNames'][1] = Web2VM
+    returnobj['resourceNames'][2] = AppVM
+    returnobj['resourceNames'][3] = DBVM
+    return returnobj
+]]></script>
+</dunes-script-module>

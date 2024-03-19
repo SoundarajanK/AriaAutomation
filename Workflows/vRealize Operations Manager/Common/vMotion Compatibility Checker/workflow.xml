@@ -1,0 +1,103 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="98ce1742-1f9a-4885-a979-eaf87065e5bd" version="0.0.1" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[vMotion Compatibility Checker]]></display-name>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="vm" type="Array/VC:VirtualMachine"/>
+    <param name="host" type="Array/VC:HostSystem"/>
+    <param name="vCenter" type="VC:SdkConnection"/>
+  </input>
+  <output>
+    <param name="errorsAndWarnings" type="Array/string"/>
+  </output>
+  <attrib name="task" type="VC:Task" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="pollRate" type="number" read-only="false">
+    <value encoded="n"><![CDATA[5.0]]></value>
+    <description><![CDATA[Polling rate for the task state [seconds]]]></description>
+  </attrib>
+  <attrib name="progress" type="boolean" read-only="false">
+    <value encoded="n"><![CDATA[false]]></value>
+    <description><![CDATA[Log progess while waiting for the task]]></description>
+  </attrib>
+  <attrib name="checkResult" type="Any" read-only="false">
+    <value encoded="n"><![CDATA[Any#__NULL__]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="824.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item2" type="task">
+    <display-name><![CDATA[Scriptable task]]></display-name>
+    <script encoded="false"><![CDATA[task = vCenter.vmProvisioningChecker.queryVMotionCompatibilityEx_Task(vm,host);
+
+
+
+]]></script>
+    <in-binding>
+      <bind name="vm" type="Array/VC:VirtualMachine" export-name="vm"/>
+      <bind name="host" type="Array/VC:HostSystem" export-name="host"/>
+      <bind name="vCenter" type="VC:SdkConnection" export-name="vCenter"/>
+    </in-binding>
+    <out-binding>
+      <bind name="task" type="VC:Task" export-name="task"/>
+    </out-binding>
+    <position y="55.40909090909091" x="204.5"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item4" type="task" script-module="com.vmware.library.vc.basic/vim3WaitTaskEnd">
+    <display-name><![CDATA[vim3WaitTaskEnd]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vc.basic").vim3WaitTaskEnd(task,progress,pollRate) ;]]></script>
+    <in-binding>
+      <bind name="task" type="VC:Task" export-name="task">
+        <description><![CDATA[Task to Wait for]]></description>
+      </bind>
+      <bind name="progress" type="boolean" export-name="progress">
+        <description><![CDATA[Log progess while waiting for the task]]></description>
+      </bind>
+      <bind name="pollRate" type="number" export-name="pollRate">
+        <description><![CDATA[Polling rate for the task state [seconds]]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Any" export-name="checkResult"/>
+    </out-binding>
+    <description><![CDATA[Wait for a VC Task to end.
+When task ended, return the task result if any. ]]></description>
+    <position y="55.40909090909091" x="344.5"/>
+  </workflow-item>
+  <workflow-item name="item4" out-name="item0" type="task">
+    <display-name><![CDATA[Scriptable task]]></display-name>
+    <script encoded="false"><![CDATA[var messages=[];
+for each (var result in checkResult) {
+  System.log(result.host.name);
+  System.log(result.vm.name);
+  for each (var errorMsg in result.error) {
+    messages.push(errorMsg.localizedMessage);
+  }
+  for each (var warnMsg in result.warning) {
+    messages.push(warnMsg.localizedMessage);
+  }
+}
+errorsAndWarnings=messages;]]></script>
+    <in-binding>
+      <bind name="checkResult" type="Any" export-name="checkResult"/>
+    </in-binding>
+    <out-binding>
+      <bind name="errorsAndWarnings" type="Array/string" export-name="errorsAndWarnings"/>
+    </out-binding>
+    <position y="55.90909090909091" x="525.0"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="vm">
+      <desc><![CDATA[vm]]></desc>
+      <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+    </p-param>
+    <p-param name="host">
+      <desc><![CDATA[host]]></desc>
+    </p-param>
+    <p-param name="vCenter">
+      <desc><![CDATA[vCenter]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

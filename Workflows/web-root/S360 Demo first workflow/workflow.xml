@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item3" object-name="workflow:name=generic" id="2abe2d6f-428f-4f4e-981e-678e0461319e" editor-version="2.0" version="0.0.1" api-version="6.0.0" restartMode="1" resumeFromFailedMode="0">
+    <display-name>S360 Demo first workflow</display-name>
+    <description>This is my first demo workflow</description>
+    <position y="50.0" x="100.0"/>
+    <input/>
+    <output>
+        <param name="actionResult" type="Array/VC:VirtualMachine"/>
+    </output>
+    <attrib name="var_username" type="string" conf-id="fb155c55-91b6-4b70-98c6-e45764ff6534" conf-key="username"/>
+    <attrib name="var_vcvms" type="Array/VC:VirtualMachine">
+        <value encoded="n">[]</value>
+    </attrib>
+    <attrib name="host" type="VC:HostSystem">
+        <value encoded="n">dunes://service.dunes.ch/CustomSDKObject?id='s360srv001.eng.vmware.com%2Cid:host-20'&amp;dunesName='VC:HostSystem'</value>
+    </attrib>
+    <workflow-item name="item0" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="50.0" x="560.0"/>
+    </workflow-item>
+    <workflow-item name="item2" out-name="item0" type="task" comparator="0">
+        <display-name>Log Username</display-name>
+        <script encoded="false">System.log("Username from Configuration element: " + var_username);&#13;
+System.log("Additional code added.");&#13;
+&#13;
+var vmpath = new Array();&#13;
+var vm = new VcVirtualMachine();&#13;
+for each(vm in var_vcvms){&#13;
+    System.log(vm.config.files.vmPathName);&#13;
+}</script>
+        <in-binding>
+            <bind name="var_username" type="string" export-name="var_username"/>
+            <bind name="var_vcvms" type="Array/VC:VirtualMachine" export-name="var_vcvms"/>
+        </in-binding>
+        <out-binding/>
+        <description>Log the Username from Configuration element.</description>
+        <position y="60.0" x="300.0"/>
+    </workflow-item>
+    <workflow-item name="item3" out-name="item2" type="task" script-module="com.vmware.library.vc.host/getAllVMsOfHost" comparator="0">
+        <display-name>getAllVMsOfHost</display-name>
+        <script encoded="false">//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vc.host").getAllVMsOfHost(host);
+</script>
+        <in-binding>
+            <bind name="host" type="VC:HostSystem" export-name="host">
+                <description></description>
+            </bind>
+        </in-binding>
+        <out-binding>
+            <bind name="actionResult" type="Array/VC:VirtualMachine" export-name="var_vcvms"/>
+        </out-binding>
+        <description>Add a note to the workflow schema.</description>
+        <position y="60.0" x="160.0"/>
+    </workflow-item>
+</ns2:workflow>

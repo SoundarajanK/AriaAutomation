@@ -1,0 +1,1 @@
+{"schema":{"payload":{"id":"payload","type":{"dataType":"string"},"label":"payload"}},"layout":{"pages":[{"id":"page_ef1g4zap","title":"General","sections":[{"id":"section_zfj7n1db","fields":[{"id":"payload","display":"textField","signpostPosition":"right-middle","state":{"visible":true,"read-only":false}}]}]}]},"itemId":""}

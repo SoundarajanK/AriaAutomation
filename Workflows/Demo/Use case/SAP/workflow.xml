@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item1" object-name="workflow:name=generic" id="9789c3c7-c5f5-4574-8ff4-c64e3c37beeb" editor-version="2.0" version="0.0.0" api-version="6.0.0" restartMode="1" resumeFromFailedMode="0">
+    <display-name>SAP</display-name>
+    <position y="50.0" x="100.0"/>
+    <input>
+        <param name="vm" type="VC:VirtualMachine"/>
+        <param name="host" type="VC:HostSystem"/>
+        <param name="state" type="VC:VirtualMachinePowerState"/>
+    </input>
+    <output/>
+    <attrib name="priority" type="VC:VirtualMachineMovePriority">
+        <value encoded="n">dunes://service.dunes.ch/CustomSDKObject?id='highPriority'&amp;dunesName='VC:VirtualMachineMovePriority'</value>
+    </attrib>
+    <workflow-item name="item0" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="50.0" x="660.0"/>
+    </workflow-item>
+    <workflow-item name="item1" out-name="item2" type="link" linked-workflow-id="BD80808080808080808080808080808058C180800122528313869552e41805bb1" comparator="0">
+        <display-name>Power off virtual machine and wait</display-name>
+        <script encoded="false"></script>
+        <in-binding>
+            <bind name="vm" type="VC:VirtualMachine" export-name="vm">
+                <description>Virtual machine to power off</description>
+            </bind>
+        </in-binding>
+        <out-binding/>
+        <description> </description>
+        <position y="60.0" x="160.0"/>
+    </workflow-item>
+    <workflow-item name="item2" out-name="item0" type="link" linked-workflow-id="BD8080808080808080808080808080803DC180800122528313869552e41805bb1" comparator="0">
+        <display-name>Migrate virtual machine with vMotion</display-name>
+        <script encoded="false"></script>
+        <in-binding>
+            <bind name="vm" type="VC:VirtualMachine" export-name="vm">
+                <description>Virtual machine to migrate</description>
+            </bind>
+            <bind name="pool" type="VC:ResourcePool" export-name="">
+                <description>Destination resource pool for the virtual machine. If you do not set the resource pool parameter, the current resource pool is used as the destination pool</description>
+            </bind>
+            <bind name="host" type="VC:HostSystem" export-name="host">
+                <description>Destination host to which to migrate the virtual machine</description>
+            </bind>
+            <bind name="priority" type="VC:VirtualMachineMovePriority" export-name="priority">
+                <description>Priority of the migration task</description>
+            </bind>
+            <bind name="state" type="VC:VirtualMachinePowerState" export-name="state">
+                <description>(Optional) Only migrate the virtual machine if its power on state matches the specified state</description>
+            </bind>
+        </in-binding>
+        <out-binding/>
+        <description> </description>
+        <position y="60.0" x="280.0"/>
+    </workflow-item>
+</ns2:workflow>

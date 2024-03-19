@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="Network" result-type="string" api-version="6.0.0" id="2aa3bb80-d707-4ebf-b53c-0abee830d8d7" version="0.0.0" category-name="com.vmware.library.vc.vm.network">
+  <runtime><![CDATA[python:3.7]]></runtime>
+  <script encoded="false"><![CDATA[def handler(context, inputs):
+    Web1VMIP = inputs['customProperties']['Web1IP']
+    Web2VMIP = inputs['customProperties']['Web2IP']
+    AppVMIP = inputs['customProperties']['AppIP']
+    DBVMIP = inputs['customProperties']['DBIP']
+    outputs = {}
+    addresses = [[]]
+    outputs["addresses"] = addresses
+    outputs["addresses"][0]=[str(Web1VMIP)]
+    outputs["addresses"].append([Web2VMIP])
+    outputs["addresses"].append([AppVMIP])
+    outputs["addresses"].append([DBVMIP])
+    return outputs
+]]></script>
+</dunes-script-module>

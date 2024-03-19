@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item4" object-name="Workflow:name=generic" id="6d2f75fb-92ce-4194-8bb5-21f5ddf877c0" editor-version="2.0" version="0.2.0" api-version="6.0.0" allowed-operations="vef" restartMode="1" resumeFromFailedMode="0">
+    <display-name>Add Disk for Multiple VMs</display-name>
+    <description>Adds a virtual disk to a virtual machine.</description>
+    <ref-types>(VC:VirtualMachine)</ref-types>
+    <position y="10.0" x="140.0"/>
+    <input>
+        <param name="vm" type="Array/VC:VirtualMachine">
+            <description>Virtual machine to which to add the disk</description>
+        </param>
+        <param name="datastore" type="VC:Datastore">
+            <description>Datastore in which to put the virtual disk file</description>
+        </param>
+        <param name="diskIndex" type="number">
+            <description>Disk index</description>
+        </param>
+        <param name="diskSize" type="number">
+            <description>Disk size (in GB)</description>
+        </param>
+        <param name="diskMode" type="VC:VirtualDiskMode">
+            <description>Disk persistence mode</description>
+        </param>
+        <param name="scsiBusNumber" type="number">
+            <description>SCSI controller bus number</description>
+        </param>
+        <param name="thinProvisioned" type="boolean">
+            <description>Use thin provisioning?</description>
+        </param>
+    </input>
+    <output/>
+    <attrib name="scsiControllerKey" type="number">
+        <value encoded="n">0.0</value>
+        <description>LSI or Bus Logic SCSI controller key</description>
+    </attrib>
+    <attrib name="task" type="VC:Task">
+        <value encoded="n"/>
+        <description>Task to await</description>
+    </attrib>
+    <attrib name="progress" type="boolean">
+        <value encoded="n">false</value>
+        <description>Log progress while waiting for the task to complete</description>
+    </attrib>
+    <attrib name="pollRate" type="number">
+        <value encoded="n">1.0</value>
+        <description>Polling rate for the task state, in seconds</description>
+    </attrib>
+    <attrib name="noContollerError" type="string">
+        <value encoded="n">Error: No controller found</value>
+        <description>Error if virtual machine has no IDE controller</description>
+    </attrib>
+    <workflow-item name="item0" out-name="item1" type="task" comparator="0">
+        <display-name>Add disk</display-name>
+        <script encoded="false">var configSpec = new VcVirtualMachineConfigSpec();
+var deviceConfigSpecs = new Array();
+var deviceConfigSpec;
+
+// Add/Create the disk
+deviceConfigSpec = System.getModule("com.vmware.library.vc.vm.spec.config.device").createVirtualDiskFlatVer2ConfigSpec(
+	diskSize, datastore, scsiControllerKey, diskIndex, VcVirtualDiskMode.fromString(diskMode.name), thinProvisioned );
+deviceConfigSpecs[0] = deviceConfigSpec;
+
+// List of devices
+configSpec.deviceChange = deviceConfigSpecs;
+
+// Launch the reconfigVM task
+task = vm.reconfigVM_Task( configSpec );
+</script>
+        <in-binding>
+            <bind name="vm" type="Array/VC:VirtualMachine" export-name="vm"/>
+            <bind name="scsiControllerKey" type="number" export-name="scsiControllerKey"/>
+            <bind name="diskSize" type="number" export-name="diskSize"/>
+            <bind name="diskMode" type="VC:VirtualDiskMode" export-name="diskMode"/>
+            <bind name="diskIndex" type="number" export-name="diskIndex"/>
+            <bind name="datastore" type="VC:Datastore" export-name="datastore"/>
+            <bind name="thinProvisioned" type="boolean" export-name="thinProvisioned"/>
+        </in-binding>
+        <out-binding>
+            <bind name="task" type="VC:Task" export-name="task"/>
+        </out-binding>
+        <position y="220.0" x="100.0"/>
+    </workflow-item>
+    <workflow-item name="item5" out-name="item6" type="task" comparator="0">
+        <display-name>Retrieve Scsi controller found ?</display-name>
+        <script encoded="false">scsiControllerKey = -1;
+var devices = vm.config.hardware.device;
+var isScsiBusNumberInvalid = true;
+if(scsiBusNumber==null || scsiBusNumber&lt;0)
+	scsiBusNumber=0;
+if ( devices != null )  {
+	for ( device in devices )  {
+		if ( devices[device] instanceof VcVirtualBusLogicController || devices[device] instanceof VcVirtualLsiLogicController 
+		|| devices[device] instanceof VcParaVirtualSCSIController || devices[device] instanceof VcVirtualLsiLogicSASController )  {
+			if(scsiBusNumber==devices[device].busNumber){
+				scsiControllerKey = devices[device].key;
+				isScsiBusNumberInvalid = false;
+				System.log( "SCSI controller found. (Key: " + scsiControllerKey + ")" );
+				break;
+			}
+		}
+	}
+}
+if(isScsiBusNumberInvalid){
+	System.log( "SCSI controller not found. The bus number entered is invalid" );
+}
+
+</script>
+        <in-binding>
+            <bind name="vm" type="Array/VC:VirtualMachine" export-name="vm"/>
+            <bind name="scsiBusNumber" type="number" export-name="scsiBusNumber"/>
+        </in-binding>
+        <out-binding>
+            <bind name="scsiControllerKey" type="number" export-name="scsiControllerKey"/>
+        </out-binding>
+        <position y="100.0" x="100.0"/>
+    </workflow-item>
+    <workflow-item name="item6" out-name="item0" alt-out-name="item2" type="condition" comparator="0">
+        <display-name>Scsi controller found ?</display-name>
+        <script encoded="false">// Generated by the system, cannot be edited
+return (scsiControllerKey &gt;= 0.0);</script>
+        <in-binding>
+            <bind name="scsiControllerKey" type="number" export-name="scsiControllerKey"/>
+        </in-binding>
+        <out-binding/>
+        <condition name="scsiControllerKey" type="number" comparator="5" label="null">0.0</condition>
+        <position y="150.0" x="100.0"/>
+    </workflow-item>
+    <workflow-item name="item1" out-name="item3" type="task" script-module="com.vmware.library.vc.basic/vim3WaitTaskEnd" comparator="0">
+        <display-name>vim3WaitTaskEnd</display-name>
+        <script encoded="false">//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vc.basic").vim3WaitTaskEnd(task,progress,pollRate) ;</script>
+        <in-binding>
+            <bind name="task" type="VC:Task" export-name="task">
+                <description>Task to Wait for</description>
+            </bind>
+            <bind name="progress" type="boolean" export-name="progress">
+                <description>Log progess while waiting for the task</description>
+            </bind>
+            <bind name="pollRate" type="number" export-name="pollRate">
+                <description>Polling rate for the task state [seconds]</description>
+            </bind>
+        </in-binding>
+        <out-binding>
+            <bind name="actionResult" type="Any" export-name="NULL"/>
+        </out-binding>
+        <description>Wait a VIM 3 Task to end.
+When task ended, return the </description>
+        <position y="280.0" x="100.0"/>
+    </workflow-item>
+    <workflow-item name="item2" throw-bind-name="noContollerError" type="end" end-mode="1" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="150.0" x="260.0"/>
+    </workflow-item>
+    <workflow-item name="item3" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="330.0" x="140.0"/>
+    </workflow-item>
+    <workflow-item name="item4" out-name="item5" type="task" comparator="0">
+        <display-name>check Params</display-name>
+        <script encoded="false">if (diskSize &lt; 0.01 ) {
+	throw ("Error, invalid parameter. Disk size should be no less than 0.01 ");
+}</script>
+        <in-binding>
+            <bind name="diskSize" type="number" export-name="diskSize"/>
+        </in-binding>
+        <out-binding/>
+        <position y="60.0" x="100.0"/>
+    </workflow-item>
+</ns2:workflow>

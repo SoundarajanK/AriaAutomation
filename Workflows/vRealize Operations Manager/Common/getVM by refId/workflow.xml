@@ -1,0 +1,64 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="683fb6eb-de75-45a9-9b2f-01a04c3cd7a4" version="0.0.8" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[getVM by refId]]></display-name>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="host" type="vCAC:VCACHost">
+      <description><![CDATA[vCAC host]]></description>
+    </param>
+    <param name="uniqueId" type="string">
+      <description><![CDATA[VM unique Id]]></description>
+    </param>
+  </input>
+  <output>
+    <param name="actionResult" type="vCAC:Entity"/>
+  </output>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="424.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item0" type="task">
+    <display-name><![CDATA[Scriptable task]]></display-name>
+    <script encoded="false"><![CDATA[System.log("uniquehostId is: " + uniqueId);
+System.log("vCAC Host is: " + host.displayName);
+
+if (uniqueId == null) {
+actionResult = null;
+}
+
+else{
+var modelName = 'ManagementModelEntities.svc';
+var entitySetName = 'VirtualMachines';
+
+var filter = "ExternalReferenceId eq '" + uniqueId + "'";
+var orderBy = null;
+var top = 1;
+var skip = 0;
+var headers = null;
+var select = null;
+
+var entities = vCACEntityManager.readModelEntitiesBySystemQuery(host.id, modelName, entitySetName, filter, orderBy, select,
+top, skip, headers);
+
+if (entities.length > 0) {
+	actionResult = entities[0];
+}
+}
+]]></script>
+    <in-binding>
+      <bind name="host" type="vCAC:VCACHost" export-name="host"/>
+      <bind name="uniqueId" type="string" export-name="uniqueId"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="vCAC:Entity" export-name="actionResult"/>
+    </out-binding>
+    <position y="55.90909090909091" x="225.0"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="host">
+      <desc><![CDATA[vCAC host]]></desc>
+    </p-param>
+    <p-param name="uniqueId">
+      <desc><![CDATA[VM unique Id]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

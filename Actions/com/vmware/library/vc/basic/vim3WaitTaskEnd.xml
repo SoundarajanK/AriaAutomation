@@ -1,0 +1,58 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="vim3WaitTaskEnd" result-type="Any" api-version="6.0.0" id="99afccd7-9fcc-4dc2-82b7-586de690364e" version="0.3.1" allowed-operations="vf" category-name="com.vmware.library.vc.basic">
+  <description><![CDATA[Wait for a VC Task to end.
+When task ended, return the task result if any. ]]></description>
+  <param n="task" t="VC:Task"><![CDATA[Task to Wait for]]></param>
+  <param n="progress" t="boolean"><![CDATA[Log progess while waiting for the task]]></param>
+  <param n="pollRate" t="number"><![CDATA[Polling rate for the task state [seconds]]]></param>
+  <script encoded="false"><![CDATA[var taskEnd = false;
+var error;
+
+while (task != null) {
+	if (task.info == null) {
+		throw "VIM Task info is null";
+	}
+	if (task.info.state == null) {
+		throw "VIM Task state is null";
+	}	
+
+	var state = task.info.state.value;
+	if (state == "success") {
+		break;
+	}
+	else if (state == "error") {
+		if (task.info.error.localizedMessage == null) {
+			throw "Task '" + task.info.name + "' has encountered an unknown error";
+		}
+		else {
+			throw "Task '" + task.info.name + "' error: "+task.info.error.localizedMessage;
+		}
+	}
+	else if ((progress) && (state == "running")) {
+		if (task.info.progress == null) {
+			System.log(task.info.name+" Queued or In Progress...");
+			}
+		else {
+			System.log(task.info.name+" "+task.info.progress+" %");
+		}
+	}
+	System.sleep(pollRate*1000);
+}
+
+if (task == null) {
+	throw "VIM Task is null";
+}
+else if (progress) {
+	System.log(task.info.name+" end");
+}
+
+System.sleep(2*1000);
+
+// Return the Task Result
+if (task != null && task.info != null && task.info.result != null) {
+	return VcPlugin.convertToVimManagedObject(task , task.info.result);
+}
+else {
+	return null;
+}]]></script>
+</dunes-script-module>

@@ -1,0 +1,84 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="35c65632-fffe-4a91-bd0f-ec12b06b1e76" version="0.0.1" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Get Hot CPU Flags]]></display-name>
+  <description><![CDATA[Determines if hot cpu add and remove are enabled]]></description>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="targetVM" type="VC:VirtualMachine"/>
+    <param name="CorrelationId" type="string"/>
+    <param name="targetVMName" type="string"/>
+  </input>
+  <output>
+    <param name="hotCpuAddEnabled" type="boolean"/>
+    <param name="hotCpuRemoveEnabled" type="boolean"/>
+    <param name="statusOut" type="boolean"/>
+  </output>
+  <attrib name="event" type="string" read-only="false">
+    <value encoded="n"><![CDATA[Get Hot CPU Add/Remove State]]></value>
+  </attrib>
+  <attrib name="eventDetails" type="string" read-only="false">
+    <value encoded="n"><![CDATA[Starting event]]></value>
+  </attrib>
+  <attrib name="severity" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="664.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item2" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="event"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="CorrelationId" type="string" export-name="CorrelationId"/>
+      <bind name="targetVMName" type="string" export-name="targetVMName"/>
+      <bind name="severity" type="string" explicitly-not-bound="true" export-name="NULL"/>
+    </in-binding>
+    <out-binding/>
+    <position y="55.40909090909091" x="204.5"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item3" type="task">
+    <display-name><![CDATA[Scriptable task]]></display-name>
+    <script encoded="false"><![CDATA[statusOut = false;
+hotCpuAddEnabled = targetVM.config.cpuHotAddEnabled;
+hotCpuRemoveEnabled = targetVM.config.cpuHotRemoveEnabled;
+eventDetails = "Hot CPU Add State: "+hotCpuAddEnabled+" Hot CPU Remove State: "+hotCpuRemoveEnabled;
+statusOut = true;
+severity = "info";]]></script>
+    <in-binding>
+      <bind name="targetVM" type="VC:VirtualMachine" export-name="targetVM"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+    </in-binding>
+    <out-binding>
+      <bind name="hotCpuAddEnabled" type="boolean" export-name="hotCpuAddEnabled"/>
+      <bind name="hotCpuRemoveEnabled" type="boolean" export-name="hotCpuRemoveEnabled"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="statusOut" type="boolean" export-name="statusOut"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </out-binding>
+    <position y="55.40909090909091" x="344.5"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item0" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="event"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="CorrelationId" type="string" export-name="CorrelationId"/>
+      <bind name="targetVMName" type="string" export-name="targetVMName"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="55.40909090909091" x="484.5"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="targetVM">
+      <desc><![CDATA[targetVM]]></desc>
+    </p-param>
+    <p-param name="CorrelationId">
+      <desc><![CDATA[CorrelationId]]></desc>
+    </p-param>
+    <p-param name="targetVMName">
+      <desc><![CDATA[targetVMName]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

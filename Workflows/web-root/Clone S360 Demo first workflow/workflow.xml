@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item3" object-name="workflow:name=generic" id="024a3bc9-74b3-4ef3-aa4a-3314dfbf5311" editor-version="2.0" version="0.0.1" api-version="6.0.0" allowed-operations="vef" restartMode="1" resumeFromFailedMode="0">
+    <display-name>Clone S360 Demo first workflow</display-name>
+    <description>This is my first demo workflow</description>
+    <position y="50.0" x="100.0"/>
+    <input>
+        <param name="in_Number" type="number"/>
+    </input>
+    <output/>
+    <attrib name="var_username" type="string" conf-id="fb155c55-91b6-4b70-98c6-e45764ff6534" conf-key="username"/>
+    <attrib name="var_vcvms" type="Array/VC:VirtualMachine">
+        <value encoded="n">[]</value>
+    </attrib>
+    <attrib name="host" type="VC:HostSystem">
+        <value encoded="n">dunes://service.dunes.ch/CustomSDKObject?id='s360srv001.eng.vmware.com%2Cid:host-20'&amp;dunesName='VC:HostSystem'</value>
+    </attrib>
+    <attrib name="smtp_server" type="string" conf-id="fb155c55-91b6-4b70-98c6-e45764ff6534" conf-key="var_smtp"/>
+    <attrib name="Input_from_user" type="number">
+        <value encoded="n"/>
+    </attrib>
+    <workflow-item name="item0" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="50.0" x="620.0"/>
+    </workflow-item>
+    <workflow-item name="item2" out-name="item0" type="task" comparator="0">
+        <display-name>Log Username</display-name>
+        <script encoded="false">System.log("Username from Configuration element: " + var_username);&#13;
+System.log("Additional code added.");&#13;
+&#13;
+var vmpath = new Array();&#13;
+var vm = new VcVirtualMachine();&#13;
+&#13;
+for each(vm in var_vcvms)&#13;
+{&#13;
+    System.log(vm.config.files.vmPathName);&#13;
+}&#13;
+&#13;
+System.log("Input Number from the user: " + in_Number);&#13;
+System.log("SMTP server to be used: "  + smtp_server);&#13;
+Input_from_user = in_Number;&#13;
+&#13;
+</script>
+        <in-binding>
+            <bind name="var_username" type="string" export-name="var_username"/>
+            <bind name="var_vcvms" type="Array/VC:VirtualMachine" export-name="var_vcvms"/>
+            <bind name="in_Number" type="number" export-name="in_Number"/>
+            <bind name="smtp_server" type="string" export-name="smtp_server"/>
+        </in-binding>
+        <out-binding>
+            <bind name="Input_from_user" type="number" export-name="Input_from_user"/>
+        </out-binding>
+        <description>Log the Username from Configuration element.</description>
+        <position y="60.0" x="360.0"/>
+    </workflow-item>
+    <workflow-item name="item3" out-name="item2" type="task" script-module="com.vmware.library.vc.host/getAllVMsOfHost" comparator="0">
+        <display-name>getAllVMsOfHost</display-name>
+        <script encoded="false">//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vc.host").getAllVMsOfHost(host);
+</script>
+        <in-binding>
+            <bind name="host" type="VC:HostSystem" export-name="host">
+                <description></description>
+            </bind>
+        </in-binding>
+        <out-binding>
+            <bind name="actionResult" type="Array/VC:VirtualMachine" export-name="var_vcvms"/>
+        </out-binding>
+        <description>Add a note to the workflow schema.</description>
+        <position y="60.0" x="200.0"/>
+    </workflow-item>
+</ns2:workflow>

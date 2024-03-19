@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="4072b801-de5d-4867-9fb0-3ade6af25a08" version="0.0.2" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[enforceTps]]></display-name>
+  <description><![CDATA[This workflow will set your ESXi Host to comply with the vSphere Security Hardening Guide alerts in vRealize Operations 7.0.  The following settings are modified:
+
+- Mem.ShareForceSalting is set to 2
+
+This addresses the following compliance symptoms:
+
+- RP 1,2,3 - ESXi.TransparentPageSharing-intra-enabled - The default setting for intra-VM TPS is not correct (6.0/6.5 Security Configuration Guide)]]></description>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="host" type="VC:HostSystem"/>
+  </input>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="384.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item0" type="task">
+    <display-name><![CDATA[Configure Intra-VM TPS]]></display-name>
+    <script encoded="false"><![CDATA[optionManager = host.configManager.advancedOption;
+var tpsSetting=optionManager.queryOptions('Mem.ShareForceSalting');
+
+tpsSetting[0].value_IntValue=2;
+
+optionManager.updateOptions(tpsSetting);
+
+
+
+
+
+
+]]></script>
+    <in-binding>
+      <bind name="host" type="VC:HostSystem" export-name="host"/>
+    </in-binding>
+    <out-binding/>
+    <position y="55.40909090909091" x="204.5"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="host">
+      <desc><![CDATA[host]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="powerOnMachine_Copy" result-type="VRA:RequestTracker" api-version="6.0.0" id="d538a4a0-4ee3-43df-87b9-8692c081ba79" version="1.0.0" category-name="com.vmware.library.vra.infrastructure.machine.power">
+  <description><![CDATA[Power On for given machine object.]]></description>
+  <param n="machine" t="VRA:Machine"/>
+  <script encoded="false"><![CDATA[var host = machine.host;
+var machineId = machine.id;
+
+System.log("Host name is "+ host + "machine id is "+ machineId);
+
+var client = host.createInfrastructureClient().createMachineService();
+return client.powerOn(machineId);]]></script>
+</dunes-script-module>

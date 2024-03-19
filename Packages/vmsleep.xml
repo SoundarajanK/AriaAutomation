@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<package>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/ConfigurationElement?id='03377b5a-c5ac-4a47-8235-52aa0d166c95'&dunesName='ConfigurationElement']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='354f73b6-88fb-424b-b116-a0bad1994835'&dunesName='Action'&name='shutdownVM'&category='com.vmware.library.vc.vm.power']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='3ae4e0be-b345-47b4-af85-f099174c4d46'&dunesName='Action'&name='vim3WaitForPrincipalIP'&category='com.vmware.library.vc.vm.tools']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='6417dffd-de3b-4109-9fbd-d13be0f94869'&dunesName='Action'&name='startVM'&category='com.vmware.library.vc.vm.power']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='90808080808080808080808080808080D28080800120523434428525559a3425f'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='95e9792d-4864-4d72-9c27-9709c04975c5'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='99afccd7-9fcc-4dc2-82b7-586de690364e'&dunesName='Action'&name='vim3WaitTaskEnd'&category='com.vmware.library.vc.basic']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='BD8080808080808080808080808080801BC280800122528313869552e41805bb1'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='BD80808080808080808080808080808075C280800122528313869552e41805bb1'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='b8795d86-ad14-4939-96ab-903cdf10bba5'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='b9242805-c5a6-42d0-b2b4-b759321e086b'&dunesName='Action'&name='vim3WaitToolsStarted'&category='com.vmware.library.vc.vm.tools']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='c496f6b1-d041-4bdf-92b1-e0b5c679f684'&dunesName='Action'&name='getMachineById'&category='com.vmware.library.vra.infrastructure.machine']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='fe87a8ec-9216-41e2-b847-bbb61a974fe2'&dunesName='Action'&name='createVirtualDiskFlatVer2ConfigSpec'&category='com.vmware.library.vc.vm.spec.config.device']]></elm>
+<used-plugin name='VC' version='7.0.0' />
+<used-plugin name='VRA' version='8.8.2' />
+</package>

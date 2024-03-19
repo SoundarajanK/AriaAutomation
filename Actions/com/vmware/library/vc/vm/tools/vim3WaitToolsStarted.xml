@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="vim3WaitToolsStarted" result-type="void" api-version="6.0.0" id="b9242805-c5a6-42d0-b2b4-b759321e086b" version="0.2.0" allowed-operations="vf" category-name="com.vmware.library.vc.vm.tools">
+  <description><![CDATA[Wait for the VMware tools to be up and the guest running
+
+Exception:
+- Timeout: When timeout is reached
+- ReferenceError: When vm is not set correctly]]></description>
+  <param n="vm" t="VC:VirtualMachine"><![CDATA[VM in which the action look to get the new DNS Name]]></param>
+  <param n="pollingRate" t="number"><![CDATA[Time between all request information on the tools [seconds]]]></param>
+  <param n="timeout" t="number"><![CDATA[Timeout before throwing a timeout exception [minutes]]]></param>
+  <script encoded="false"><![CDATA[if (vm == null) throw "ReferenceError: vm is not defined for waiting for the DNS name";
+if (vm.name == null) throw "ReferenceError: vm is not initialized for waiting for the DNS name";
+
+timeout = timeout * 60;
+
+while (true) {
+	if (vm.guest != null) {
+		if (vm.guest.toolsStatus != null && vm.guest.toolsStatus == VcVirtualMachineToolsStatus.toolsOk) {
+			System.log("toolsOK");
+		}
+		if (vm.guest.toolsStatus != null && vm.guest.toolsStatus == VcVirtualMachineToolsStatus.toolsOld) {
+			System.log("toolsOld");
+		}
+		if (vm.guest.toolsStatus != null && (vm.guest.toolsStatus == VcVirtualMachineToolsStatus.toolsOk || vm.guest.toolsStatus == VcVirtualMachineToolsStatus.toolsOld)) {
+			if (vm.guest.guestState == "running") {
+				break;
+			}
+		}
+	}
+	else {
+		System.log("vm.guest is null");
+	}	
+
+	// wait the poolingRate
+	System.sleep(pollingRate*1000);
+	// test timeout
+	timeout -= pollingRate;
+	if (timeout <= 0) {
+		throw "Timeout: Timout waiting for tools to be started on a running OS";
+	}
+}
+
+System.log("VMware tools on VM " + vm.name + " are in state: " + vm.guest.toolsStatus.value + " and guest is " + vm.guest.guestState);]]></script>
+</dunes-script-module>

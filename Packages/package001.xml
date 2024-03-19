@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<package>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='2b92f4b9-368d-442b-b7f9-868a69ad2183'&dunesName='Action'&name='MCDemo'&category='com.vmware.library.powershell']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='36818080808080808080808080808080AA80808001270557368849c62c352aa82'&dunesName='Action'&name='createUser'&category='com.vmware.library.microsoft.activeDirectory']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='36818080808080808080808080808080BC80808001270557368849c62c352aa82'&dunesName='Action'&name='getUserFromContainer'&category='com.vmware.library.microsoft.activeDirectory']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='8d19f0d8-4b8f-447c-b1ca-48fc9ef78745'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='c1cc2669-491d-44d9-baca-685f0e1ee99b'&dunesName='Workflow']]></elm>
+</package>

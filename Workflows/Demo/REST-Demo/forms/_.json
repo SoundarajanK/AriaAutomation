@@ -1,0 +1,1 @@
+{"schema":{"parameter":{"id":"parameter","type":{"dataType":"string"},"label":"parameter","constraints":{"required":false}}},"layout":{"pages":[{"id":"page_s7jk0853","title":"General","sections":[{"id":"section_1d54fk68","fields":[{"id":"parameter","display":"textField","signpostPosition":"right-middle","state":{"visible":true,"read-only":false}}]}]}]},"itemId":""}

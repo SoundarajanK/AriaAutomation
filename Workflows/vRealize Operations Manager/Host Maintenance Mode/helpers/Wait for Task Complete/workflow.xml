@@ -1,0 +1,195 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item3" object-name="workflow:name=generic" id="5a8b958e-167e-4656-a6d9-eb49d496c923" version="0.0.17" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Wait for Task Complete]]></display-name>
+  <description><![CDATA[This workflow will pause the calling workflow until the task has been completed.  Returns the task result if there was one.
+
+Throws an exception if the task fails.]]></description>
+  <position y="0.0" x="25.0"/>
+  <input>
+    <param name="task" type="VC:Task">
+      <description><![CDATA[Task to monitor for completion]]></description>
+    </param>
+    <param name="timeout" type="number">
+      <description><![CDATA[How long before we give up waiting (minutes)]]></description>
+    </param>
+    <param name="delay" type="number">
+      <description><![CDATA[Time to wait between checking (seconds)]]></description>
+    </param>
+  </input>
+  <output>
+    <param name="returnObject" type="Any">
+      <description><![CDATA[Task Result (if any)]]></description>
+    </param>
+  </output>
+  <attrib name="endDate" type="Date" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="errorCodeTimeout" type="string" read-only="false">
+    <value encoded="n"><![CDATA[Timed out while waiting for the virtual machine to power off.]]></value>
+  </attrib>
+  <attrib name="actualDelay" type="number" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="taskComplete" type="boolean" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="taskResult" type="Any" read-only="false">
+    <value encoded="n"><![CDATA[Any#__NULL__]]></value>
+    <description><![CDATA[Task return (if any)]]></description>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="0.0" x="864.5"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item2" type="task">
+    <display-name><![CDATA[Check variables]]></display-name>
+    <script encoded="false"><![CDATA[if (task == null) throw "ReferenceError: task is not defined";
+
+endDate = new Date((new Date()).getTime() + timeout * 60 * 1000);
+actualDelay = delay;]]></script>
+    <in-binding>
+      <bind name="timeout" type="number" export-name="timeout"/>
+      <bind name="delay" type="number" export-name="delay"/>
+      <bind name="task" type="VC:Task" export-name="task">
+        <description><![CDATA[Task to monitor for completion]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="endDate" type="Date" export-name="endDate"/>
+      <bind name="actualDelay" type="number" export-name="actualDelay"/>
+    </out-binding>
+    <position y="9.954545454545453" x="124.5"/>
+  </workflow-item>
+  <workflow-item name="item4" out-name="item2" type="link" linked-workflow-id="3e0c3e47-9f09-4157-8a1c-afd2b191d035">
+    <display-name><![CDATA[Improved Sleep]]></display-name>
+    <in-binding>
+      <bind name="delay" type="number" export-name="actualDelay">
+        <description><![CDATA[Time to wait (seconds)]]></description>
+      </bind>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Politely pauses a workflow for the specified time.  If the requested delay is more than 5 seconds just sleeps.]]></description>
+    <position y="73.59090909090908" x="404.5"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item7" type="custom-condition" alt-out-name="item5">
+    <display-name><![CDATA[Keep running?]]></display-name>
+    <script encoded="false"><![CDATA[return (endDate > new Date());]]></script>
+    <in-binding>
+      <bind name="endDate" type="Date" export-name="endDate"/>
+    </in-binding>
+    <position y="0.0" x="264.5"/>
+  </workflow-item>
+  <workflow-item name="item5" throw-bind-name="errorCodeTimeout" type="end" end-mode="1">
+    <position y="63.59090909090908" x="304.5"/>
+  </workflow-item>
+  <workflow-item name="item6" out-name="item4" type="task">
+    <display-name><![CDATA[Adjust timeout]]></display-name>
+    <script encoded="false"><![CDATA[var timeUntilTimeout = (endDate.getTime() - (new Date().getTime())) / 1000;
+if( timeUntilTimeout < actualDelay )
+{
+	System.log("Adjusting delay in the last loop to " + timeUntilTimeout);
+	actualDelay = timeUntilTimeout + 1;
+}]]></script>
+    <in-binding>
+      <bind name="timeout" type="number" export-name="timeout"/>
+      <bind name="endDate" type="Date" export-name="endDate"/>
+      <bind name="actualDelay" type="number" export-name="actualDelay"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actualDelay" type="number" export-name="actualDelay"/>
+    </out-binding>
+    <position y="73.59090909090908" x="545.0"/>
+  </workflow-item>
+  <workflow-item name="item7" out-name="item8" type="task">
+    <display-name><![CDATA[Determine Task Status]]></display-name>
+    <script encoded="false"><![CDATA[var error;
+
+if ( task != null ) {
+	if (task.info == null) {
+		throw "VIM Task info is null";
+	}
+	if (task.info.state == null) {
+		throw "VIM Task state is null";
+	}	
+
+	var state = task.info.state.value;
+	
+	if (state == "success") {
+		// Return the Task Result
+		taskResult = (task != null && task.info != null && task.info.result != null) 
+			       ? VcPlugin.convertToVimManagedObject(task , task.info.result)
+		           : null;
+		taskComplete = true;
+	}
+	else if (state == "error") {
+
+		if (task.info.error.localizedMessage == null) {
+			throw "Task '" + task.info.name + "' has encountered an unknown error";
+		}
+		else {
+			throw "Task '" + task.info.name + "' error: " + task.info.error.localizedMessage;
+		}
+	}
+	else if ((task.info.progress) && (state == "running")) {
+
+		if (task.info.progress == null) {
+			System.log(task.info.name + " Queued or In Progress...");
+			}
+		else {
+			System.log(task.info.name + " "  + task.info.progress + " %");
+		}
+		taskComplete = false;
+	}
+}
+
+]]></script>
+    <in-binding>
+      <bind name="task" type="VC:Task" export-name="task">
+        <description><![CDATA[Task to monitor for completion]]></description>
+      </bind>
+      <bind name="taskComplete" type="boolean" export-name="taskComplete"/>
+    </in-binding>
+    <out-binding>
+      <bind name="taskResult" type="Any" export-name="taskResult">
+        <description><![CDATA[Task return (if any)]]></description>
+      </bind>
+      <bind name="taskComplete" type="boolean" export-name="taskComplete"/>
+    </out-binding>
+    <position y="9.954545454545453" x="404.5"/>
+  </workflow-item>
+  <workflow-item name="item8" out-name="item1" type="condition" alt-out-name="item6" comparator="0">
+    <display-name><![CDATA[Task Complete?]]></display-name>
+    <script encoded="false"><![CDATA[//Generated by the system, cannot be edited
+return (taskComplete == true) ;]]></script>
+    <in-binding>
+      <bind name="taskComplete" type="boolean" export-name="taskComplete"/>
+    </in-binding>
+    <condition name="taskComplete" type="boolean" comparator="0" label="null">false</condition>
+    <position y="0.0" x="545.0"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item0" type="task">
+    <display-name><![CDATA[Set Result]]></display-name>
+    <script encoded="false"><![CDATA[returnObject = taskResult;]]></script>
+    <in-binding>
+      <bind name="taskResult" type="Any" export-name="taskResult">
+        <description><![CDATA[Task return (if any)]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="returnObject" type="Any" export-name="returnObject">
+        <description><![CDATA[Task Result (if any)]]></description>
+      </bind>
+    </out-binding>
+    <position y="9.954545454545453" x="684.5"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="timeout">
+      <desc><![CDATA[Timeout (seconds)]]></desc>
+    </p-param>
+    <p-param name="delay">
+      <desc><![CDATA[Time to wait (seconds)]]></desc>
+    </p-param>
+    <p-param name="task">
+      <desc><![CDATA[Task to monitor for completion]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

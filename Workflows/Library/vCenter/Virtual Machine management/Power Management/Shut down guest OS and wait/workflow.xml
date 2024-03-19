@@ -1,0 +1,105 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item0" object-name="Workflow:name=generic" id="BD80808080808080808080808080808075C280800122528313869552e41805bb1" version="0.2.0" api-version="6.0.0" allowed-operations="vf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Shut down guest OS and wait]]></display-name>
+  <description><![CDATA[Shuts down a guest operating system and waits for the process to complete.]]></description>
+  <position y="0.0" x="280.0"/>
+  <input>
+    <param name="vm" type="VC:VirtualMachine">
+      <description><![CDATA[Virtual machine to shut down]]></description>
+    </param>
+  </input>
+  <attrib name="task" type="VC:Task" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+    <description><![CDATA[Task to await]]></description>
+  </attrib>
+  <attrib name="progress" type="boolean" read-only="false">
+    <value encoded="n"><![CDATA[false]]></value>
+    <description><![CDATA[Log progress while waiting for the task]]></description>
+  </attrib>
+  <attrib name="pollRate" type="number" read-only="false">
+    <value encoded="n"><![CDATA[1.0]]></value>
+    <description><![CDATA[Polling rate for the task state, in seconds]]></description>
+  </attrib>
+  <attrib name="timeout" type="number" read-only="false">
+    <value encoded="n"><![CDATA[10.0]]></value>
+    <description><![CDATA[Timeout before forcing the shutdown, in minutes]]></description>
+  </attrib>
+  <workflow-item name="item0" out-name="item2" type="custom-condition" alt-out-name="item1">
+    <display-name><![CDATA[Suspended?]]></display-name>
+    <script encoded="false"><![CDATA[return vm.runtime.powerState.value == "suspended";]]></script>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+    </in-binding>
+    <position y="50.0" x="240.0"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item3" type="task" script-module="com.vmware.library.vc.vm.power/startVM">
+    <display-name><![CDATA[startVM]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vc.vm.power").startVM(vm,host) ;]]></script>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm">
+        <description><![CDATA[VM to start or resume]]></description>
+      </bind>
+      <bind name="host" type="VC:HostSystem" explicitly-not-bound="true" export-name="NULL">
+        <description><![CDATA[[Optional] The host where the virtual machine is to be powered on. If no host is specified, the current associated host is used. This field must specify a host that is part of the same compute resource that the virtual machine is currently associated with. If this host is not compatible, the current host association is used. ]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="VC:Task" export-name="task"/>
+    </out-binding>
+    <description><![CDATA[Start / Resume a VM. Return the start task]]></description>
+    <position y="60.0" x="400.0"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item1" type="task" script-module="com.vmware.library.vc.basic/vim3WaitTaskEnd">
+    <display-name><![CDATA[vim3WaitTaskEnd]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vc.basic").vim3WaitTaskEnd(task,progress,pollRate) ;]]></script>
+    <in-binding>
+      <bind name="task" type="VC:Task" export-name="task">
+        <description><![CDATA[Task to Wait for]]></description>
+      </bind>
+      <bind name="progress" type="boolean" export-name="progress">
+        <description><![CDATA[Log progess while waiting for the task]]></description>
+      </bind>
+      <bind name="pollRate" type="number" export-name="pollRate">
+        <description><![CDATA[Polling rate for the task state [seconds]]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Any" explicitly-not-bound="true" export-name="NULL"/>
+    </out-binding>
+    <description><![CDATA[Wait a VIM 3 Task to end.
+When task ended, return the ]]></description>
+    <position y="140.0" x="400.0"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item4" type="task" script-module="com.vmware.library.vc.vm.power/shutdownVM">
+    <display-name><![CDATA[shutdownVM]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+System.getModule("com.vmware.library.vc.vm.power").shutdownVM(vm,timeout,polling) ;]]></script>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+      <bind name="timeout" type="number" export-name="timeout">
+        <description><![CDATA[Timeout in minutes [min]]]></description>
+      </bind>
+      <bind name="polling" type="number" export-name="pollRate">
+        <description><![CDATA[Polling rate in seconds [s]]]></description>
+      </bind>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Shutdown the VM guest and wait for a given time before throwing an error if the VM is still not powered off. If timeout is set to 0, the action don't wait]]></description>
+    <position y="140.0" x="240.0"/>
+  </workflow-item>
+  <workflow-item name="item4" type="end" end-mode="0">
+    <position y="170.0" x="280.0"/>
+  </workflow-item>
+  <presentation>
+    <p-qual name="autostart"><![CDATA[true]]></p-qual>
+    <p-group>
+      <title><![CDATA[Virtual Machine]]></title>
+      <desc><![CDATA[Virtual Machine to shutdown.]]></desc>
+      <p-param name="vm">
+        <desc><![CDATA[Virtual machine to shut down]]></desc>
+      </p-param>
+    </p-group>
+  </presentation>
+</workflow>

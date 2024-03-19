@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item1" object-name="workflow:name=generic" id="c1cc2669-491d-44d9-baca-685f0e1ee99b" editor-version="2.0" version="0.0.1" api-version="6.0.0" restartMode="1" resumeFromFailedMode="0">
+    <display-name>MC-Demo</display-name>
+    <position y="50.0" x="100.0"/>
+    <input/>
+    <output/>
+    <workflow-item name="item0" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="50.0" x="1060.0"/>
+    </workflow-item>
+    <workflow-item name="item1" out-name="item2" type="task" comparator="0">
+        <display-name>Scriptable task</display-name>
+        <script encoded="false"></script>
+        <in-binding/>
+        <out-binding/>
+        <description>Simple task with custom script capability.</description>
+        <position y="60.0" x="180.0"/>
+    </workflow-item>
+    <workflow-item name="item2" out-name="item3" type="link" linked-workflow-id="8d19f0d8-4b8f-447c-b1ca-48fc9ef78745" comparator="0">
+        <display-name>Create a User in AD</display-name>
+        <script encoded="false"></script>
+        <in-binding>
+            <bind name="accountName" type="string" export-name="">
+                <description>The account name for the user (without domain information)</description>
+            </bind>
+            <bind name="domainName" type="string" export-name="">
+                <description>The domain name in Win2000 form (john@sample.com : value must be sample.com)</description>
+            </bind>
+            <bind name="displayName" type="string" export-name="">
+                <description>The display name of the user</description>
+            </bind>
+            <bind name="groupContainer" type="AD:Group" export-name="">
+                <description>Group in which put the newly created user</description>
+            </bind>
+        </in-binding>
+        <out-binding>
+            <bind name="newUser" type="AD:User" export-name=""/>
+        </out-binding>
+        <description> </description>
+        <position y="60.0" x="300.0"/>
+    </workflow-item>
+    <workflow-item name="item3" out-name="item0" type="task" script-module="com.vmware.library.powershell/MCDemo" comparator="0">
+        <display-name>MCDemo</display-name>
+        <script encoded="false">//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.powershell").MCDemo();
+</script>
+        <in-binding/>
+        <out-binding>
+            <bind name="actionResult" type="string" export-name=""/>
+        </out-binding>
+        <description>Add a note to the workflow schema.</description>
+        <position y="60.0" x="420.0"/>
+    </workflow-item>
+</ns2:workflow>

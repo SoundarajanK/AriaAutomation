@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item3" object-name="Workflow:name=generic" id="991f08af-17d4-42b0-b94a-32f82a5314f4" editor-version="2.0" version="0.2.0" api-version="6.0.0" allowed-operations="vef" restartMode="1" resumeFromFailedMode="0">
+    <display-name>Copy of Create a snapshot (1)</display-name>
+    <description>Creates a snapshot.</description>
+    <ref-types>(VC:VirtualMachine)</ref-types>
+    <position y="50.0" x="120.0"/>
+    <input>
+        <param name="vm" type="VC:VirtualMachine">
+            <description>Virtual machine of which to create a snapshot</description>
+        </param>
+    </input>
+    <output>
+        <param name="snapshot" type="VC:VirtualMachineSnapshot">
+            <description>The snapshot created</description>
+        </param>
+    </output>
+    <attrib name="task" type="VC:Task">
+        <value encoded="n"/>
+        <description>Task to await</description>
+    </attrib>
+    <attrib name="progress" type="boolean">
+        <value encoded="n">false</value>
+        <description>Log progress while waiting for the task to complete</description>
+    </attrib>
+    <attrib name="pollRate" type="number">
+        <value encoded="n">2.0</value>
+        <description>Polling rate for the task state, in seconds</description>
+    </attrib>
+    <attrib name="snapshotname" type="string">
+        <value encoded="n"></value>
+    </attrib>
+    <workflow-item name="item0" out-name="item2" type="task" script-module="com.vmware.library.vc.vm.snapshot/createSnapshot_Copy" comparator="0">
+        <display-name>createSnapshot_Copy</display-name>
+        <script encoded="false">//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vc.vm.snapshot").createSnapshot_Copy(vm,name);
+</script>
+        <in-binding>
+            <bind name="vm" type="VC:VirtualMachine" export-name="vm">
+                <description>The VM on which to create a snapshot</description>
+            </bind>
+            <bind name="name" type="string" export-name="snapshotname">
+                <description>The name for this snapshot. The name need not be unique for this virtual machine. </description>
+            </bind>
+        </in-binding>
+        <out-binding>
+            <bind name="actionResult" type="VC:Task" export-name="task"/>
+        </out-binding>
+        <description>Creates a new snapshot of this virtual machine. As a side effect, this updates the current snapshot. 
+Any % (percent) character used in this name parameter must be escaped, unless it is used to start an escape sequence. Clients may also escape any other characters in this name parameter. </description>
+        <position y="50.0" x="380.0"/>
+    </workflow-item>
+    <workflow-item name="item2" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="40.0" x="700.0"/>
+    </workflow-item>
+    <workflow-item name="item3" out-name="item0" type="task" comparator="0">
+        <display-name>calculate snapshot name</display-name>
+        <script encoded="false">snapshotname=Server.getCurrentLdapUser().loginName + '-' + vm.name +'-snapshot';&#13;
+System.log(snapshotname)</script>
+        <in-binding>
+            <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+        </in-binding>
+        <out-binding>
+            <bind name="snapshotname" type="string" export-name="snapshotname"/>
+        </out-binding>
+        <description>Simple task with custom script capability.</description>
+        <position y="50.0" x="220.0"/>
+    </workflow-item>
+</ns2:workflow>

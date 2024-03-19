@@ -1,0 +1,90 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="94d636e2-34d0-4a9b-b0fb-848c306d4880" version="0.0.13" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Find host MOID]]></display-name>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="targetId" type="string"/>
+    <param name="targetvCenteruuid" type="string"/>
+  </input>
+  <output>
+    <param name="host" type="VC:HostSystem"/>
+  </output>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="384.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item0" type="task">
+    <display-name><![CDATA[Find host by MOID]]></display-name>
+    <script encoded="false"><![CDATA[var connections = VcPlugin.allSdkConnections;
+System.log("Entering Search for Host by UUID");
+status = true;
+targetHost = null;
+targetHostName = null;
+eventDetails = "";
+System.log("vcenter:"+targetvCenteruuid+":");
+System.log("moid:"+targetId+":");
+for each ( var connection in connections) {
+   System.log("Now searching vCenter: ["+ connection.name + "]");
+  var vcSearchIndex = connection.searchIndex; 
+   if (vcSearchIndex == null) {
+ 		System.log("Null vcSearchIndex");
+   } 
+   else {
+     System.log("uuid: "+ connection.about.instanceUuid);
+      if (connection.about.instanceUuid == targetvCenteruuid) {
+         //get the list of vms for this vcenter
+         var allHosts = connection.getAllHostSystems(null,null);
+         // Iterate over the list of Hosts looking for the match
+         for each ( var possibleHost in allHosts) {
+ 			 System.log("Examining host: " + possibleHost.name);
+             if (possibleHost.id == targetId) {
+                host = possibleHost;
+
+                 targetHostName = host.name;
+                 eventDetails = "Found Host target by UUID  Value=" + targetId + " Host Target Name=" + targetHostName;
+				System.log(eventDetails);
+                 severity = "info";
+                 break;
+             }
+          }
+	   }
+	}
+}
+if (eventDetails == ""){
+  eventDetails="There was no configured vCenter that contains "+targetId+" Verify that vCenter Server Host has been added to VMware vCenter Orchestrator Configuration vCenter Server."; 
+  severity = "error";
+}
+if (targetHost == null){
+  status = false;
+} else {
+  foundTargetHost = targetHost;
+  
+}
+
+
+statusOut = status;
+
+
+
+
+
+
+
+System.log("Found host: " + targetHostName);]]></script>
+    <in-binding>
+      <bind name="targetvCenteruuid" type="string" export-name="targetvCenteruuid"/>
+      <bind name="targetId" type="string" export-name="targetId"/>
+    </in-binding>
+    <out-binding>
+      <bind name="host" type="VC:HostSystem" export-name="host"/>
+    </out-binding>
+    <position y="55.40909090909091" x="204.5"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="targetId">
+      <desc><![CDATA[targetId]]></desc>
+    </p-param>
+    <p-param name="targetvCenteruuid">
+      <desc><![CDATA[targetvCenteruuid]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

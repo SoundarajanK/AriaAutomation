@@ -1,0 +1,1674 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item1" object-name="workflow:name=generic" id="da99e6ae-6254-4f5d-ab72-578c6a14af20" editor-version="2.0" version="0.0.0" api-version="6.0.0" allowed-operations="vfe" restartMode="1" resumeFromFailedMode="0">
+    <display-name>getERPsystemproperties</display-name>
+    <position y="46.66666666666666" x="94.28571428571428"/>
+    <input>
+        <param name="in_targetsystem" type="Array/string">
+            <description>Target system</description>
+        </param>
+    </input>
+    <output/>
+    <attrib name="var_sysproperties" type="Properties">
+        <value encoded="n">{}</value>
+    </attrib>
+    <workflow-item name="item0" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="46.66666666666666" x="703.8095238095237"/>
+    </workflow-item>
+    <workflow-item name="item1" out-name="item0" type="task" comparator="0">
+        <display-name>set properties</display-name>
+        <script encoded="false">var sysproperties = new Properties();
+/* var_sysproperties = {
+    "vmname" : "",
+    "fqdn" : "",
+    "sid" : "" ,
+    "datacenter" : "",
+    "environment" : "",
+    "systemtype" : "",
+    "replicated": "",
+    "replicated_cg" : [""],
+    "xmsname" : "",
+    "clustername" : "",
+    "hosturl" : "",
+    "snpatagname" : "",
+    "copytagname" : "",
+    "cgname" : "",
+    "jumpserver" : ""
+} ; */
+for (var i in in_targetsystem) {
+var targetsystemsplit = in_targetsystem[i].split('@');
+if (targetsystemsplit[1] != "" &amp;&amp; targetsystemsplit[1] != undefined )
+{
+var var_vmname = targetsystemsplit[1];
+}
+else
+{
+var_vmname = in_targetsystem[i];
+}
+var var_fqdn = var_vmname + ".worldbank.org";
+if (var_vmname.charAt(1) == "1")
+{
+    var var_datacenter = "DC6"
+    var var_xmsname = "DC6XIO"
+    var var_clustername = "w6sapxiocluster01"
+    var var_hosturl = "w6smxio01.worldbank.org"
+    var var_snaptagname = "/Volume/" + var_vmname.toUpperCase()
+    var var_copytagname = "/SnapshotSet/" + var_vmname.toUpperCase()
+    var var_jumpserver = "w1splnbk01"
+}
+else if (var_vmname.charAt(1) == "2")
+{
+    var var_datacenter = "DC5"
+    var var_xmsname = "DC5XIO"
+    var var_clustername = "w5sapxiocluster01"
+    var var_hosturl = "w5smxio01.worldbank.org"
+    var var_snaptagname = "/Volume/" + var_vmname.toUpperCase()
+    var var_copytagname = "/SnapshotSet/" + var_vmname.toUpperCase()
+    var var_jumpserver = "w2splnbk01"
+}
+else if (var_vmname.charAt(1) == "0")
+{
+    var var_datacenter = "DC5"
+    var var_xmsname = "DC5XIO"
+    var var_clustername = "w5sapxiocluster01"
+    var var_hosturl = "w5smxio01.worldbank.org"
+    var var_snaptagname = "/Volume/" + var_vmname.toUpperCase()
+    var var_copytagname = "/SnapshotSet/" + var_vmname.toUpperCase()
+    var var_jumpserver = "w2splnbk01"
+}
+if (var_vmname.charAt(3) == "s")
+{
+    var var_environment = "Sandbox"
+}
+else if (var_vmname.charAt(3) == "d")
+{
+    var var_environment = "Development"
+}
+else if (var_vmname.charAt(3) == "q" || var_vmname.charAt(3) == "t")
+{
+    var var_environment = "QA"
+}
+else if (var_vmname.charAt(3) == "p")
+{
+    var var_environment = "Production"
+}
+var var_sid = new String();
+switch (in_targetsystem[i]) {
+case "AE1@w1sppi03":
+  var_systemtype = "VM";
+  var_sid = "AE1";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "AE2@w2sppi03":
+  var_systemtype = "VM";
+  var_sid = "AE2";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "AED@w2sdlnin00":
+  var_systemtype = "VM";
+  var_sid = "AED";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "AEQ@w2sqlnin00":
+  var_systemtype = "VM";
+  var_sid = "AEQ";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "AET@w1stpi03":
+  var_systemtype = "VM";
+  var_sid = "AET";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "AUD@w1sdlnau01":
+  var_systemtype = "VM";
+  var_sid = "AUD";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "AUP@w0splnau01":
+  var_systemtype = "VM";
+  var_sid = "AUP";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "AUQ@w1sqlnau01":
+  var_systemtype = "VM";
+  var_sid = "AUQ";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "AUS@w1sslnau01":
+  var_systemtype = "VM";
+  var_sid = "AUS";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "CDB@w2sslnsp01":
+  var_systemtype = "VM";
+  var_sid = "CDB";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "CFU@w1sdlncf01":
+  var_systemtype = "VM";
+  var_sid = "CFU";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "DS1@w1sdlnds01":
+  var_systemtype = "XIO";
+  var_sid = "DS1";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "DV0@w1sdlnd01":
+  var_systemtype = "XIO";
+  var_sid = "DV0";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "DV1@w2sdlndv03":
+  var_systemtype = "XIO";
+  var_sid = "DV1";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "DV2@w2sdlndv02":
+  var_systemtype = "XIO";
+  var_sid = "DV2";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "DV3@w2sdlndv04":
+  var_systemtype = "XIO";
+  var_sid = "DV3";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "DV4@w2sdlndv05":
+  var_systemtype = "XIO";
+  var_sid = "DV4";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "DVM@w2sdlndv01":
+  var_systemtype = "XIO";
+  var_sid = "DVM";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "ECR@w0splnot01":
+  var_systemtype = "VM";
+  var_sid = "ECR";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "ECR@w1sqlnot01":
+  var_systemtype = "VM";
+  var_sid = "ECR";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "EPD@w2sdlnep01":
+  var_systemtype = "VM";
+  var_sid = "EPD";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "EPL@w2sqlnel01":
+  var_systemtype = "VM";
+  var_sid = "EPL";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "EPP@w0splnep01":
+  var_systemtype = "VM";
+  var_sid = "EPP";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "EPQ@w2sqlnep01":
+  var_systemtype = "VM";
+  var_sid = "EPQ";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "EPT@w2stlnep01":
+  var_systemtype = "VM";
+  var_sid = "EPT";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "EPX@w2sslnep01":
+  var_systemtype = "VM";
+  var_sid = "EPX";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "GWD@w2sdlngw01":
+  var_systemtype = "VM";
+  var_sid = "GWD";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "GWT@w2stlngw01":
+  var_systemtype = "VM";
+  var_sid = "GWT";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "H4C@w1splnh201":
+  var_systemtype = "VM";
+  var_sid = "H4C";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "H72@w2bdhnh701":
+  var_systemtype = "XIO";
+  var_sid = "H72";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "HD1@w2bshnds01":
+  var_systemtype = "XIO";
+  var_sid = "HD1";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "HDP@w0bphndp01":
+  var_systemtype = "XIO";
+  var_sid = "HDP";
+  var_replicated = "yes"
+  var_replicated_cg = ["W0BPHNDP01-HDP-DB-EXEVG-CG"]
+  break;
+case "HDP@w0bphndp02":
+  var_systemtype = "XIO";
+    var_sid = "HDP";
+  var_replicated = ["W0BPHNDP02-HDP-CG"]
+  break;
+case "HDQ@w1bqhndq01":
+  var_systemtype = "XIO";
+var_sid = "HDQ";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "HDS@w2bshnds01":
+  var_systemtype = "XIO";
+  var_sid = "HDS";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "HDV@w1bshnhs01":
+  var_systemtype = "XIO";
+  var_sid = "HDV";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "HMR@w1bqhntr01":
+  var_systemtype = "XIO";
+  var_sid = "HMR";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "HT1@w0bqhnt101":
+  var_systemtype = "XIO";
+  var_sid = "HT1";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "IND@w2sdlnin00":
+  var_systemtype = "VM";
+  var_sid = "IND";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "INP@w0splnin00":
+  var_systemtype = "VM";
+  var_sid = "INP";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "INQ@w2sqlnin00":
+  var_systemtype = "VM";
+  var_sid = "INQ";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "JPD@w2sslnjp01":
+  var_systemtype = "VM";
+  var_sid = "JPD";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "LAQ@w1sqlnla01":
+  var_systemtype = "XIO";
+  var_sid = "LAQ";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "LD1@w1sdlnld01":
+  var_systemtype = "VM";
+  var_sid = "LD1";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "LD2@w2sdlnld01":
+  var_systemtype = "VM";
+  var_sid = "LD2";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "LP1@w1splnlp01":
+  var_systemtype = "VM";
+  var_sid = "LP1";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "LP2@w2splnlp01":
+  var_systemtype = "VM";
+  var_sid = "LP2";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "LQ1@w1sqlnlq01":
+  var_systemtype = "VM";
+  var_sid = "LQ1";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "LQ2@w2sqlnlq01":
+  var_systemtype = "VM";
+  var_sid = "LQ2";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "NDI@w2sdlnnd01":
+  var_systemtype = "VM";
+  var_sid = "NDI";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "NTR@w2sqlnnt01":
+  var_systemtype = "XIO";
+  var_sid = "NTR";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "OPT@w2sqlnop01":
+  var_systemtype = "XIO";
+  var_sid = "OPT";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "PD1@w1sdlnpd01":
+  var_systemtype = "VM";
+  var_sid = "PD1";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "PD3@w1sdlnpd03":
+  var_systemtype = "VM";
+  var_sid = "PD3";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "PID@w1sdlnpi01":
+  var_systemtype = "VM";
+  var_sid = "PID";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "PIT@w1sqlnpi01":
+  var_systemtype = "VM";
+  var_sid = "PIT";
+  var_replicated = "no"
+ var_replicated_cg = "no"
+  break;
+case "PIV@w1sdlnpv01":
+  var_systemtype = "VM";
+  var_sid = "PIV";
+  var_replicated = "no"
+ var_replicated_cg = "no"
+  break;
+case "POD@w1sdlnpo01":
+  var_systemtype = "VM";
+  var_sid = "POD";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "POP@w0splnpo01":
+  var_systemtype = "VM";
+  var_sid = "POP";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "POT@w1stlnpo01":
+  var_systemtype = "VM";
+  var_sid = "POT";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "PRD@w0splnpr01":
+  var_systemtype = "XIO";
+  var_sid = "PRD";
+  var_replicated = "yes"
+  var_replicated_cg = ["W1SPLNPR01-02-PRD-DB-EXEVG", "W2SPLNPR01-02-PRD-DB-EXEVG"]
+  break;
+case "PRD@w1splnpc01":
+  var_systemtype = "XIO";
+  var_sid = "";
+  var_replicated = "no"
+  var_replicated_cg = [""]
+  break;
+case "PRD@w2splndg01":
+  var_systemtype = "VM";
+  var_sid = "";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "PRD@w2splnpc01":
+  var_systemtype = "XIO";
+  var_sid = "PRD";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "PRR@w2sqlnfy01":
+  var_systemtype = "XIO";
+  var_sid = "PRR";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "PRY@w2sqlnry01":
+  var_systemtype = "XIO";
+  var_sid = "PRY";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "PT1@w1sqlnpt01":
+  var_systemtype = "VM";
+  var_sid = "PT1";
+  var_replicated = "no"
+  break;
+case "QAS@w1sqlnqa01":
+  var_systemtype = "XIO";
+  var_sid = "QAS";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "RP1@w1splnrp01":
+  var_systemtype = "VM";
+  var_sid = "RP1";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "RP2@w2splnrp01":
+  var_systemtype = "VM";
+  var_sid = "RP2";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "RQ1@w1sqlnrq01":
+  var_systemtype = "VM";
+  var_sid = "RQ1";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  var_replicated_cg = "no"
+  break;
+case "RQ2@w2sqlnrq01":
+  var_systemtype = "VM";
+  var_sid = "RQ2";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "SL1@w1splnsl01":
+  var_systemtype = "VM";
+  var_sid = "SL1";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "SL2@w2splnsl01":
+  var_systemtype = "VM";
+  var_sid = "SL2";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "SMT@w2stlnsm01":
+  var_systemtype = "VM";
+  var_sid = "SMT";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "SMV@w2sdlnsm01":
+  var_systemtype = "VM";
+  var_sid = "SMV";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "SMV@w2sdlnsm02":
+  var_systemtype = "VM";
+  var_sid = "SMV";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "SN1@w1sslns101":
+  var_systemtype = "XIO";
+  var_sid = "SN1";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "SNT@w1sslnsn01":
+  var_systemtype = "XIO";
+  var_sid = "SNT";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "SNT@w2sslnsn01":
+  var_systemtype = "VM";
+  var_sid = "SMT";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "SNX@w1sslnsx01":
+  var_systemtype = "XIO";
+  var_sid = "SNX";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "STQ@w1sqlnst01":
+  var_systemtype = "XIO";
+  var_sid = "STQ";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "TRN@w1sdlntg01":
+  var_systemtype = "XIO";
+  var_sid = "TRN";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "TRT@w2sqlntr01":
+  var_systemtype = "XIO";
+  var_sid = "TRT";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "TRV@w1sdlntr01":
+  var_systemtype = "XIO";
+  var_sid = "TRV";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "TS1@w1sqlnng01":
+  var_systemtype = "XIO";
+  var_sid = "TS1";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "TS2@w2sqlnts02":
+  var_systemtype = "XIO";
+  var_sid = "TS2";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "TS3@w2sqlnts03":
+  var_systemtype = "XIO";
+  var_sid = "TS3";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "TS4@w2sqlnmv01":
+  var_systemtype = "XIO";
+  var_sid = "TS4";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "TS5@w1sqlnts05":
+  var_systemtype = "XIO";
+  var_sid = "TS5";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "TS6@w2sqlnts06":
+  var_systemtype = "XIO";
+  var_sid = "TS6";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "TS8@w1sqlnts08":
+  var_systemtype = "XIO";
+  var_sid = "TS8";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "TST@w2sqlnts01":
+  var_systemtype = "XIO";
+  var_sid = "TST";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "XIP@w0splnxi01":
+  var_systemtype = "VM";
+  var_sid = "XIP";
+  var_replicated = "yes"
+  var_replicated_cg = "no"
+  break;
+case "w0bphndp01":
+  var_systemtype = "XIO";
+  var_sid = "HDP";
+  var_replicated = "no"
+  var_replicated_cg = ["W0BPHNDP01-HDP-DB-EXEVG-CG"]
+  break;
+case "w0bphndp02":
+  var_systemtype = "XIO";
+  var_sid = "HDP";
+  var_replicated = "no"
+  var_replicated_cg = ["W0BPHNDP02-HDP-CG"]
+  break;
+case "w0bqhnt101":
+  var_systemtype = "XIO";
+  var_sid = "HT1";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w0splnau01":
+  var_systemtype = "VM";
+  var_sid = "AUP";
+  var_replicated = "yes"
+  var_replicated_cg = "no"
+  break;
+case "w0splnbw01":
+  var_systemtype = "VM";
+  var_sid = "BWP";
+  var_replicated = "yes"
+  var_replicated_cg = "no"
+  break;
+case "w0splnbw11":
+  var_systemtype = "VM";
+  var_sid = "BWP";
+  var_replicated = "yes"
+  var_replicated_cg = "no"
+  break;
+case "w0splnbw12":
+  var_systemtype = "VM";
+  var_sid = "BWP";
+  var_replicated = "yes"
+  var_replicated_cg = "no"
+  break;
+case "w0splnep01":
+  var_systemtype = "VM";
+  var_sid = "EPP";
+  var_replicated = "yes"
+  var_replicated_cg = "no"
+  break;
+case "w0splnif01":
+  var_systemtype = "VM";
+  var_sid = "";
+  var_replicated = "yes"
+  var_replicated_cg = "no"
+  break;
+case "w0splnin00":
+  var_systemtype = "VM";
+  var_sid = "INP";
+  var_replicated = "yes"
+  var_replicated_cg = "no"
+  break;
+case "w0splnin01":
+  var_systemtype = "VM";
+  var_sid = "INP";
+  var_replicated = "yes"
+  var_replicated_cg = "no"
+  break;
+case "w0splnot01":
+  var_systemtype = "VM";
+  var_sid = "ECR";
+  var_replicated = "yes"
+  var_replicated_cg = "no"
+  break;
+case "w0splnpo01":
+  var_systemtype = "VM";
+  var_sid = "POP";
+  var_replicated = "yes"
+  var_replicated_cg = "no"
+  break;
+case "w0splnpr01":
+  var_systemtype = "XIO";
+  var_sid = "PRD";
+  var_replicated = "yes"
+  var_replicated_cg = ["W1SPLNPR01-02-PRD-DB-EXEVG", "W2SPLNPR01-02-PRD-DB-EXEVG"]
+  break;
+case "w0splnxi01":
+  var_systemtype = "VM";
+  var_sid = "XIP";
+  var_replicated = "yes"
+  var_replicated_cg = "no"
+  break;
+case "w1bqhndq01":
+  var_systemtype = "XIO";
+  var_sid = "HDQ";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1bqhntr01":
+  var_systemtype = "XIO";
+  var_sid = "HMR";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1bshnhs01":
+  var_systemtype = "XIO";
+  var_sid = "HDV";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sdlnau01":
+  var_systemtype = "VM";
+  var_sid = "HDV";
+  var_replicated = "no"
+  var_replicated_cg = "no" 
+  break;
+case "w1sdlnbw01":
+  var_systemtype = "VM";
+  var_sid = "BWV";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sdlncf01":
+  var_systemtype = "VM";
+  var_sid = "CFU";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sdlnd01":
+  var_systemtype = "XIO";
+  var_sid = "DV0";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sdlnds01":
+  var_systemtype = "VM";
+  var_sid = "DS1";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sdlnif01":
+  var_systemtype = "VM";
+  var_sid = "";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sdlnld01":
+  var_systemtype = "VM";
+  var_sid = "LD1";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sdlnpd01":
+  var_systemtype = "VM";
+  var_sid = "PD1";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sdlnpd03":
+  var_systemtype = "VM";
+  var_sid = "PD3";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sdlnpi01":
+  var_systemtype = "VM";
+  var_sid = "PID";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sdlnpo01":
+  var_systemtype = "VM";
+  var_sid = "POD";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sdlnpv01":
+  var_systemtype = "VM";
+  var_sid = "PIV";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sdlntg01":
+  var_systemtype = "XIO";
+  var_sid = "TRN";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+
+  break;
+case "w1sdlntr01":
+  var_systemtype = "XIO";
+  var_sid = "TRV";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1smlnans01":
+  var_systemtype = "VM";
+  var_sid = "ANSIBLE";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1splnae01":
+  var_systemtype = "VM";
+  var_sid = "AE1";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1splnbk01":
+  var_systemtype = "VM";
+  var_sid = "";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1splndg01":
+  var_systemtype = "VM";
+  var_sid = "";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1splnep11":
+  var_systemtype = "VM";
+  var_sid = "EPP";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1splnep12":
+  var_systemtype = "VM";
+  var_sid = "EPP";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1splnfs01":
+  var_systemtype = "VM";
+  var_sid = "";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1splnh201":
+  var_systemtype = "VM";
+  var_sid = "H2C";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1splnlp01":
+  var_systemtype = "VM";
+  var_sid = "LP1";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1splnpc01":
+  var_systemtype = "XIO";
+   var_sid = "";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1splnpr11":
+  var_systemtype = "VM";
+  var_sid = "PRD";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1splnpr12":
+  var_systemtype = "VM";
+  var_sid = "PRD";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1splnpr13":
+  var_systemtype = "VM";
+  var_sid = "PRD";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1splnpr14":
+  var_systemtype = "VM";
+  var_sid = "PRD";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1splnrp01":
+  var_systemtype = "VM";
+  var_sid = "RP1";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1splnrt01":
+  var_systemtype = "VM";
+  var_sid = "";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1splnsj01":
+  var_systemtype = "VM";
+  var_sid = "SMJ";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1splnsl01":
+  var_systemtype = "VM";
+  var_sid = "SL1";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1splnsm02":
+  var_systemtype = "VM";
+  var_sid = "SMR";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sppi03":
+  var_systemtype = "VM";
+  var_sid = "AE1";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sprt01":
+  var_systemtype = "VM";
+  var_sid = "";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1spvbtest01":
+  var_systemtype = "XIO";
+  var_sid = "";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sqlnau01":
+  var_systemtype = "VM";
+  var_sid = "AUQ";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sqlnbt01":
+  var_systemtype = "VM";
+  var_sid = "BT1";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sqlnbw01":
+  var_systemtype = "VM";
+  var_sid = "BWQ";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sqlnbw11":
+  var_systemtype = "VM";
+  var_sid = "BWQ";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sqlndg01":
+  var_systemtype = "VM";
+  var_sid = "TST";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sqlnla01":
+  var_systemtype = "XIO";
+  var_sid = "LAQ";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sqlnlq01":
+  var_systemtype = "VM";
+  var_sid = "LQ1";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sqlnng01":
+  var_systemtype = "XIO";
+  var_sid = "TS1";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sqlnng11":
+  var_systemtype = "VM";
+  var_sid = "TS1";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sqlnng12":
+  var_systemtype = "VM";
+  var_sid = "TS1";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sqlnot01":
+  var_systemtype = "VM";
+  var_sid = "ECR";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sqlnpi01":
+  var_systemtype = "VM";
+  var_sid = "PIT";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sqlnpt01":
+  var_systemtype = "VM";
+  var_sid = "PT1";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sqlnpt03":
+  var_systemtype = "VM";
+  var_sid = "PT3";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sqlnqa01":
+  var_systemtype = "XIO";
+  var_sid = "QAS";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sqlnqa11":
+  var_systemtype = "VM";
+  var_sid = "QAS";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sqlnrq01":
+  var_systemtype = "VM";
+  var_sid = "RQ1";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sqlnst01":
+  var_systemtype = "XIO";
+  var_sid = "STQ";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sqlnts05":
+  var_systemtype = "XIO";
+  var_sid = "TS5";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sqlnts08":
+  var_systemtype = "XIO";
+  var_sid = "TS8";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sqvbtest01":
+  var_systemtype = "VM";
+  var_sid = "";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sslnau01":
+  var_systemtype = "VM";
+  var_sid = "AUS";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sslns101":
+  var_systemtype = "XIO";
+  var_sid = "SN1";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sslnsn01":
+  var_systemtype = "XIO";
+  var_sid = "SNT";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1sslnsx01":
+  var_systemtype = "XIO";
+  var_sid = "SNX";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1ssvbtest01":
+  var_systemtype = "VM";
+  var_sid = "";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1stlnpo01":
+  var_systemtype = "VM";
+  var_sid = "POT";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w1stpi03":
+  var_systemtype = "VM";
+  var_sid = "AET";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2bdhnh701":
+  var_systemtype = "XIO";
+  var_sid = "H72";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2bshnds01":
+  var_systemtype = "XIO";
+  var_sid = "HD11";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sdlf01":
+  var_systemtype = "VM";
+  var_sid = "AED";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sdlnbd01":
+  var_systemtype = "XIO";
+  var_sid = "BD1";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sdlndv01":
+  var_systemtype = "XIO";
+  var_sid = "DVM";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sdlndv02":
+  var_systemtype = "XIO";
+  var_sid = "DV2";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sdlndv03":
+  var_systemtype = "XIO";
+  var_sid = "DV1";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sdlndv04":
+  var_systemtype = "XIO";
+  var_sid = "DV3";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sdlndv05":
+  var_systemtype = "XIO";
+  var_sid = "DV4";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sdlndv06":
+  var_systemtype = "XIO";
+  var_sid = "DVM";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sdlnep01":
+  var_systemtype = "VM";
+  var_sid = "EPD";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sdlngw01":
+  var_systemtype = "VM";
+  var_sid = "GWD";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sdlnin00":
+  var_systemtype = "VM";
+  var_sid = "IND";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sdlnin01":
+  var_systemtype = "VM";
+  var_sid = "IND";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sdlnld01":
+  var_systemtype = "VM";
+  var_sid = "LD2";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sdlnnd01":
+  var_systemtype = "VM";
+  var_sid = "NDI";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sdlns701":
+  var_systemtype = "VM";
+  var_sid = "S72";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sdlns702":
+  var_systemtype = "VM";
+  var_sid = "S7J";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sdlnsm01":
+  var_systemtype = "VM";
+  var_sid = "SMV";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sdlnsm02":
+  var_systemtype = "VM";
+  var_sid = "SMV";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2splnae01":
+  var_systemtype = "VM";
+  var_sid = "AE2";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2splnbk01":
+  var_systemtype = "XIO";
+  var_sid = "";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2splndg01":
+  var_systemtype = "VM";
+  var_sid = "";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2splnep11":
+  var_systemtype = "VM";
+  var_sid = "EPP";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2splnep12":
+  var_systemtype = "VM";
+  var_sid = "EPP";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2splnfs01":
+  var_systemtype = "VM";
+  var_sid = "";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2splnlp01":
+  var_systemtype = "VM";
+  var_sid = "LP2";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2splnpc01":
+  var_systemtype = "XIO";
+  var_sid = "PRD";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2splnpr11":
+  var_systemtype = "VM";
+  var_sid = "PRD";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2splnpr12":
+  var_systemtype = "VM";
+  var_sid = "PRD";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2splnpr13":
+  var_systemtype = "VM";
+  var_sid = "PRD";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2splnpr14":
+  var_systemtype = "VM";
+  var_sid = "PRD";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2splnrp01":
+  var_systemtype = "VM";
+  var_sid = "RP2";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2splnrt01":
+  var_systemtype = "VM";
+  var_sid = "";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2splnsl01":
+  var_systemtype = "VM";
+  var_sid = "SL2";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2splntm01":
+  var_systemtype = "VM";
+  var_sid = "SMT";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sppi03":
+  var_systemtype = "VM";
+  var_sid = "AE2";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sprt02":
+  var_systemtype = "VM";
+  var_sid = "";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2spvbtest01":
+  var_systemtype = "VM";
+  var_sid = "";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sqlnbt01":
+  var_systemtype = "VM";
+  var_sid = "BT1";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sqlnel01":
+  var_systemtype = "VM";
+  var_sid = "EPL";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sqlnep01":
+  var_systemtype = "VM";
+  var_sid = "EPQ";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sqlnfy01":
+  var_systemtype = "XIO";
+  var_sid = "PRR";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sqlnin00":
+  var_systemtype = "VM";
+  var_sid = "INQ";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sqlnin01":
+  var_systemtype = "VM";
+  var_sid = "INQ";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sqlnlq01":
+  var_systemtype = "VM";
+  var_sid = "LQ1";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sqlnmv01":
+  var_systemtype = "XIO";
+  var_sid = "TS4";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sqlnnt01":
+  var_systemtype = "XIO";
+  var_sid = "NTR";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sqlnop01":
+  var_systemtype = "XIO";
+  var_sid = "OPT";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "RFH@w2sqlnrf01":
+  var_systemtype = "XIO";
+  var_sid = "RFH";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+   break;
+case "w2sqlnrf01":
+  var_systemtype = "XIO";
+  var_sid = "RFH";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sqlnrq01":
+  var_systemtype = "VM";
+  var_sid = "RQ1";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sqlnry01":
+  var_systemtype = "XIO";
+  var_sid = "PRY";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sqlntr01":
+  var_systemtype = "XIO";
+  var_sid = "TRT";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sqlnts01":
+  var_systemtype = "XIO";
+  var_sid = "TST";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sqlnts02":
+  var_systemtype = "XIO";
+  var_sid = "TS2";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sqlnts03":
+  var_systemtype = "XIO";
+  var_sid = "TS3";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sqlnts06":
+  var_systemtype = "XIO";
+  var_sid = "TS6";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sqlnts11":
+  var_systemtype = "VM";
+  var_sid = "TST";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sqlnts12":
+  var_systemtype = "VM";
+  var_sid = "TST";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sqpi03":
+  var_systemtype = "VM";
+  var_sid = "AEQ";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sqvbtest01":
+  var_systemtype = "VM";
+  var_sid = "";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sslnbw01":
+  var_systemtype = "VM";
+  var_sid = "BWQ";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sslnep01":
+  var_systemtype = "VM";
+  var_sid = "EPX";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sslnjp01":
+  var_systemtype = "VM";
+  var_sid = "CDB";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sslnpc01":
+  var_systemtype = "XIO";
+  var_sid = "";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sslnpc02":
+  var_systemtype = "XIO";
+  var_sid = "";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sslnsn01":
+  var_systemtype = "VM";
+  var_sid = "SNT";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2sslnsp01":
+  var_systemtype = "VM";
+  var_sid = "";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2ssvbtest01":
+  var_systemtype = "VM";
+  var_sid = "";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2stlnep01":
+  var_systemtype = "VM";
+  var_sid = "EPT";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2stlngw01":
+  var_systemtype = "VM";
+  var_sid = "GWT";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+  break;
+case "w2stlnsm01":
+  var_systemtype = "VM";
+  var_sid = "SMT";
+  var_replicated = "no"
+  var_replicated_cg = "no"
+case "esx_replicated_dc5_dc6":
+  var_systemtype = "XIO";
+  var_sid = "REPLESX";
+  var_replicated = "no"
+  var_replicated_cg = ["SAPPRODDC5ESX-XIOREPL-CG", "SAPPRODDC6ESX-XIOREPL-CG"]
+  break;
+  default:
+  }
+var var_cgname = new String();
+var_cgname = var_vmname.toUpperCase() + "-" + var_sid + "-DB-EXEVG-CG";
+System.log("vmname " + var_vmname);
+System.log("fqdn " + var_fqdn);
+System.log("sid " + var_sid);
+System.log("datacenter " + var_datacenter);
+System.log("environment " + var_environment);
+System.log("systemtype " + var_systemtype);
+System.log("replicated " + var_replicated);
+System.log("replicated_cg " + var_replicated_cg);
+System.log("XMSname " + var_xmsname);
+System.log("Clustername " + var_clustername);
+System.log("Hosturl " + var_hosturl);
+System.log("Snaptagnmae " + var_snaptagname);
+System.log("Copytagnmae " + var_copytagname);
+System.log("cgname " + var_cgname);
+System.log("jumpserver " + var_jumpserver );
+/* var_sysproperties[i].put("vmname", var_vmname);
+var_sysproperties[i].put("fqdn", var_fqdn);
+var_sysproperties[i].put("sid", var_sid);
+var_sysproperties[i].put("datacenter", var_datacenter);
+var_sysproperties[i].put("environment", var_environment);
+var_sysproperties[i].put("systemtype", var_systemtype);
+var_sysproperties[i].put("replicated", var_replicated);
+var_sysproperties[i].put("replicated_cg", var_replicated_cg);
+var_sysproperties[i].put("xmsname", var_xmsname);
+var_sysproperties[i].put("clustername", var_clustername);
+var_sysproperties[i].put("hosturl", var_hosturl);
+var_sysproperties[i].put("snaptagname", var_snaptagname);
+var_sysproperties[i].put("copytagname", var_copytagname);
+var_sysproperties[i].put("cgname", var_cgname);
+var_sysproperties[i].put("jumpserver", var_jumpserver); */
+/* var_sysproperties.put("vmname", var_vmname );
+var_sysproperties.put("fqdn", var_fqdn);
+var_sysproperties.put("sid", var_sid);
+var_sysproperties.put("datacenter", var_datacenter);
+var_sysproperties.put("environment", var_environment);
+var_sysproperties.put("systemtype", var_systemtype);
+var_sysproperties.put("replicated", var_replicated);
+var_sysproperties.put("replicated_cg", var_replicated_cg);
+var_sysproperties.put("xmsname", var_xmsname);
+var_sysproperties.put("clustername", var_clustername);
+var_sysproperties.put("hosturl", var_hosturl);
+var_sysproperties.put("snaptagname", var_snaptagname);
+var_sysproperties.put("copytagname", var_copytagname);
+var_sysproperties.put("cgname", var_cgname);
+var_sysproperties.put("jumpserver", var_jumpserver); */
+sysproperties.put("vmname", var_vmname );
+sysproperties.put("fqdn", var_fqdn);
+sysproperties.put("sid", var_sid);
+sysproperties.put("datacenter", var_datacenter);
+sysproperties.put("environment", var_environment);
+sysproperties.put("systemtype", var_systemtype);
+sysproperties.put("replicated", var_replicated);
+sysproperties.put("replicated_cg", var_replicated_cg);
+sysproperties.put("xmsname", var_xmsname);
+sysproperties.put("clustername", var_clustername);
+sysproperties.put("hosturl", var_hosturl);
+sysproperties.put("snaptagname", var_snaptagname);
+sysproperties.put("copytagname", var_copytagname);
+sysproperties.put("cgname", var_cgname);
+sysproperties.put("jumpserver", var_jumpserver);
+var_sysproperties[i].put(sysproperties);
+
+}</script>
+        <in-binding>
+            <bind name="in_targetsystem" type="Array/string" export-name="in_targetsystem"/>
+            <bind name="var_sysproperties" type="Properties" export-name="var_sysproperties"/>
+        </in-binding>
+        <out-binding>
+            <bind name="var_sysproperties" type="Properties" export-name="var_sysproperties"/>
+        </out-binding>
+        <description>Simple task with custom script capability.</description>
+        <position y="56.66666666666666" x="263.8095238095238"/>
+    </workflow-item>
+</ns2:workflow>

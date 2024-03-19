@@ -1,0 +1,1 @@
+{"schema":{"name":{"id":"name","type":{"dataType":"string"},"label":"name"}},"layout":{"pages":[{"id":"page_32isxx37","title":"General","sections":[{"id":"section_nxq4g7tb","fields":[{"id":"name","display":"textField","signpostPosition":"right-middle","state":{"visible":true,"read-only":false}}]}]}]},"itemId":""}

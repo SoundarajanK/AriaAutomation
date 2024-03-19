@@ -1,0 +1,91 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="0bba79d7-d37f-44ee-a575-cf0eca626075" version="1.0.0" api-version="6.0.0" allowed-operations="vfe" editor-version="2.0" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Workflow Runs Report Generation]]></display-name>
+  <position y="10.0" x="50.0"/>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <in-binding/>
+    <position y="10.0" x="310.0"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item0" type="task">
+    <display-name><![CDATA[Generate Report for last 30 days]]></display-name>
+    <script encoded="false"><![CDATA[//Inputs from user [EDIT BEFORE RUN]
+var basicvROUsername = "username@domain.local";
+var basicvROPassword = "pa$$word";
+var smtpServerName = "your smtp server address";
+var receiverMailAddrsss = "your email id"
+
+//Self initialized inputs
+var vROUrl = "https://"+getvROName()+":443/vco/api"; 
+var currentDate = System.getModule("actions.mayank.goyal").getCurrentDateInISOFormat(); //present date & time
+var date30DaysAgo = System.getModule("actions.mayank.goyal").getDate30DaysAgo(); //change this action to get any custom date
+
+//Part 1/3: Execute REST Operation
+var vroHost = RESTHostManager.createHost("vROHost");
+vroHost.url = vROUrl;
+var host = RESTHostManager.createTransientHostFrom(vroHost);
+host.authentication = RESTAuthenticationManager.createAuthentication("Basic", ["Shared Session", basicvROUsername, basicvROPassword]);
+var url = "/catalog/System/WorkflowToken?conditions=state%5Ecompleted%7Cfailed&conditions=endDate%3E"+date30DaysAgo+"&conditions=endDate%3C"+currentDate;
+System.debug(url);
+var request = host.createRequest("GET", url, null);
+request.setHeader("Accept", "application/json");
+var response = request.execute();
+
+//Part 2/3: Gather data in CSV format
+var reportCSV = "Name,Status,Start Date,End Date,Started by\r\n";
+if (response.statusCode != 200) { // 200 - HTTP status OK
+    System.warn("Request failed with status code " + response.statusCode);
+} else {
+    var doc = JSON.parse(response.contentAsString);
+    System.log("Number of failed or canceled tokens for Jun 14th: " + doc.total);
+    for each(var link in doc.link) {
+        for each(var attribute in link.attributes) {
+            if (attribute.name == "name")
+                var wfName = attribute.value;
+            if (attribute.name == "state")
+                var wfState = attribute.value;
+            if (attribute.name == "startDate")
+                var wfStartDate = attribute.value;
+            if (attribute.name == "endDate")
+                var wfEndDate = attribute.value;
+            if (attribute.name == "startedBy")
+                var wfStartedBy = attribute.value;
+        }
+        reportCSV += (wfName + "," + wfState + "," + wfStartDate + "," + wfEndDate + "," + wfStartedBy+"\r\n");
+    }
+}
+
+//Part 3/3: Attaching CSV and send mail
+System.debug("Adding CSV attachment");
+var objMimeAttachment;
+objMimeAttachment = new MimeAttachment();
+objMimeAttachment.name = "Workflow Report.csv";
+objMimeAttachment.content = reportCSV;
+var message = new EmailMessage();
+message.smtpHost = smtpServerName;
+message.subject = "Workflow Report Generation";
+message.fromAddress = getvROName(); // your vRO address
+message.addMimePart("Workflow Report Generation", "text/html");
+message.addMimePart(objMimeAttachment, "text/x-csv");
+message.toAddress = receiverMailAddrsss;
+
+System.debug("Sending email to \"" + message.toAddress + "\"");
+if (message.toAddress != null || message.toAddress != undefined) {
+    message.sendMessage();
+} else {
+    throw "Cannot send report as email address is not provided";
+}
+
+function getvROName(){ //works on 8.x
+    var com = new Command(["printenv", "|", "fgrep", "JVM_OPTS"]);
+    var res = com.execute(true);
+    var output = com.output;
+    var nodeName = output.match(/-Dvco.app.hostname=([^\s]+)/)[1];
+    return nodeName;
+};]]></script>
+    <in-binding/>
+    <out-binding/>
+    <description><![CDATA[Simple task with custom script capability.]]></description>
+    <position y="20.0" x="140.0"/>
+  </workflow-item>
+  <presentation/>
+</workflow>

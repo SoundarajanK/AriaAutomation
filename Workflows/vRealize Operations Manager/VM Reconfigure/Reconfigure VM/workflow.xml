@@ -1,0 +1,428 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item12" object-name="workflow:name=generic" id="68791622-57c2-4b60-a9df-c2b5b0aec4bf" version="0.0.36" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Reconfigure VM]]></display-name>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="targetId" type="string">
+      <description><![CDATA[The Uuid of the VM to modify]]></description>
+    </param>
+    <param name="cpuCount" type="number">
+      <description><![CDATA[The virtual CPU count that you want set for the VM]]></description>
+    </param>
+    <param name="correlationId" type="string">
+      <description><![CDATA[The correlationId for the workflow used for logging purposes. ]]></description>
+    </param>
+    <param name="targetvCenteruuid" type="string">
+      <description><![CDATA[UUID of the vCenter where the target VM resides]]></description>
+    </param>
+    <param name="hotAdd" type="boolean">
+      <description><![CDATA[Yes/True if Memory to be Hot Added - otherwise VM is shut down and restarted for memory change]]></description>
+    </param>
+    <param name="memSize" type="number"/>
+  </input>
+  <output>
+    <param name="STATUS" type="string"/>
+  </output>
+  <attrib name="targetNameOut" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+    <description><![CDATA[The name of the VM bein updated]]></description>
+  </attrib>
+  <attrib name="correlationIdOut" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+    <description><![CDATA[The correlation Id for the modify CPU activity]]></description>
+  </attrib>
+  <attrib name="targetVmName" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="targetVM" type="VC:VirtualMachine" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="statusOut" type="boolean" read-only="false">
+    <value encoded="n"><![CDATA[false]]></value>
+  </attrib>
+  <attrib name="severity" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="eventOut" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="eventDetails" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="currentCpu" type="number" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="currentMem" type="number" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="newCpuCount" type="number" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="cpuOutSTATUS" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <workflow-note x="220.0" y="42.45454545454547" w="700.0" h="153.0" color="a1d7a1ff">
+    <description><![CDATA[Validation and Common Starting Tasks]]></description>
+  </workflow-note>
+  <workflow-item name="item5" type="end" end-mode="0">
+    <position y="318.1363636363636" x="1764.5"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item4" type="link" linked-workflow-id="cf70942b-d357-4b44-84cc-b4e9568ccf53">
+    <display-name><![CDATA[vRO Set CPU Count]]></display-name>
+    <in-binding>
+      <bind name="targetId" type="string" export-name="targetId">
+        <description><![CDATA[The Uuid of the VM to modify]]></description>
+      </bind>
+      <bind name="cpuCount" type="number" export-name="cpuCount">
+        <description><![CDATA[The virtual CPU count that you want set for the VM]]></description>
+      </bind>
+      <bind name="correlationId" type="string" export-name="correlationId">
+        <description><![CDATA[The correlationId for the workflow used for logging purposes. ]]></description>
+      </bind>
+      <bind name="targetvCenteruuid" type="string" export-name="targetvCenteruuid">
+        <description><![CDATA[UUID of the vCenter where the target VM resides]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="originalCPUCount" type="number" export-name="currentCpu"/>
+      <bind name="newCpuCount" type="number" export-name="newCpuCount"/>
+      <bind name="targetNameOut" type="string" export-name="targetNameOut">
+        <description><![CDATA[The name of the VM bein updated]]></description>
+      </bind>
+      <bind name="correlationIdOut" type="string" export-name="correlationIdOut">
+        <description><![CDATA[The correlation Id for the modify CPU activity]]></description>
+      </bind>
+      <bind name="cpuOutSTATUS" type="string" export-name="cpuOutSTATUS"/>
+    </out-binding>
+    <description><![CDATA[This workflow updates the number of vCPUs on a virtual machine. When running this workflow, if the virtual machine is powered on then CPU Hot Add must be enabled on the target virtual machine.]]></description>
+    <position y="55.40909090909091" x="1364.5"/>
+  </workflow-item>
+  <workflow-item name="item7" out-name="item8" type="link" linked-workflow-id="ec1a8692-4711-4b73-8de4-e342131a6cb7">
+    <display-name><![CDATA[ValidateTarget]]></display-name>
+    <in-binding>
+      <bind name="targetId" type="string" export-name="targetId"/>
+      <bind name="correlationId" type="string" export-name="correlationId"/>
+    </in-binding>
+    <out-binding>
+      <bind name="status" type="boolean" export-name="statusOut"/>
+      <bind name="eventOut" type="string" export-name="eventOut"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+    </out-binding>
+    <position y="55.40909090909091" x="444.5"/>
+  </workflow-item>
+  <workflow-item name="item8" out-name="item11" type="condition" alt-out-name="item13" comparator="0">
+    <display-name><![CDATA[Valid Target Id]]></display-name>
+    <script encoded="false"><![CDATA[//Generated by the system, cannot be edited
+return (statusOut == true) ;]]></script>
+    <in-binding>
+      <bind name="statusOut" type="boolean" export-name="statusOut"/>
+    </in-binding>
+    <condition name="statusOut" type="boolean" comparator="0" label="null">false</condition>
+    <position y="45.40909090909091" x="565.0"/>
+  </workflow-item>
+  <workflow-item name="item9" out-name="item0" type="condition" alt-out-name="item15" comparator="0">
+    <display-name><![CDATA[Target VM Found]]></display-name>
+    <script encoded="false"><![CDATA[//Generated by the system, cannot be edited
+return (statusOut == true) ;]]></script>
+    <in-binding>
+      <bind name="statusOut" type="boolean" export-name="statusOut"/>
+    </in-binding>
+    <condition name="statusOut" type="boolean" comparator="0" label="null">false</condition>
+    <position y="45.40909090909091" x="805.0"/>
+  </workflow-item>
+  <workflow-item name="item10" out-name="item14" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="eventOut"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="CorrelationId" type="string" export-name="correlationId"/>
+      <bind name="targetVMName" type="string" export-name="targetVmName"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="109.95454545454544" x="685.0"/>
+  </workflow-item>
+  <workflow-item name="item11" out-name="item9" type="link" linked-workflow-id="6ff24a3a-d83e-47fd-9661-cdfbed7b7c22">
+    <display-name><![CDATA[Find VM by MOID]]></display-name>
+    <in-binding>
+      <bind name="targetId" type="string" export-name="targetId"/>
+      <bind name="CorrelationId" type="string" export-name="correlationId"/>
+      <bind name="targetvCenteruuid" type="string" export-name="targetvCenteruuid">
+        <description><![CDATA[UUID of the vCenter where the target VM is located]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="statusOut" type="boolean" export-name="statusOut"/>
+      <bind name="targetVM" type="VC:VirtualMachine" export-name="targetVM"/>
+      <bind name="targetVmName" type="string" export-name="targetVmName"/>
+    </out-binding>
+    <position y="55.40909090909091" x="685.0"/>
+  </workflow-item>
+  <workflow-item name="item12" out-name="item7" type="task">
+    <display-name><![CDATA[Status Running]]></display-name>
+    <script encoded="false"><![CDATA[STATUS = "Running";]]></script>
+    <in-binding/>
+    <out-binding>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+    </out-binding>
+    <position y="55.40909090909091" x="325.0"/>
+  </workflow-item>
+  <workflow-item name="item13" out-name="item10" type="task">
+    <display-name><![CDATA[Status Failed]]></display-name>
+    <script encoded="false"><![CDATA[STATUS = "Failed";
+eventOut = "Validate Target";
+eventDetails = "Not a valid UUID";
+severity = "error";]]></script>
+    <in-binding/>
+    <out-binding>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="eventOut" type="string" export-name="eventOut"/>
+      <bind name="severity" type="string" export-name="severity"/>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+    </out-binding>
+    <position y="109.95454545454544" x="565.0"/>
+  </workflow-item>
+  <workflow-item name="item14" type="end" end-mode="0">
+    <position y="154.5" x="724.5"/>
+  </workflow-item>
+  <workflow-item name="item15" out-name="item10" type="task">
+    <display-name><![CDATA[Status Failed]]></display-name>
+    <script encoded="false"><![CDATA[STATUS = "Failed";
+eventOut = "Find VM by MOID";
+eventDetails = "Could not find VM by MOID";
+severity = "error";]]></script>
+    <in-binding/>
+    <out-binding>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="eventOut" type="string" export-name="eventOut"/>
+      <bind name="severity" type="string" export-name="severity"/>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+    </out-binding>
+    <position y="109.95454545454544" x="805.0"/>
+  </workflow-item>
+  <workflow-item name="item0" out-name="item1" type="task">
+    <display-name><![CDATA[Scriptable task]]></display-name>
+    <script encoded="false"><![CDATA[currentMem = targetVM.config.hardware.memoryMB;
+//memSize = System.formatNumber(memSize/1000,"0.000"); // Display as GB
+	
+currentCpu = targetVM.config.hardware.numCPU;
+
+
+
+System.log("current CPU is: " + currentCpu);
+System.log("current Memory is: " + currentMem);]]></script>
+    <in-binding>
+      <bind name="targetVM" type="VC:VirtualMachine" export-name="targetVM"/>
+    </in-binding>
+    <out-binding>
+      <bind name="currentCpu" type="number" export-name="currentCpu"/>
+      <bind name="currentMem" type="number" export-name="currentMem"/>
+    </out-binding>
+    <position y="55.40909090909091" x="944.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item3" type="custom-condition" alt-out-name="item4">
+    <display-name><![CDATA[Custom decision]]></display-name>
+    <script encoded="false"><![CDATA[return(currentCpu != cpuCount);
+]]></script>
+    <in-binding>
+      <bind name="currentCpu" type="number" export-name="currentCpu"/>
+      <bind name="cpuCount" type="number" export-name="cpuCount"/>
+    </in-binding>
+    <position y="45.90909090909091" x="1085.0"/>
+  </workflow-item>
+  <workflow-item name="item4" out-name="item6" type="custom-condition" alt-out-name="item24">
+    <display-name><![CDATA[Custom decision]]></display-name>
+    <script encoded="false"><![CDATA[return (memSize != currentMem);]]></script>
+    <in-binding>
+      <bind name="memSize" type="number" export-name="memSize"/>
+      <bind name="currentMem" type="number" export-name="currentMem"/>
+    </in-binding>
+    <position y="127.72727272727272" x="1085.0"/>
+  </workflow-item>
+  <workflow-item name="item2" type="end" end-mode="0">
+    <position y="372.68181818181813" x="1124.5"/>
+  </workflow-item>
+  <workflow-item name="item6" out-name="item16" type="link" linked-workflow-id="ee973f22-464f-432f-81ce-707389fbf20c">
+    <display-name><![CDATA[vRO Change vRAM on VM]]></display-name>
+    <in-binding>
+      <bind name="targetId" type="string" export-name="targetId">
+        <description><![CDATA[The Uuid of the VM to modify]]></description>
+      </bind>
+      <bind name="correlationId" type="string" export-name="correlationId">
+        <description><![CDATA[The correlationId for the workflow used for logging purposes. ]]></description>
+      </bind>
+      <bind name="targetvCenteruuid" type="string" export-name="targetvCenteruuid">
+        <description><![CDATA[UUID of the vCenter where the target VM resides]]></description>
+      </bind>
+      <bind name="hotAdd" type="boolean" export-name="hotAdd">
+        <description><![CDATA[Yes/True if Memory to be Hot Added - otherwise VM is shut down and restarted for memory change]]></description>
+      </bind>
+      <bind name="memSize" type="number" export-name="memSize"/>
+      <bind name="newCpuCount" type="number" export-name="newCpuCount"/>
+    </in-binding>
+    <out-binding>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+    </out-binding>
+    <description><![CDATA[Change vRAM in increments of 25%, 50%, 75% or 100% with option to reboot immediately.
+
+Attribute minMemory sets lower threshold for VM RAM changes (i.e. no changes allowed that will set vRAM below 512MB)
+
+vRAM can be increased to maximum configured host memory.]]></description>
+    <position y="191.77272727272725" x="1205.0"/>
+  </workflow-item>
+  <workflow-item name="item16" out-name="item22" type="custom-condition" alt-out-name="item18">
+    <display-name><![CDATA[Custom decision]]></display-name>
+    <script encoded="false"><![CDATA[return(cpuOutSTATUS != "Failed");]]></script>
+    <in-binding>
+      <bind name="cpuOutSTATUS" type="string" export-name="cpuOutSTATUS"/>
+    </in-binding>
+    <position y="227.72727272727272" x="1305.0"/>
+  </workflow-item>
+  <workflow-item name="item17" type="end" end-mode="0">
+    <position y="227.22727272727272" x="1764.5"/>
+  </workflow-item>
+  <workflow-item name="item18" out-name="item19" type="task">
+    <display-name><![CDATA[Status Failed]]></display-name>
+    <script encoded="false"><![CDATA[STATUS = "Failed";
+eventOut = "CPU or Memory Reconfigure";
+eventDetails = "CPU modification failed on " + targetVmName + " Check above for more information";
+severity = "error";]]></script>
+    <in-binding>
+      <bind name="targetVmName" type="string" export-name="targetVmName"/>
+    </in-binding>
+    <out-binding>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="eventOut" type="string" export-name="eventOut"/>
+      <bind name="severity" type="string" export-name="severity"/>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+    </out-binding>
+    <position y="237.22727272727272" x="1444.5"/>
+  </workflow-item>
+  <workflow-item name="item19" out-name="item17" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="eventOut"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="CorrelationId" type="string" export-name="correlationId"/>
+      <bind name="targetVMName" type="string" export-name="targetVmName"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="237.22727272727272" x="1584.5"/>
+  </workflow-item>
+  <workflow-item name="item20" out-name="item21" type="task">
+    <display-name><![CDATA[Status No change]]></display-name>
+    <script encoded="false"><![CDATA[if (cpuOutSTATUS == "Success"){
+STATUS = "Success";
+eventOut = "CPU or Memory Reconfigure";
+eventDetails = "Memory size was not changed on " + targetVmName + "... Exiting";
+severity = "info";
+}
+
+if (cpuOutSTATUS == "Failed"){
+STATUS = "Failed";
+eventOut = "CPU Reconfigure";
+eventDetails = "CPU Reconfigure Failed on " + targetVmName + "... Exiting";
+severity = "error";
+} 
+
+if (cpuOutSTATUS == null) {
+STATUS = "Success";
+eventOut = "CPU and Memory";
+eventDetails = "No changes made to " + targetVmName + "... Exiting";
+severity = "info";
+}
+
+
+
+
+System.log("Details" + STATUS + eventOut + eventDetails + severity);]]></script>
+    <in-binding>
+      <bind name="targetVmName" type="string" export-name="targetVmName"/>
+      <bind name="cpuOutSTATUS" type="string" export-name="cpuOutSTATUS"/>
+    </in-binding>
+    <out-binding>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="eventOut" type="string" export-name="eventOut"/>
+      <bind name="severity" type="string" export-name="severity"/>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+    </out-binding>
+    <position y="264.5" x="1084.5"/>
+  </workflow-item>
+  <workflow-item name="item21" out-name="item2" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="eventOut"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="CorrelationId" type="string" export-name="correlationId"/>
+      <bind name="targetVMName" type="string" export-name="targetVmName"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="319.0454545454545" x="1084.5"/>
+  </workflow-item>
+  <workflow-item name="item22" out-name="item23" type="task">
+    <display-name><![CDATA[Status Success]]></display-name>
+    <script encoded="false"><![CDATA[STATUS = "Success";
+eventOut = "CPU or Memory Reconfigure";
+eventDetails = "CPU and/or Memory modification completed on " + targetVmName;
+severity = "info";]]></script>
+    <in-binding>
+      <bind name="targetVmName" type="string" export-name="targetVmName"/>
+    </in-binding>
+    <out-binding>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="eventOut" type="string" export-name="eventOut"/>
+      <bind name="severity" type="string" export-name="severity"/>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+    </out-binding>
+    <position y="291.77272727272725" x="1384.5"/>
+  </workflow-item>
+  <workflow-item name="item23" out-name="item5" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="eventOut"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="CorrelationId" type="string" export-name="correlationId"/>
+      <bind name="targetVMName" type="string" export-name="targetVmName"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="309.95454545454544" x="1524.5"/>
+  </workflow-item>
+  <workflow-item name="item24" out-name="item20" type="task">
+    <display-name><![CDATA[CPU config Out]]></display-name>
+    <script encoded="false"><![CDATA[System.log("CPU Out Status is: " + cpuOutSTATUS);
+STATUS = cpuOutSTATUS;
+
+
+System.log("STATUS  is: " + STATUS);]]></script>
+    <in-binding>
+      <bind name="cpuOutSTATUS" type="string" export-name="cpuOutSTATUS"/>
+    </in-binding>
+    <out-binding>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+    </out-binding>
+    <position y="200.86363636363635" x="1085.0"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="targetId">
+      <desc><![CDATA[The Uuid of the VM to modify]]></desc>
+    </p-param>
+    <p-param name="cpuCount">
+      <desc><![CDATA[The virtual CPU count that you want set for the VM]]></desc>
+    </p-param>
+    <p-param name="correlationId">
+      <desc><![CDATA[The correlationId for the workflow used for logging purposes. ]]></desc>
+    </p-param>
+    <p-param name="targetvCenteruuid">
+      <desc><![CDATA[UUID of the vCenter where the target VM resides]]></desc>
+    </p-param>
+    <p-param name="hotAdd">
+      <desc><![CDATA[Yes/True if Memory to be Hot Added - otherwise VM is shut down and restarted for memory change]]></desc>
+    </p-param>
+    <p-param name="memSize">
+      <desc><![CDATA[memSize]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

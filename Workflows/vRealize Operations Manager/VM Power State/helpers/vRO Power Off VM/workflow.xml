@@ -1,0 +1,219 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item0" object-name="Workflow:name=generic" id="d115a856-1dc4-4e76-9b0d-38201a35b46d" version="0.0.4" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[vRO Power Off VM]]></display-name>
+  <description><![CDATA[Shuts down a host. If the Orchestrator client is connected directly to the host, it does not receive an indication of success in the returned task, but rather loses the connection to the host if the operation succeeds. ]]></description>
+  <position y="20.0" x="180.0"/>
+  <input>
+    <param name="targetId" type="string"/>
+    <param name="CorrelationId" type="string"/>
+    <param name="targetvCenteruuid" type="string"/>
+  </input>
+  <output>
+    <param name="STATUS" type="string"/>
+  </output>
+  <attrib name="foundVm" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="severity" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="foundVmName" type="string" read-only="false">
+    <value encoded="n"><![CDATA[Found vm to Power Off]]></value>
+  </attrib>
+  <attrib name="PowerOffVm" type="string" read-only="false">
+    <value encoded="n"><![CDATA[VM Powering off.]]></value>
+  </attrib>
+  <attrib name="successfulPowerOff" type="string" read-only="false">
+    <value encoded="n"><![CDATA[The vm successful Powered off.]]></value>
+  </attrib>
+  <attrib name="Failed" type="string" read-only="false">
+    <value encoded="n"><![CDATA[Power off operation failed, ]]></value>
+  </attrib>
+  <attrib name="vm" type="VC:VirtualMachine" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="statusOut" type="boolean" read-only="false">
+    <value encoded="n"><![CDATA[false]]></value>
+  </attrib>
+  <attrib name="state" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="eventDetails" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <workflow-note x="100.0" y="9.090909090909093" w="220.0" h="385.6363636363636"/>
+  <workflow-item name="item2" type="end" end-mode="0">
+    <position y="336.3181818181818" x="1144.5"/>
+  </workflow-item>
+  <workflow-item name="item4" out-name="item1" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="foundVmName"/>
+      <bind name="eventDetails" type="string" export-name="foundVmName"/>
+      <bind name="CorrelationId" type="string" export-name="CorrelationId"/>
+      <bind name="targetVMName" type="string" export-name="foundVm"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="346.3181818181818" x="144.5"/>
+  </workflow-item>
+  <workflow-item name="item6" out-name="item4" type="task">
+    <display-name><![CDATA[Set Severity Level Info]]></display-name>
+    <script encoded="false"><![CDATA[severity = "info";
+
+
+System.log("severity is " + severity);]]></script>
+    <in-binding/>
+    <out-binding>
+      <bind name="severity" type="string" export-name="severity"/>
+    </out-binding>
+    <position y="282.68181818181813" x="144.5"/>
+  </workflow-item>
+  <workflow-item name="item7" out-name="item8" type="task">
+    <display-name><![CDATA[Set Severity Level Info]]></display-name>
+    <script encoded="false"><![CDATA[severity = "info";
+STATUS = "Success"
+
+System.log("severity is " + severity);]]></script>
+    <in-binding/>
+    <out-binding>
+      <bind name="severity" type="string" export-name="severity"/>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+    </out-binding>
+    <position y="346.3181818181818" x="824.5"/>
+  </workflow-item>
+  <workflow-item name="item8" out-name="item2" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="PowerOffVm"/>
+      <bind name="eventDetails" type="string" export-name="successfulPowerOff"/>
+      <bind name="CorrelationId" type="string" export-name="CorrelationId"/>
+      <bind name="targetVMName" type="string" export-name="foundVm"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="346.3181818181818" x="964.5"/>
+  </workflow-item>
+  <workflow-item name="item9" out-name="item11" type="task">
+    <display-name><![CDATA[Set Severity Level Info]]></display-name>
+    <script encoded="false"><![CDATA[severity = "error";
+STATUS = "Failed"
+
+System.log("severity is " + severity);
+]]></script>
+    <in-binding/>
+    <out-binding>
+      <bind name="severity" type="string" export-name="severity"/>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+    </out-binding>
+    <position y="264.5" x="704.5"/>
+  </workflow-item>
+  <workflow-item name="item10" type="end" end-mode="0">
+    <position y="254.5" x="1024.5"/>
+  </workflow-item>
+  <workflow-item name="item11" out-name="item10" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="PowerOffVm"/>
+      <bind name="eventDetails" type="string" export-name="Failed"/>
+      <bind name="CorrelationId" type="string" export-name="CorrelationId"/>
+      <bind name="targetVMName" type="string" export-name="foundVm"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="264.5" x="844.5"/>
+  </workflow-item>
+  <workflow-item name="item0" out-name="item6" catch-name="item9" throw-bind-name="Failed" type="link" linked-workflow-id="6ff24a3a-d83e-47fd-9661-cdfbed7b7c22">
+    <display-name><![CDATA[Find VM by MOID]]></display-name>
+    <in-binding>
+      <bind name="targetId" type="string" export-name="targetId"/>
+      <bind name="CorrelationId" type="string" export-name="CorrelationId"/>
+      <bind name="targetvCenteruuid" type="string" export-name="targetvCenteruuid">
+        <description><![CDATA[UUID of the vCenter where the target VM is located]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="statusOut" type="boolean" export-name="statusOut"/>
+      <bind name="targetVM" type="VC:VirtualMachine" export-name="vm"/>
+      <bind name="targetVmName" type="string" export-name="foundVm"/>
+    </out-binding>
+    <position y="91.77272727272727" x="145.0"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item7" catch-name="item9" throw-bind-name="Failed" type="link" linked-workflow-id="BD80808080808080808080808080808058C180800122528313869552e41805bb1">
+    <display-name><![CDATA[Power off virtual machine and wait]]></display-name>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm">
+        <description><![CDATA[Virtual machine to power off]]></description>
+      </bind>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Powers off a virtual machine and waits for the process to complete.]]></description>
+    <position y="346.3181818181818" x="604.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item5" throw-bind-name="Failed" type="task">
+    <display-name><![CDATA[Power State?]]></display-name>
+    <script encoded="false"><![CDATA[var state = vm.summary.runtime.powerState.value;
+
+
+
+]]></script>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+    </in-binding>
+    <out-binding>
+      <bind name="state" type="string" export-name="state"/>
+    </out-binding>
+    <position y="346.3181818181818" x="284.5"/>
+  </workflow-item>
+  <workflow-item name="item5" out-name="item3" type="condition" alt-out-name="item14" comparator="0">
+    <display-name><![CDATA[Decision]]></display-name>
+    <script encoded="false"><![CDATA[//Generated by the system, cannot be edited
+return (state == "poweredOn") ;]]></script>
+    <in-binding>
+      <bind name="state" type="string" export-name="state"/>
+    </in-binding>
+    <condition name="state" type="string" comparator="0" label="null">poweredOn</condition>
+    <position y="336.3181818181818" x="424.5"/>
+  </workflow-item>
+  <workflow-item name="item12" out-name="item13" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="PowerOffVm"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="CorrelationId" type="string" export-name="CorrelationId"/>
+      <bind name="targetVMName" type="string" export-name="foundVm"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="419.0454545454545" x="744.5"/>
+  </workflow-item>
+  <workflow-item name="item13" type="end" end-mode="0">
+    <position y="409.0454545454545" x="904.5"/>
+  </workflow-item>
+  <workflow-item name="item14" out-name="item12" type="task">
+    <display-name><![CDATA[Set Severity Level Info]]></display-name>
+    <script encoded="false"><![CDATA[severity = "error";
+STATUS = "Failed"
+eventDetails = "Unable to power off a VM in it's current state 'poweredOff'"
+System.log("severity is " + severity);
+]]></script>
+    <in-binding/>
+    <out-binding>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="severity" type="string" export-name="severity"/>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+    </out-binding>
+    <position y="419.0454545454545" x="564.5"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="targetId">
+      <desc><![CDATA[targetId]]></desc>
+    </p-param>
+    <p-param name="CorrelationId">
+      <desc><![CDATA[CorrelationId]]></desc>
+    </p-param>
+    <p-param name="targetvCenteruuid">
+      <desc><![CDATA[targetvCenteruuid]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

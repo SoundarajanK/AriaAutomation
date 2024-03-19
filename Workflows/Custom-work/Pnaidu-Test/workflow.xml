@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item1" object-name="workflow:name=generic" id="88262580-fbc0-41d2-b6a5-263eb4d87514" editor-version="2.0" version="1.0.0" api-version="6.0.0" allowed-operations="vef" restartMode="1" resumeFromFailedMode="0">
+    <display-name>Pnaidu-Test</display-name>
+    <position y="50.0" x="100.0"/>
+    <input>
+        <param name="inputProperties" type="Properties"/>
+    </input>
+    <output/>
+    <attrib name="name" type="string">
+        <value encoded="n">name</value>
+    </attrib>
+    <attrib name="vm" type="VC:VirtualMachine">
+        <value encoded="n"/>
+    </attrib>
+    <attrib name="vms" type="Array/VC:VirtualMachine">
+        <value encoded="n">[]</value>
+    </attrib>
+    <attrib name="matchingObjects" type="Array/Any">
+        <value encoded="n">[]</value>
+    </attrib>
+    <workflow-item name="item0" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="48.837811258573666" x="949.9003447355387"/>
+    </workflow-item>
+    <workflow-item name="item1" out-name="item5" type="task" comparator="0">
+        <display-name>Get machine name</display-name>
+        <script encoded="false"> 
+System.log("Start");
+System.log("Debug");
+ 
+//The payload is grabbed by the inputProperties
+System.log(JSON.stringify(inputProperties, null, 2));
+ 
+var jsontxt = JSON.stringify(inputProperties, null, 2);
+var json = JSON.parse(jsontxt);
+//Exctract the bluprint Id from the inputProperties
+name = json.resourceNames;
+System.log("my hostname is " + name);
+//assign the value of vm to point to  vRAResourceName
+
+//Loop through the Execution contect
+for (p in System.getContext().parameterNames()) {
+    System.log(System.getContext().parameterNames()[p]+": "+System.getContext().getParameter(System.getContext().parameterNames()[p]));
+} 
+//System.log(vm)
+//To get a specific property 
+System.log(System.getContext().getParameter("__metadata_userName"));
+ 
+System.log("Stop");</script>
+        <in-binding>
+            <bind name="inputProperties" type="Properties" export-name="inputProperties"/>
+            <bind name="name" type="string" export-name="name"/>
+        </in-binding>
+        <out-binding>
+            <bind name="name" type="string" export-name="name"/>
+        </out-binding>
+        <description>this script block will get the payload data from inputProperties, then discover the vm through vcenter with the var VcPlugin.getAllVirtualMachines program to assign the vm to the snapshot deployment.
+</description>
+        <position y="70.0" x="300.0"/>
+    </workflow-item>
+    <workflow-item name="item5" out-name="item6" type="task" comparator="0">
+        <display-name>make array into single VCVirtualmachine</display-name>
+        <script encoded="false">var objects;
+var exactMatch = false;
+		objects = Server.findAllForType("VC:VirtualMachine");
+var temp = new Array();
+for each (var object in objects) {
+	if (object.name.match(name)) {
+		if (exactMatch &amp;&amp; (object.name.length != name.length)) {
+			continue;	// Wasn't an exact match, so skip this object
+		}
+		temp.push(object);
+	}
+}
+
+
+
+
+vms = temp;
+vm = vms[0];
+System.log("length = " + vms.length);
+
+System.log(" after get " + name)</script>
+        <in-binding>
+            <bind name="vms" type="Array/VC:VirtualMachine" export-name="vms"/>
+            <bind name="name" type="string" export-name="name"/>
+            <bind name="matchingObjects" type="Array/Any" export-name="matchingObjects"/>
+        </in-binding>
+        <out-binding>
+            <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+        </out-binding>
+        <description>Simple task with custom script capability.</description>
+        <position y="60.0" x="500.0"/>
+    </workflow-item>
+    <workflow-item name="item6" out-name="item0" type="link" linked-workflow-id="BD80808080808080808080808080808075C280800122528313869552e41805bb1" comparator="0">
+        <display-name>Shut down guest OS</display-name>
+        <script encoded="false"></script>
+        <in-binding>
+            <bind name="vm" type="VC:VirtualMachine" export-name="vm">
+                <description>Virtual machine to shut down</description>
+            </bind>
+        </in-binding>
+        <out-binding/>
+        <description> </description>
+        <position y="60.0" x="740.0"/>
+    </workflow-item>
+</ns2:workflow>

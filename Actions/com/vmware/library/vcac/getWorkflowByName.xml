@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getWorkflowByName" result-type="Workflow" api-version="6.0.0" id="3330540b-3f64-4003-94a1-df18a28ea28b" version="0.0.1" allowed-operations="vf" category-name="com.vmware.library.vcac">
+  <param n="workflowName" t="string"><![CDATA[Workflow name]]></param>
+  <script encoded="false"><![CDATA[var workflows = Server.findAllForType("Workflow");
+
+var worflowsWithName = new Array();
+for each (var wf in workflows) {
+	if (wf.name == workflowName) {
+	worflowsWithName.push(wf);
+	}	
+}
+
+if (worflowsWithName.length > 1) throw "More than one workflow with name " + workflowName;
+if (worflowsWithName.length == 1) return worflowsWithName[0];
+return null;]]></script>
+</dunes-script-module>

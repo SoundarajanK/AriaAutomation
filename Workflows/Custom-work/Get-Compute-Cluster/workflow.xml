@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item1" object-name="workflow:name=generic" id="83e04f51-5652-4ecd-aa57-3940cbfe849a" editor-version="2.0" version="0.0.0" api-version="6.0.0" restartMode="1" resumeFromFailedMode="0">
+    <display-name>Get-Compute-Cluster</display-name>
+    <position y="50.0" x="100.0"/>
+    <input>
+        <param name="payload" type="string"/>
+    </input>
+    <output>
+        <param name="updatedPayload" type="string"/>
+    </output>
+    <workflow-item name="item0" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="50.0" x="300.0"/>
+    </workflow-item>
+    <workflow-item name="item1" out-name="item0" type="task" comparator="0">
+        <display-name>Scriptable task</display-name>
+        <script encoded="false">// Get the vRA payload&#13;
+var payload = JSON.parse(attributes.payload);&#13;
+&#13;
+// Extract the required inputs from the payload&#13;
+var projectName = payload.projectName; // Name of the project&#13;
+var blueprintName = payload.blueprintName; // Name of the multimachine blueprint&#13;
+&#13;
+// Retrieve the target region&#13;
+var targetRegion = null;&#13;
+&#13;
+var vraHost = Server.findForType("vCACCAFE:VCACHost")[0];&#13;
+var client = vraHost.createCatalogClient();&#13;
+&#13;
+var projectRequest = new vCACCAFEProjectRequest();&#13;
+projectRequest.setName(projectName);&#13;
+&#13;
+var project = client.getProjectsService().get(projectRequest);&#13;
+&#13;
+if (project) {&#13;
+  var blueprintRequest = new vCACCAFELabelledReference();&#13;
+  blueprintRequest.setLabel(blueprintName);&#13;
+&#13;
+  var blueprints = client.getBlueprintsService().list(project.getId(), blueprintRequest);&#13;
+&#13;
+  if (blueprints &amp;&amp; blueprints.length &gt; 0) {&#13;
+    targetRegion = project.getRegionId();&#13;
+  }&#13;
+}&#13;
+&#13;
+// If the target region is found, retrieve the clusters within it&#13;
+if (targetRegion) {&#13;
+  var clusterComputeResources = client.getFabricClient().getClusterComputeResourcesForRegion(targetRegion);&#13;
+&#13;
+  // Find the cluster with the highest compute capacity&#13;
+  var maxComputeCapacity = 0;&#13;
+  var selectedCluster = null;&#13;
+&#13;
+  for (var i = 0; i &lt; clusterComputeResources.length; i++) {&#13;
+    var clusterComputeResource = clusterComputeResources[i];&#13;
+    var computeCapacity = clusterComputeResource.getComputeCapacity().getTotalCpu();&#13;
+&#13;
+    if (computeCapacity &gt; maxComputeCapacity) {&#13;
+      maxComputeCapacity = computeCapacity;&#13;
+      selectedCluster = clusterComputeResource;&#13;
+    }&#13;
+  }&#13;
+&#13;
+  // If a cluster is selected, set it as the target cluster for both VM deployments&#13;
+  if (selectedCluster) {&#13;
+    var components = payload.data.resources;&#13;
+&#13;
+    for (var j = 0; j &lt; components.length; j++) {&#13;
+      var component = components[j];&#13;
+      component.properties.Cluster = selectedCluster.name;&#13;
+    }&#13;
+  }&#13;
+}&#13;
+&#13;
+var updatedPayload = JSON.stringify(payload);&#13;
+attributes.updatedPayload = updatedPayload;&#13;
+payload0payload0</script>
+        <in-binding>
+            <bind name="payload" type="string" export-name="payload"/>
+        </in-binding>
+        <out-binding>
+            <bind name="updatedPayload" type="string" export-name="updatedPayload"/>
+        </out-binding>
+        <description>Simple task with custom script capability.</description>
+        <position y="60.0" x="140.0"/>
+    </workflow-item>
+</ns2:workflow>

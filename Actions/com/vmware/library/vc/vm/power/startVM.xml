@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="startVM" result-type="VC:Task" api-version="6.0.0" id="6417dffd-de3b-4109-9fbd-d13be0f94869" version="0.2.0" allowed-operations="vf" category-name="com.vmware.library.vc.vm.power">
+  <description><![CDATA[Start / Resume a VM. Return the start task]]></description>
+  <param n="vm" t="VC:VirtualMachine"><![CDATA[VM to start or resume]]></param>
+  <param n="host" t="VC:HostSystem"><![CDATA[[Optional] The host where the virtual machine is to be powered on. If no host is specified, the current associated host is used. This field must specify a host that is part of the same compute resource that the virtual machine is currently associated with. If this host is not compatible, the current host association is used. ]]></param>
+  <script encoded="false"><![CDATA[return vm.powerOnVM_Task(host);]]></script>
+</dunes-script-module>

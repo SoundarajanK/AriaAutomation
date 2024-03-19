@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<config-element id="df67bef9-4ee1-426b-b1ba-4b321e4113e2" version="0.0.0">
+  <display-name><![CDATA[ActiveDirectory]]></display-name>
+  <atts>
+    <att name="username" type="string" read-only="false">
+      <value encoded="n"><![CDATA[administrator]]></value>
+    </att>
+    <att name="password" type="SecureString" read-only="false">
+      <value encoded="n"><![CDATA[__NULL__]]></value>
+    </att>
+    <att name="hostname" type="string" read-only="false">
+      <value encoded="n"><![CDATA[abcd.s360.lab]]></value>
+    </att>
+  </atts>
+</config-element>

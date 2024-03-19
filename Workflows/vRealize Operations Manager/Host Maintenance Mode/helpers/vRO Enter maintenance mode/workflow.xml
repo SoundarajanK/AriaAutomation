@@ -1,0 +1,262 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item16" object-name="Workflow:name=generic" id="7299b9a0-ddcc-4cca-9125-1f1a2074dff1" version="0.2.24" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[vRO Enter maintenance mode]]></display-name>
+  <description><![CDATA[Puts the host into maintenance mode. You can cancel the task.]]></description>
+  <position y="20.0" x="180.0"/>
+  <input>
+    <param name="CorrelationId" type="string"/>
+    <param name="targetId" type="string"/>
+    <param name="targetvCenteruuid" type="string"/>
+  </input>
+  <output>
+    <param name="STATUS" type="string"/>
+  </output>
+  <attrib name="task" type="VC:Task" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+    <description><![CDATA[Task to await]]></description>
+  </attrib>
+  <attrib name="alreadyInMaintMode" type="string" read-only="false">
+    <value encoded="n"><![CDATA[Host is already in maintenance mode - exiting]]></value>
+  </attrib>
+  <attrib name="puttingHostinMainMode" type="string" read-only="false">
+    <value encoded="n"><![CDATA[Putting host in maintenance mode - Waiting...]]></value>
+  </attrib>
+  <attrib name="hostInMainMode" type="string" read-only="false">
+    <value encoded="n"><![CDATA[Host successfully put into maintenance mode.]]></value>
+  </attrib>
+  <attrib name="hostEvent" type="string" read-only="false">
+    <value encoded="n"><![CDATA[Host into maintenance mode]]></value>
+  </attrib>
+  <attrib name="timeout" type="number" read-only="false">
+    <value encoded="n"><![CDATA[60.0]]></value>
+    <description><![CDATA[Timeout for the task. The timeout is specified in seconds (if <= 0, then no timeout).]]></description>
+  </attrib>
+  <attrib name="hostName" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="severity" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="error" type="string" read-only="false">
+    <value encoded="n"><![CDATA[Host failed to enter maintenance Mode or operation timed out.]]></value>
+  </attrib>
+  <attrib name="host" type="VC:HostSystem" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+    <description><![CDATA[Host to put in maintenance mode]]></description>
+  </attrib>
+  <attrib name="delay" type="number" read-only="false">
+    <value encoded="n"><![CDATA[60.0]]></value>
+    <description><![CDATA[Time to wait between checking (seconds)]]></description>
+  </attrib>
+  <attrib name="event" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="eventDetails" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="returnObject" type="Any" read-only="false">
+    <value encoded="n"><![CDATA[Any#__NULL__]]></value>
+    <description><![CDATA[Task Result (if any)]]></description>
+  </attrib>
+  <workflow-item name="item4" type="end" end-mode="0">
+    <position y="209.04545454545453" x="884.5"/>
+  </workflow-item>
+  <workflow-item name="item0" out-name="item1" catch-name="item12" throw-bind-name="error" type="task">
+    <display-name><![CDATA[Enter Maintenance mode]]></display-name>
+    <script encoded="false"><![CDATA[task = host.enterMaintenanceMode_Task(timeout);]]></script>
+    <in-binding>
+      <bind name="timeout" type="number" export-name="timeout"/>
+      <bind name="host" type="VC:HostSystem" export-name="host"/>
+    </in-binding>
+    <out-binding>
+      <bind name="task" type="VC:Task" export-name="task"/>
+    </out-binding>
+    <position y="373.59090909090907" x="145.0"/>
+  </workflow-item>
+  <workflow-item name="item5" out-name="item13" type="custom-condition" alt-out-name="item10">
+    <display-name><![CDATA[Not in maintenance?]]></display-name>
+    <script encoded="false"><![CDATA[return ! host.runtime.inMaintenanceMode;]]></script>
+    <in-binding>
+      <bind name="host" type="VC:HostSystem" export-name="host"/>
+    </in-binding>
+    <position y="209.04545454545453" x="145.0"/>
+  </workflow-item>
+  <workflow-item name="item6" out-name="item3" type="task" interaction="l">
+    <display-name><![CDATA[Log info]]></display-name>
+    <script encoded="false"><![CDATA[System.log("Server already in maintenance mode");
+Server.log("Server already in maintenance mode", "HostSystem: " + host.name);
+]]></script>
+    <in-binding>
+      <bind name="host" type="VC:HostSystem" export-name="host"/>
+    </in-binding>
+    <out-binding/>
+    <position y="219.04545454545453" x="484.5"/>
+  </workflow-item>
+  <workflow-item name="item2" type="end" end-mode="0">
+    <position y="363.59090909090907" x="1044.5"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item4" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="hostEvent"/>
+      <bind name="eventDetails" type="string" export-name="alreadyInMaintMode"/>
+      <bind name="CorrelationId" type="string" export-name="CorrelationId"/>
+      <bind name="targetVMName" type="string" export-name="hostName"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="219.04545454545453" x="684.5"/>
+  </workflow-item>
+  <workflow-item name="item8" out-name="item2" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="hostEvent"/>
+      <bind name="eventDetails" type="string" export-name="hostInMainMode"/>
+      <bind name="CorrelationId" type="string" export-name="CorrelationId"/>
+      <bind name="targetVMName" type="string" export-name="hostName"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="373.59090909090907" x="724.5"/>
+  </workflow-item>
+  <workflow-item name="item9" out-name="item5" type="task">
+    <display-name><![CDATA[Get Host name]]></display-name>
+    <script encoded="false"><![CDATA[//get host object
+
+
+
+hostName = host.name;
+
+System.log("Found host: " + hostName);]]></script>
+    <in-binding>
+      <bind name="host" type="VC:HostSystem" export-name="host"/>
+    </in-binding>
+    <out-binding>
+      <bind name="hostName" type="string" export-name="hostName"/>
+    </out-binding>
+    <position y="155.4090909090909" x="145.0"/>
+  </workflow-item>
+  <workflow-item name="item12" out-name="item14" type="task">
+    <display-name><![CDATA[Set Severity Level]]></display-name>
+    <script encoded="false"><![CDATA[severity = "error";
+STATUS = "Failed"
+event = "Failed to enter Maintenance mode";
+eventDetails = "The required operation 'Put host in maintenance mode' failed or timed out";
+System.log("severity is " + severity);]]></script>
+    <in-binding/>
+    <out-binding>
+      <bind name="severity" type="string" export-name="severity"/>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+      <bind name="event" type="string" export-name="event"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+    </out-binding>
+    <position y="437.2272727272727" x="144.5"/>
+  </workflow-item>
+  <workflow-item name="item10" out-name="item6" type="task">
+    <display-name><![CDATA[Set Severity Level Info]]></display-name>
+    <script encoded="false"><![CDATA[severity = "info";
+
+STATUS = "Success"
+System.log("severity is " + severity);]]></script>
+    <in-binding/>
+    <out-binding>
+      <bind name="severity" type="string" export-name="severity"/>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+    </out-binding>
+    <position y="219.04545454545453" x="284.5"/>
+  </workflow-item>
+  <workflow-item name="item11" out-name="item8" type="task">
+    <display-name><![CDATA[Set Severity Level]]></display-name>
+    <script encoded="false"><![CDATA[severity = "info";
+STATUS = "Success";]]></script>
+    <in-binding/>
+    <out-binding>
+      <bind name="severity" type="string" export-name="severity"/>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+    </out-binding>
+    <position y="373.59090909090907" x="584.5"/>
+  </workflow-item>
+  <workflow-item name="item13" out-name="item7" type="task">
+    <display-name><![CDATA[Entering Maintenance Mode]]></display-name>
+    <script encoded="false"><![CDATA[severity = "Info";
+]]></script>
+    <in-binding/>
+    <out-binding>
+      <bind name="severity" type="string" export-name="severity"/>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+    </out-binding>
+    <position y="273.59090909090907" x="144.5"/>
+  </workflow-item>
+  <workflow-item name="item7" out-name="item0" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="hostEvent"/>
+      <bind name="eventDetails" type="string" export-name="puttingHostinMainMode"/>
+      <bind name="CorrelationId" type="string" export-name="CorrelationId"/>
+      <bind name="targetVMName" type="string" export-name="hostName"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="319.0454545454545" x="144.5"/>
+  </workflow-item>
+  <workflow-item name="item14" out-name="item15" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="event"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="CorrelationId" type="string" export-name="CorrelationId"/>
+      <bind name="targetVMName" type="string" export-name="hostName"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="437.2272727272727" x="504.5"/>
+  </workflow-item>
+  <workflow-item name="item15" type="end" end-mode="0">
+    <position y="427.2272727272727" x="905.0"/>
+  </workflow-item>
+  <workflow-item name="item16" out-name="item9" type="link" linked-workflow-id="94d636e2-34d0-4a9b-b0fb-848c306d4880">
+    <display-name><![CDATA[Find host MOID]]></display-name>
+    <in-binding>
+      <bind name="targetId" type="string" export-name="targetId"/>
+      <bind name="targetvCenteruuid" type="string" export-name="targetvCenteruuid"/>
+    </in-binding>
+    <out-binding>
+      <bind name="host" type="VC:HostSystem" export-name="host"/>
+    </out-binding>
+    <position y="91.77272727272727" x="145.0"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item11" catch-name="item12" throw-bind-name="returnObject" type="link" linked-workflow-id="5a8b958e-167e-4656-a6d9-eb49d496c923">
+    <display-name><![CDATA[Wait for Task Complete]]></display-name>
+    <in-binding>
+      <bind name="task" type="VC:Task" export-name="task">
+        <description><![CDATA[Task to monitor for completion]]></description>
+      </bind>
+      <bind name="timeout" type="number" export-name="timeout">
+        <description><![CDATA[How long before we give up waiting (minutes)]]></description>
+      </bind>
+      <bind name="delay" type="number" export-name="delay">
+        <description><![CDATA[Time to wait between checking (seconds)]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="returnObject" type="Any" export-name="returnObject">
+        <description><![CDATA[Task Result (if any)]]></description>
+      </bind>
+    </out-binding>
+    <description><![CDATA[This workflow will pause the calling workflow until the task has been completed.  Returns the task result if there was one.
+
+Throws an exception if the task fails.]]></description>
+    <position y="373.59090909090907" x="405.0"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="CorrelationId">
+      <desc><![CDATA[CorrelationId]]></desc>
+    </p-param>
+    <p-param name="targetId">
+      <desc><![CDATA[targetId]]></desc>
+    </p-param>
+    <p-param name="targetvCenteruuid">
+      <desc><![CDATA[targetvCenteruuid]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

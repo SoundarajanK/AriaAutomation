@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="GE_Demo" result-type="string" api-version="6.0.0" id="4f3a2e2a-000d-47f1-9b72-c1ed94656ae2" version="0.0.0" category-name="com.vmware.library.powershell" memory-limit="512000000" timeout="180">
+  <runtime><![CDATA[powercli:12-powershell-7.1]]></runtime>
+  <script encoded="false"><![CDATA[function Handler($context, $inputs) {
+    Write-Host "Set Powercli Config"
+    Set-PowerCLIConfiguration -InvalidCertificateAction Ignore -ParticipateInCeip:$false -Scope Session -Confirm:$false
+    Write-Host "Connect to Vcenter Server"
+    Connect-VIServer -Server s360srv001.eng.vmware.com -User administrator@vsphere.local -password L@bS360#1!
+
+    Write-Host "Get VM Names"
+
+    Get-VM | Sort-Object Name | foreach {
+
+        Write-Host $_.Name
+
+    }
+
+    $value | Format-Table | Out-Host
+
+    return $output
+}
+]]></script>
+</dunes-script-module>

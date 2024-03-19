@@ -1,0 +1,81 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<config-element id="48028322-ae85-4447-a420-51f68e78d52a" version="0.0.0">
+  <display-name><![CDATA[VSG Host Symptoms Mapping]]></display-name>
+  <atts>
+    <att name="SymptomDefinition-VMWARE-ESXiDisableMobRP123" type="string" read-only="false">
+      <value encoded="n"><![CDATA[enforceDisableMob]]></value>
+    </att>
+    <att name="SymptomDefinition-VMWARE-NoncompliantSSHPolicy" type="string" read-only="false">
+      <value encoded="n"><![CDATA[enforceSsh]]></value>
+    </att>
+    <att name="SymptomDefinition-VMWARE-ESXiShellTimeOut1RP123" type="string" read-only="false">
+      <value encoded="n"><![CDATA[enforceESXiShellTimeouts]]></value>
+    </att>
+    <att name="SymptomDefinition-VMWARE-NTPServerNotConfigured" type="string" read-only="false">
+      <value encoded="n"><![CDATA[enforceNTP]]></value>
+    </att>
+    <att name="SymptomDefinition-VMWARE-ESXiSetPasswordPoliciesRP123" type="string" read-only="false">
+      <value encoded="n"><![CDATA[enforcePasswords]]></value>
+    </att>
+    <att name="SymptomDefinition-VMWARE-NoncompliantDCUIAccess" type="string" read-only="false">
+      <value encoded="n"><![CDATA[enforceDcui]]></value>
+    </att>
+    <att name="SymptomDefinition-VMWARE-ESXiVerifyAcceptanceLevelSupportedRP3" type="string" read-only="false">
+      <value encoded="n"><![CDATA[enforceHostImage]]></value>
+    </att>
+    <att name="SymptomDefinition-VMWARE-ESXiSecurityAccountUnlockTimeRP123" type="string" read-only="false">
+      <value encoded="n"><![CDATA[enforceLockout]]></value>
+    </att>
+    <att name="SymptomDefinition-VMWARE-ESXiShellInterTimeout1RP123" type="string" read-only="false">
+      <value encoded="n"><![CDATA[enforceESXiShellTimeouts]]></value>
+    </att>
+    <att name="SymptomDefinition-VMWARE-ESXiPortGroupRejectMacChangesRP123" type="string" read-only="false">
+      <value encoded="n"><![CDATA[enforceRejectMacChanges]]></value>
+    </att>
+    <att name="SymptomDefinition-VMWARE-RestrictNTPClientAccess" type="string" read-only="false">
+      <value encoded="n"><![CDATA[enforceNTP]]></value>
+    </att>
+    <att name="SymptomDefinition-VMWARE-ESXiSecurityAccountLockFailuresRP123" type="string" read-only="false">
+      <value encoded="n"><![CDATA[enforceLockout]]></value>
+    </att>
+    <att name="SymptomDefinition-VMWARE-PersistentLoggingDisabled" type="string" read-only="false">
+      <value encoded="n"><![CDATA[enforcePersistentLogs]]></value>
+    </att>
+    <att name="SymptomDefinition-VMWARE-DvfilterIPConfigured" type="string" read-only="false">
+      <value encoded="n"><![CDATA[enforceDvFilter]]></value>
+    </att>
+    <att name="SymptomDefinition-VMWARE-ESXiPortGroupRejectPromiscuousRP123" type="string" read-only="false">
+      <value encoded="n"><![CDATA[enforceRejectPromMode]]></value>
+    </att>
+    <att name="SymptomDefinition-VMWARE-ESXiSetDcuiTimeoutRP123" type="string" read-only="false">
+      <value encoded="n"><![CDATA[enforceDcui]]></value>
+    </att>
+    <att name="SymptomDefinition-VMWARE-NoncompliantNTPPolicy" type="string" read-only="false">
+      <value encoded="n"><![CDATA[enforceNTP]]></value>
+    </att>
+    <att name="SymptomDefinition-VMWARE-NTPServiceStopped" type="string" read-only="false">
+      <value encoded="n"><![CDATA[enforceNTP]]></value>
+    </att>
+    <att name="SymptomDefinition-VMWARE-RemoteSyslogNotEnabled" type="string" read-only="false">
+      <value encoded="n"><![CDATA[enforceSyslog]]></value>
+    </att>
+    <att name="SymptomDefinition-VMWARE-ESXiSecurityNetBlockGuestBpduRP123" type="string" read-only="false">
+      <value encoded="n"><![CDATA[enforceBpdu]]></value>
+    </att>
+    <att name="SymptomDefinition-VMWARE-ESXiTransparentPageSharingIntraEnabledRP123" type="string" read-only="false">
+      <value encoded="n"><![CDATA[enforceTps]]></value>
+    </att>
+    <att name="SymptomDefinition-VMWARE-ESXiShellInterTimeOut2RP123" type="string" read-only="false">
+      <value encoded="n"><![CDATA[enforceESXiShellTimeouts]]></value>
+    </att>
+    <att name="SymptomDefinition-VMWARE-ActiveDiretoryAuthDisabled" type="string" read-only="false">
+      <value encoded="n"><![CDATA[enforceJoinHostToAd]]></value>
+    </att>
+    <att name="SymptomDefinition-VMWARE-ESXiPortGroupRejectForgedTransmitRP123" type="string" read-only="false">
+      <value encoded="n"><![CDATA[enforceRejectForgedTrans]]></value>
+    </att>
+    <att name="SymptomDefinition-VMWARE-ESXiShellTimeoutRP123" type="string" read-only="false">
+      <value encoded="n"><![CDATA[enforceESXiShellTimeouts]]></value>
+    </att>
+  </atts>
+</config-element>

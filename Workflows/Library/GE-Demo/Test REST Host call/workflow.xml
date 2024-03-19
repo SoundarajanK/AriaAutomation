@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item1" object-name="workflow:name=generic" id="581b1988-e7a9-4cc7-9fdc-f69fd9a15d75" editor-version="2.0" version="0.0.0" api-version="6.0.0" restartMode="1" resumeFromFailedMode="0">
+    <display-name>Test REST Host call</display-name>
+    <position y="50.0" x="100.0"/>
+    <input/>
+    <output>
+        <param name="out_response" type="string"/>
+    </output>
+    <attrib name="var_resthost" type="REST:RESTHost">
+        <value encoded="n">dunes://service.dunes.ch/CustomSDKObject?id='dfd6866d-99ea-47c0-8c4a-a538bbf00005'&amp;dunesName='REST:RESTHost'</value>
+    </attrib>
+    <workflow-item name="item0" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="50.0" x="540.0"/>
+    </workflow-item>
+    <workflow-item name="item1" out-name="item0" type="task" comparator="0">
+        <display-name>Scriptable task</display-name>
+        <script encoded="false">var request = var_resthost.createRequest("GET","/lcm/lcops/api/v2/environments", null);&#13;
+&#13;
+var response = request.execute();&#13;
+System.log("Response: " + response);&#13;
+System.log("Response Code: " + response.statusCode);&#13;
+out_response = response.contentAsString;&#13;
+</script>
+        <in-binding>
+            <bind name="var_resthost" type="REST:RESTHost" export-name="var_resthost"/>
+        </in-binding>
+        <out-binding>
+            <bind name="out_response" type="string" export-name="out_response"/>
+        </out-binding>
+        <description>Simple task with custom script capability.</description>
+        <position y="60.0" x="240.0"/>
+    </workflow-item>
+</ns2:workflow>

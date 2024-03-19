@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item1" object-name="workflow:name=generic" id="76b5598b-4b94-4275-8d41-63c102c06fed" editor-version="2.0" version="1.0.0" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+    <display-name>VMW-Add a Snapshot</display-name>
+    <position y="50.0" x="100.0"/>
+    <input>
+        <param name="inputProperties" type="Properties"/>
+    </input>
+    <output/>
+    <attrib name="sleepTime" type="number">
+        <value encoded="n">300.0</value>
+    </attrib>
+    <attrib name="name" type="string">
+        <value encoded="n">name</value>
+    </attrib>
+    <attrib name="vm" type="VC:VirtualMachine">
+        <value encoded="n"/>
+    </attrib>
+    <attrib name="vms" type="Array/VC:VirtualMachine">
+        <value encoded="n">[]</value>
+    </attrib>
+    <attrib name="false" type="boolean">
+        <value encoded="n">false</value>
+    </attrib>
+    <attrib name="snapshot" type="VC:VirtualMachineSnapshot">
+        <value encoded="n"/>
+    </attrib>
+    <attrib name="SnapshotName" type="string">
+        <value encoded="n">InitialSnapshot</value>
+    </attrib>
+    <attrib name="description" type="string">
+        <value encoded="n">This is an initial snapshot</value>
+    </attrib>
+    <attrib name="sdk" type="VC:SdkConnection">
+        <value encoded="n"/>
+    </attrib>
+    <attrib name="criteria" type="string">
+        <value encoded="n">MyHostname</value>
+    </attrib>
+    <attrib name="objectType" type="string">
+        <value encoded="n">VC:VirtualMachine</value>
+    </attrib>
+    <attrib name="exactMatch" type="boolean">
+        <value encoded="n">true</value>
+    </attrib>
+    <attrib name="matchingObjects" type="Array/Any">
+        <value encoded="n">[]</value>
+    </attrib>
+    <workflow-item name="item0" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="48.837811258573666" x="949.9003447355387"/>
+    </workflow-item>
+    <workflow-item name="item1" out-name="item5" type="task" comparator="0">
+        <display-name>Get machine name</display-name>
+        <script encoded="false"> 
+System.log("Start");
+System.log("Debug");
+ 
+//The payload is grabbed by the inputProperties
+System.log(JSON.stringify(inputProperties, null, 2));
+ 
+var jsontxt = JSON.stringify(inputProperties, null, 2);
+var json = JSON.parse(jsontxt);
+//Exctract the bluprint Id from the inputProperties
+name = json.resourceNames;
+System.log("my hostname is " + name);
+//assign the value of vm to point to  vRAResourceName
+
+//Loop through the Execution contect
+for (p in System.getContext().parameterNames()) {
+    System.log(System.getContext().parameterNames()[p]+": "+System.getContext().getParameter(System.getContext().parameterNames()[p]));
+} 
+//System.log(vm)
+//To get a specific property 
+System.log(System.getContext().getParameter("__metadata_userName"));
+ 
+System.log("Stop");</script>
+        <in-binding>
+            <bind name="inputProperties" type="Properties" export-name="inputProperties"/>
+            <bind name="name" type="string" export-name="name"/>
+        </in-binding>
+        <out-binding>
+            <bind name="name" type="string" export-name="name"/>
+        </out-binding>
+        <description>this script block will get the payload data from inputProperties, then discover the vm through vcenter with the var VcPlugin.getAllVirtualMachines program to assign the vm to the snapshot deployment.
+</description>
+        <position y="70.0" x="300.0"/>
+    </workflow-item>
+    <workflow-item name="item2" out-name="item0" type="link" linked-workflow-id="fecc53e2-6ed3-4203-8efa-a6b5033c3e44" comparator="0">
+        <display-name>Create snapshot</display-name>
+        <in-binding>
+            <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+            <bind name="name" type="string" export-name="SnapshotName"/>
+            <bind name="description" type="string" export-name="description"/>
+            <bind name="memory" type="boolean" export-name="false"/>
+            <bind name="quiesce" type="boolean" export-name="false"/>
+        </in-binding>
+        <out-binding>
+            <bind name="snapshot" type="VC:VirtualMachineSnapshot" export-name="snapshot"/>
+        </out-binding>
+        <description> </description>
+        <position y="60.09647779372489" x="722.055622540184"/>
+    </workflow-item>
+    <workflow-item name="item5" out-name="item2" type="task" comparator="0">
+        <display-name>make array into single VCVirtualmachine</display-name>
+        <script encoded="false">var objects;
+var exactMatch = false;
+		objects = Server.findAllForType("VC:VirtualMachine");
+var temp = new Array();
+for each (var object in objects) {
+	if (object.name.match(name)) {
+		if (exactMatch &amp;&amp; (object.name.length != name.length)) {
+			continue;	// Wasn't an exact match, so skip this object
+		}
+		temp.push(object);
+	}
+}
+
+
+
+
+vms = temp;
+vm = vms[0];
+System.log("length = " + vms.length);
+
+System.log(" after get " + name)</script>
+        <in-binding>
+            <bind name="vms" type="Array/VC:VirtualMachine" export-name="vms"/>
+            <bind name="name" type="string" export-name="name"/>
+            <bind name="matchingObjects" type="Array/Any" export-name="matchingObjects"/>
+        </in-binding>
+        <out-binding>
+            <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+        </out-binding>
+        <description>Simple task with custom script capability.</description>
+        <position y="55.8984375" x="502.0"/>
+    </workflow-item>
+</ns2:workflow>

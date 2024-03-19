@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item2" object-name="workflow:name=generic" id="fa2c3662-917e-4985-9c95-fdf084acf82b" editor-version="2.0" version="0.0.0" api-version="6.0.0" restartMode="1" resumeFromFailedMode="0">
+    <display-name>Demo_Workflow</display-name>
+    <position y="50.0" x="100.0"/>
+    <input>
+        <param name="vm" type="VC:VirtualMachine">
+            <description>VM to wait for IP</description>
+        </param>
+        <param name="timeout" type="number">
+            <description>Timeout for the operation [min]</description>
+        </param>
+        <param name="interval" type="number">
+            <description>Interval for polling rate [s]</description>
+        </param>
+    </input>
+    <output>
+        <param name="actionResult" type="string"/>
+    </output>
+    <workflow-item name="item0" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="50.0" x="390.0"/>
+    </workflow-item>
+    <workflow-item name="item2" out-name="item0" type="task" script-module="com.vmware.library.vc.vm.tools/vim3WaitForPrincipalIP_Copy" comparator="0">
+        <display-name>vim3WaitForPrincipalIP_Copy</display-name>
+        <script encoded="false">//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vc.vm.tools").vim3WaitForPrincipalIP_Copy(vm,timeout,interval);
+</script>
+        <in-binding>
+            <bind name="vm" type="VC:VirtualMachine" export-name="vm">
+                <description>VM to wait for IP</description>
+            </bind>
+            <bind name="timeout" type="number" export-name="timeout">
+                <description>Timeout for the operation [min]</description>
+            </bind>
+            <bind name="interval" type="number" export-name="interval">
+                <description>Interval for polling rate [s]</description>
+            </bind>
+        </in-binding>
+        <out-binding>
+            <bind name="actionResult" type="string" export-name="actionResult"/>
+        </out-binding>
+        <description>Add a note to the workflow schema.</description>
+        <position y="60.0" x="200.0"/>
+    </workflow-item>
+</ns2:workflow>

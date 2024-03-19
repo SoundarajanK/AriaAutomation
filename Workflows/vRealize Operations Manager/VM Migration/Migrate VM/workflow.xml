@@ -1,0 +1,199 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item3" object-name="workflow:name=generic" id="c0aa2a86-e2a3-4fe0-87ca-d64bf3c19612" version="0.0.11" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Migrate VM]]></display-name>
+  <position y="136.8181818181818" x="65.0"/>
+  <input>
+    <param name="targetId" type="string">
+      <description><![CDATA[The Uuid of the VM to modify]]></description>
+    </param>
+    <param name="correlationId" type="string">
+      <description><![CDATA[The correlationId for the workflow used for logging purposes. ]]></description>
+    </param>
+    <param name="targetvCenteruuid" type="string">
+      <description><![CDATA[UUID of the vCenter where the target VM resides]]></description>
+    </param>
+    <param name="targetDataStoreId" type="string">
+      <description><![CDATA[MOID of the Datastore target]]></description>
+    </param>
+    <param name="targetHostId" type="string">
+      <description><![CDATA[MOID of the vimHost for migration target]]></description>
+    </param>
+  </input>
+  <output>
+    <param name="STATUS" type="string"/>
+  </output>
+  <attrib name="errorCode" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="severity" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="eventDetails" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="event" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="outSTATUS" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="90.86363636363636" x="1084.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item10" catch-name="item6" throw-bind-name="errorCode" type="link" linked-workflow-id="5fd281e6-0631-499d-8ba1-04ca7ce8fc5a">
+    <display-name><![CDATA[vRO Move VM to Designated Host]]></display-name>
+    <in-binding>
+      <bind name="targetId" type="string" export-name="targetId">
+        <description><![CDATA[The Uuid of the VM to modify]]></description>
+      </bind>
+      <bind name="correlationId" type="string" export-name="correlationId">
+        <description><![CDATA[The correlationId for the workflow used for logging purposes. ]]></description>
+      </bind>
+      <bind name="targetvCenteruuid" type="string" export-name="targetvCenteruuid">
+        <description><![CDATA[UUID of the vCenter where the target VM resides]]></description>
+      </bind>
+      <bind name="targetHostId" type="string" export-name="targetHostId">
+        <description><![CDATA[MOID of the vimHost for migration target]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="STATUS" type="string" export-name="outSTATUS"/>
+    </out-binding>
+    <description><![CDATA[This workflow updates the number of vCPUs on a virtual machine. When running this workflow, if the virtual machine is powered on then CPU Hot Add must be enabled on the target virtual machine.]]></description>
+    <position y="155.4090909090909" x="384.5"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item9" catch-name="item6" throw-bind-name="errorCode" type="link" linked-workflow-id="1f378a11-8104-4cc8-8cd6-b11e102dc30e">
+    <display-name><![CDATA[vRO VM Storage vMotion]]></display-name>
+    <in-binding>
+      <bind name="targetId" type="string" export-name="targetId">
+        <description><![CDATA[The Uuid of the VM to modify]]></description>
+      </bind>
+      <bind name="correlationId" type="string" export-name="correlationId">
+        <description><![CDATA[The correlationId for the workflow used for logging purposes. ]]></description>
+      </bind>
+      <bind name="targetvCenteruuid" type="string" export-name="targetvCenteruuid">
+        <description><![CDATA[UUID of the vCenter where the target VM resides]]></description>
+      </bind>
+      <bind name="targetDataStoreId" type="string" export-name="targetDataStoreId">
+        <description><![CDATA[MOID of the Datastore target]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="STATUS" type="string" export-name="outSTATUS"/>
+    </out-binding>
+    <description><![CDATA[This workflow updates the number of vCPUs on a virtual machine. When running this workflow, if the virtual machine is powered on then CPU Hot Add must be enabled on the target virtual machine.]]></description>
+    <position y="37.22727272727273" x="285.0"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item2" type="custom-condition" alt-out-name="item4">
+    <display-name><![CDATA[Move Storage?]]></display-name>
+    <script encoded="false"><![CDATA[return(targetDataStoreId != "");]]></script>
+    <in-binding>
+      <bind name="targetDataStoreId" type="string" export-name="targetDataStoreId"/>
+    </in-binding>
+    <position y="136.3181818181818" x="144.5"/>
+  </workflow-item>
+  <workflow-item name="item4" out-name="item1" type="custom-condition" alt-out-name="item5">
+    <display-name><![CDATA[Move Host?]]></display-name>
+    <script encoded="false"><![CDATA[return(targetHostId != "");]]></script>
+    <in-binding>
+      <bind name="targetHostId" type="string" export-name="targetHostId"/>
+    </in-binding>
+    <position y="254.5" x="284.5"/>
+  </workflow-item>
+  <workflow-item name="item5" out-name="item8" type="task">
+    <display-name><![CDATA[log Success]]></display-name>
+    <script encoded="false"><![CDATA[
+STATUS = "Success"
+severity = "info";
+event = "VMotion and/or Storage VMotion Status.";
+eventDetails = "VMotion and/or Storage VMotion Succeeded, check the logs for full details.";]]></script>
+    <in-binding/>
+    <out-binding>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+      <bind name="severity" type="string" export-name="severity"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="event" type="string" export-name="event"/>
+    </out-binding>
+    <position y="155.4090909090909" x="665.0"/>
+  </workflow-item>
+  <workflow-item name="item6" out-name="item7" type="task">
+    <display-name><![CDATA[log failed]]></display-name>
+    <script encoded="false"><![CDATA[System.log("Migration Failed");
+STATUS = "Failed";
+severity = "error";
+event = "Migration";
+eventDetails = "Migration failed, check the vCenter logs for details.";
+]]></script>
+    <in-binding>
+      <bind name="errorCode" type="string" export-name="errorCode"/>
+    </in-binding>
+    <out-binding>
+      <bind name="STATUS" type="string" export-name="STATUS"/>
+      <bind name="severity" type="string" export-name="severity"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="event" type="string" export-name="event"/>
+    </out-binding>
+    <position y="37.22727272727273" x="664.5"/>
+  </workflow-item>
+  <workflow-item name="item7" out-name="item0" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="event"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="CorrelationId" type="string" export-name="correlationId"/>
+      <bind name="targetVMName" type="string" export-name="targetId"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="37.22727272727273" x="804.5"/>
+  </workflow-item>
+  <workflow-item name="item8" out-name="item0" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="event"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+      <bind name="CorrelationId" type="string" export-name="correlationId"/>
+      <bind name="targetVMName" type="string" export-name="targetId"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="155.9090909090909" x="805.0"/>
+  </workflow-item>
+  <workflow-item name="item9" out-name="item4" type="condition" alt-out-name="item6" comparator="0">
+    <display-name><![CDATA[Decision]]></display-name>
+    <script encoded="false"><![CDATA[//Generated by the system, cannot be edited
+return (outSTATUS == "Success") ;]]></script>
+    <in-binding>
+      <bind name="outSTATUS" type="string" export-name="outSTATUS"/>
+    </in-binding>
+    <condition name="outSTATUS" type="string" comparator="0" label="null">Success</condition>
+    <position y="109.54545454545453" x="285.0"/>
+  </workflow-item>
+  <workflow-item name="item10" out-name="item5" type="condition" alt-out-name="item6" comparator="0">
+    <display-name><![CDATA[Decision]]></display-name>
+    <script encoded="false"><![CDATA[//Generated by the system, cannot be edited
+return (outSTATUS == "Success") ;]]></script>
+    <in-binding>
+      <bind name="outSTATUS" type="string" export-name="outSTATUS"/>
+    </in-binding>
+    <condition name="outSTATUS" type="string" comparator="0" label="null">Success</condition>
+    <position y="145.4090909090909" x="505.0"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="targetId">
+      <desc><![CDATA[The Uuid of the VM to modify]]></desc>
+    </p-param>
+    <p-param name="correlationId">
+      <desc><![CDATA[The correlationId for the workflow used for logging purposes. ]]></desc>
+    </p-param>
+    <p-param name="targetvCenteruuid">
+      <desc><![CDATA[UUID of the vCenter where the target VM resides]]></desc>
+    </p-param>
+    <p-param name="targetDataStoreId">
+      <desc><![CDATA[MOID of the Datastore target]]></desc>
+    </p-param>
+    <p-param name="targetHostId">
+      <desc><![CDATA[MOID of the vimHost for migration target]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

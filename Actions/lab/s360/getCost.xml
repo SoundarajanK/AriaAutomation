@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getCost" result-type="string" api-version="6.0.0" id="1dc58af0-ae0f-4317-b3a4-fef5749d9385" version="0.0.0" category-name="lab.s360">
+  <param n="deploymentSize" t="string"><![CDATA[size]]></param>
+  <script encoded="false"><![CDATA[var cost = "unknown";
+
+switch(deploymentSize) {
+    case 'cs360-Large' : cost ="$50";break;
+    case 'cs360-medium' : cost ="$35";break;
+    case 'cs360-small' : cost ="$25";break;
+
+}
+
+return cost;]]></script>
+</dunes-script-module>

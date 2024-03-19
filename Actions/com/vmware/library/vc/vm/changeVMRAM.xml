@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="changeVMRAM" result-type="VC:Task" api-version="6.0.0" id="8c5b61f7-2369-461a-b6cb-1bc7bc1fd041" version="0.1.0" allowed-operations="vf" category-name="com.vmware.library.vc.vm">
+  <description><![CDATA[Change the VM memory size.]]></description>
+  <param n="vm" t="VC:VirtualMachine"><![CDATA[The VM to change]]></param>
+  <param n="memory" t="number"><![CDATA[New memory value]]></param>
+  <script encoded="false"><![CDATA[var configSpec = new VcVirtualMachineConfigSpec();
+configSpec.memoryMB = memory;
+var task = vm.reconfigVM_Task( configSpec );
+return task;
+]]></script>
+</dunes-script-module>

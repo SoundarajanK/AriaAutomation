@@ -1,0 +1,431 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item4" object-name="workflow:name=generic" id="1c7102da-64ac-45ae-a601-6a64ef2a44ac" version="0.0.0" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Add a new vNic to Virtual Machine]]></display-name>
+  <description><![CDATA[Creates a new vNic for the virtual machine
+
+Inputs: 
+	1. vm		: Virtual Machine to which the new vNIC has to be added.
+	2. hostSystem		: Host to which the Virtual Machine belongs.
+	3. switchtype		: Type of the switch used for vNIC ("Distributed Switch" or "Standard Switch").
+	4. adapterType	: Type of the adapter used for vNIC ("E1000" or "Vmxnet" or "Vmxnet2" or "Vmxnet3").
+	5. standardNetworkGroup	: network requried for standard switch. (will be required when "switchType" is set to "Standard Switch").
+	6. portGroup		: network required for distributed switch. (will be required when "switchType" is set to "Distributed Switch").
+	7. vmState		: boolean value to specify whether to start the virtual machine after adding new vNIC.
+
+Outputs: 
+	1. updatedVM		: Virtual Machine that got updated with the new vNIC.]]></description>
+  <position y="9.545454545454543" x="85.0"/>
+  <input>
+    <param name="vm" type="VC:VirtualMachine">
+      <description><![CDATA[Select the Virtual Machine for adding a new vNic]]></description>
+    </param>
+    <param name="hostSystem" type="VC:HostSystem">
+      <description><![CDATA[Select the Host System where the selected Virtual machine resides]]></description>
+    </param>
+    <param name="switchType" type="string">
+      <description><![CDATA[Select the type of switch you want to use for creating new vNic]]></description>
+    </param>
+    <param name="adapterType" type="string">
+      <description><![CDATA[Select the adapter type need to used while creating new vNic]]></description>
+    </param>
+    <param name="standardNetworkGroup" type="VC:Network">
+      <description><![CDATA[Select the standard switch network]]></description>
+    </param>
+    <param name="portGroup" type="VC:DistributedVirtualPortgroup">
+      <description><![CDATA[Select the distributed switch network]]></description>
+    </param>
+    <param name="vmState" type="boolean">
+      <description><![CDATA[Do you want to start vm after adding new vNic]]></description>
+    </param>
+  </input>
+  <output>
+    <param name="updatedVM" type="VC:VirtualMachine"/>
+  </output>
+  <attrib name="task" type="VC:Task" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+    <description><![CDATA[Task to Wait for]]></description>
+  </attrib>
+  <attrib name="progress" type="boolean" read-only="false">
+    <value encoded="n"><![CDATA[false]]></value>
+    <description><![CDATA[Log progess while waiting for the task]]></description>
+  </attrib>
+  <attrib name="pollRate" type="number" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+    <description><![CDATA[Polling rate for the task state [seconds]]]></description>
+  </attrib>
+  <attrib name="errorCode" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="vmTaskState" type="boolean" read-only="false">
+    <value encoded="n"><![CDATA[true]]></value>
+    <description><![CDATA[state to wait for vm power on or off]]></description>
+  </attrib>
+  <attrib name="addressType" type="string" read-only="false">
+    <value encoded="n"><![CDATA[Generated]]></value>
+  </attrib>
+  <attrib name="networkUnitNumber" type="number" read-only="false">
+    <value encoded="n"><![CDATA[0.0]]></value>
+  </attrib>
+  <attrib name="actionResult" type="Any" read-only="false">
+    <value encoded="n"><![CDATA[Any#__NULL__]]></value>
+  </attrib>
+  <attrib name="actionResult1" type="Any" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="actionResult2" type="Any" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="9.045454545454543" x="1444.5"/>
+  </workflow-item>
+  <workflow-item name="item5" out-name="item10" throw-bind-name="errorCode" type="task">
+    <display-name><![CDATA[Adding Nic to distributed switch]]></display-name>
+    <script encoded="false"><![CDATA[System.log("Selectd Port Group : "+ portGroup.name);
+
+var configSpec = new VcVirtualMachineConfigSpec();
+var vmConfigSpecs = new Array();
+var vmConfigSpec;
+ 
+//create operation for device config spec
+var vmConfigSpec = new VcVirtualDeviceConfigSpec();
+vmConfigSpec.operation = VcVirtualDeviceConfigSpecOperation.add;
+ 
+//Create connect info for portGroup
+var connectInfo = new VcVirtualDeviceConnectInfo();
+connectInfo.allowGuestControl = true;
+connectInfo.connected = true;
+connectInfo.startConnected = true;
+	
+//creating distributed virtual switch port connection
+var distributedPortConnection = new VcDistributedVirtualSwitchPortConnection();
+var distributedVirtualSwitch = VcPlugin.convertToVimManagedObject(portGroup, portGroup.config.distributedVirtualSwitch);
+distributedPortConnection.switchUuid = distributedVirtualSwitch.uuid;
+distributedPortConnection.portgroupKey = portGroup.key;
+	
+//Creating backing info for distributed switch 
+var backingInfoDvs = new VcVirtualEthernetCardDistributedVirtualPortBackingInfo();
+backingInfoDvs.port = distributedPortConnection;
+
+//Create virtaul ethernet adapter
+var vNetwork = null;
+if(adapterType=="E1000"){		
+	vNetwork = new VcVirtualE1000();
+}
+else if(adapterType=="E1000e"){		
+	vNetwork = new VcVirtualE1000e();
+}
+else if(adapterType=="Vmxnet"){
+	vNetwork = new VcVirtualVmxnet();
+}
+else if(adapterType=="Vmxnet2"){
+	vNetwork = new VcVirtualVmxnet2();
+}
+else if(adapterType=="Vmxnet3"){
+	vNetwork = new VcVirtualVmxnet3();
+}
+vNetwork.backing = backingInfoDvs;
+vNetwork.unitNumber = 0;
+vNetwork.addressType = "Generated";
+vNetwork.wakeOnLanEnabled = true;
+vNetwork.connectable = connectInfo;
+
+//Creating devicespecs configured in vNetwork object
+vmConfigSpec.device = vNetwork;
+vmConfigSpecs[0] = vmConfigSpec;
+
+//Adding the device to the configSpec
+configSpec.deviceChange = vmConfigSpecs;
+
+System.log("Reconfiguring the virtual machine to add new vNIC");
+// Launch the reconfigVM task
+task = vm.reconfigVM_Task( configSpec );
+
+]]></script>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+      <bind name="adapterType" type="string" export-name="adapterType"/>
+      <bind name="portGroup" type="VC:DistributedVirtualPortgroup" export-name="portGroup"/>
+    </in-binding>
+    <out-binding>
+      <bind name="task" type="VC:Task" export-name="task"/>
+    </out-binding>
+    <position y="19.045454545454543" x="644.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item5" type="condition" alt-out-name="item3" comparator="0">
+    <display-name><![CDATA[Whether to create standard switch or distributed switch]]></display-name>
+    <script encoded="false"><![CDATA[//Generated by the system, cannot be edited
+return (switchType == "Distributed Switch") ;]]></script>
+    <in-binding>
+      <bind name="switchType" type="string" export-name="switchType"/>
+    </in-binding>
+    <condition name="switchType" type="string" comparator="0" label="null">Distributed Switch</condition>
+    <position y="9.045454545454543" x="484.5"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item10" type="task">
+    <display-name><![CDATA[Adding Nic to standard/legacy switch]]></display-name>
+    <script encoded="false"><![CDATA[System.log("Selectd Port Group : "+ standardNetworkGroup.name);
+
+var configSpec = new VcVirtualMachineConfigSpec();
+var vmConfigSpecs = new Array();
+var vmConfigSpec;
+
+// create operation for device config spec
+var vmConfigSpec = new VcVirtualDeviceConfigSpec();
+vmConfigSpec.operation = VcVirtualDeviceConfigSpecOperation.add;
+
+// Create connect info for portGroup
+var connectInfo = new VcVirtualDeviceConnectInfo();
+connectInfo.allowGuestControl = true;
+connectInfo.connected = true;
+connectInfo.startConnected = true;
+
+//creating backing info for legacy/standard switch
+var backingInfo = new VcVirtualEthernetCardLegacyNetworkBackingInfo();
+backingInfo.useAutoDetect=true;
+backingInfo.deviceName=standardNetworkGroup.name;
+
+// Create VirtualNetwork
+var vNetwork = null;
+if(adapterType=="E1000"){		
+	vNetwork = new VcVirtualE1000();
+}
+else if(adapterType=="E1000e"){		
+	vNetwork = new VcVirtualE1000e();
+}
+else if(adapterType=="Vmxnet"){
+	vNetwork = new VcVirtualVmxnet();
+}
+else if(adapterType=="Vmxnet2"){
+	vNetwork = new VcVirtualVmxnet2();
+}
+else if(adapterType=="Vmxnet3"){
+	vNetwork = new VcVirtualVmxnet3();
+}
+vNetwork.backing = backingInfo;
+vNetwork.unitNumber = networkUnitNumber;
+vNetwork.addressType = addressType;
+vNetwork.wakeOnLanEnabled = true;
+vNetwork.connectable = connectInfo;
+
+//Creating devicespecs configured in vNetwork object
+vmConfigSpec.device = vNetwork;
+vmConfigSpecs[0] = vmConfigSpec;
+
+//Adding the device to the configSpec
+configSpec.deviceChange = vmConfigSpecs;
+
+System.log("Reconfiguring the virtual machine to add new vNIC");
+//Launch the reconfigVM task
+task = vm.reconfigVM_Task( configSpec );
+]]></script>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+      <bind name="adapterType" type="string" export-name="adapterType"/>
+      <bind name="standardNetworkGroup" type="VC:Network" export-name="standardNetworkGroup"/>
+      <bind name="addressType" type="string" export-name="addressType"/>
+      <bind name="networkUnitNumber" type="number" export-name="networkUnitNumber"/>
+    </in-binding>
+    <out-binding>
+      <bind name="task" type="VC:Task" export-name="task"/>
+    </out-binding>
+    <position y="82.68181818181817" x="484.5"/>
+  </workflow-item>
+  <workflow-item name="item4" out-name="item7" throw-bind-name="errorCode" type="task">
+    <display-name><![CDATA[Validation]]></display-name>
+    <script encoded="false"><![CDATA[for each(var v in hostSystem.vm){
+	if(v.name == vm.name){
+		System.log("Selected Virtual Machine is available");
+		System.log("vm.state: "+vm.state);
+		if(vm.state == "poweredOn" || vm.state == "suspended"){
+			System.log("Powering off the virtual machine : "+vm.name);
+			//Powering off the virtual machine
+			task = vm.powerOffVM_Task();
+			break;
+		}
+	}
+}
+if(!task){
+	vmTaskState = false;
+}]]></script>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+      <bind name="hostSystem" type="VC:HostSystem" export-name="hostSystem"/>
+      <bind name="task" type="VC:Task" export-name="task"/>
+    </in-binding>
+    <out-binding>
+      <bind name="task" type="VC:Task" export-name="task"/>
+      <bind name="vmTaskState" type="boolean" export-name="vmTaskState"/>
+    </out-binding>
+    <position y="19.045454545454543" x="184.5"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item8" type="task">
+    <display-name><![CDATA[Powering On the Virtual Machine]]></display-name>
+    <script encoded="false"><![CDATA[System.log("Reconfiguraiton of the virtual machine is successful");
+if(vmState){
+	//powering on the virtual machine
+	System.log("powering on the virtual machine : "+vm);
+	vm.powerOnVM_Task();
+}
+
+updatedVM = vm;]]></script>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+      <bind name="vmState" type="boolean" export-name="vmState"/>
+    </in-binding>
+    <out-binding>
+      <bind name="updatedVM" type="VC:VirtualMachine" export-name="updatedVM"/>
+    </out-binding>
+    <position y="19.045454545454543" x="964.5"/>
+  </workflow-item>
+  <workflow-item name="item6" out-name="item1" catch-name="item13" throw-bind-name="errorCode" type="task" script-module="com.vmware.library.vc.basic/vim3WaitTaskEnd">
+    <display-name><![CDATA[vim3WaitTaskEnd]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vc.basic").vim3WaitTaskEnd(task,progress,pollRate) ;]]></script>
+    <in-binding>
+      <bind name="task" type="VC:Task" export-name="task">
+        <description><![CDATA[Task to Wait for]]></description>
+      </bind>
+      <bind name="progress" type="boolean" export-name="progress">
+        <description><![CDATA[Log progess while waiting for the task]]></description>
+      </bind>
+      <bind name="pollRate" type="number" export-name="pollRate">
+        <description><![CDATA[Polling rate for the task state [seconds]]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Any" export-name="actionResult"/>
+    </out-binding>
+    <description><![CDATA[Wait for a VC Task to end.
+When task ended, return the task result if any. ]]></description>
+    <position y="82.68181818181817" x="324.5"/>
+  </workflow-item>
+  <workflow-item name="item10" out-name="item2" catch-name="item14" throw-bind-name="errorCode" type="task" script-module="com.vmware.library.vc.basic/vim3WaitTaskEnd">
+    <display-name><![CDATA[vim3WaitTaskEnd]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vc.basic").vim3WaitTaskEnd(task,progress,pollRate) ;]]></script>
+    <in-binding>
+      <bind name="task" type="VC:Task" export-name="task">
+        <description><![CDATA[Task to Wait for]]></description>
+      </bind>
+      <bind name="progress" type="boolean" export-name="progress">
+        <description><![CDATA[Log progess while waiting for the task]]></description>
+      </bind>
+      <bind name="pollRate" type="number" export-name="pollRate">
+        <description><![CDATA[Polling rate for the task state [seconds]]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Any" export-name="actionResult1"/>
+    </out-binding>
+    <description><![CDATA[Wait for a VC Task to end.
+When task ended, return the task result if any. ]]></description>
+    <position y="19.045454545454543" x="804.5"/>
+  </workflow-item>
+  <workflow-item name="item7" out-name="item6" type="condition" alt-out-name="item1" comparator="0">
+    <display-name><![CDATA[whether to wait for vm to get power off]]></display-name>
+    <script encoded="false"><![CDATA[//Generated by the system, cannot be edited
+return (vmTaskState == true) ;]]></script>
+    <in-binding>
+      <bind name="vmTaskState" type="boolean" export-name="vmTaskState"/>
+    </in-binding>
+    <condition name="vmTaskState" type="boolean" comparator="0" label="null">false</condition>
+    <position y="9.045454545454543" x="324.5"/>
+  </workflow-item>
+  <workflow-item name="item8" out-name="item16" catch-name="item15" throw-bind-name="errorCode" type="task" script-module="com.vmware.library.vc.basic/vim3WaitTaskEnd">
+    <display-name><![CDATA[vim3WaitTaskEnd]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vc.basic").vim3WaitTaskEnd(task,progress,pollRate) ;]]></script>
+    <in-binding>
+      <bind name="task" type="VC:Task" export-name="task">
+        <description><![CDATA[Task to Wait for]]></description>
+      </bind>
+      <bind name="progress" type="boolean" export-name="progress">
+        <description><![CDATA[Log progess while waiting for the task]]></description>
+      </bind>
+      <bind name="pollRate" type="number" export-name="pollRate">
+        <description><![CDATA[Polling rate for the task state [seconds]]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Any" export-name="actionResult2"/>
+    </out-binding>
+    <description><![CDATA[Wait for a VC Task to end.
+When task ended, return the task result if any. ]]></description>
+    <position y="19.045454545454543" x="1124.5"/>
+  </workflow-item>
+  <workflow-item name="item9" throw-bind-name="errorCode" type="end" end-mode="1">
+    <position y="72.68181818181817" x="84.5"/>
+  </workflow-item>
+  <workflow-item name="item11" throw-bind-name="errorCode" type="end" end-mode="1">
+    <position y="136.3181818181818" x="845.0"/>
+  </workflow-item>
+  <workflow-item name="item12" throw-bind-name="errorCode" type="end" end-mode="1">
+    <position y="136.3181818181818" x="1165.0"/>
+  </workflow-item>
+  <workflow-item name="item13" out-name="item9" throw-bind-name="errorCode" type="task">
+    <display-name><![CDATA[Logging the error messages]]></display-name>
+    <script encoded="false"><![CDATA[System.error("Powering off the virtual mahcine failed. ERROR : "+errorCode);]]></script>
+    <in-binding>
+      <bind name="errorCode" type="string" export-name="errorCode"/>
+    </in-binding>
+    <out-binding/>
+    <position y="82.68181818181817" x="184.5"/>
+  </workflow-item>
+  <workflow-item name="item14" out-name="item11" throw-bind-name="errorCode" type="task">
+    <display-name><![CDATA[Logging the error messages]]></display-name>
+    <script encoded="false"><![CDATA[System.error("Adding the new vNIC failed. ERROR : "+errorCode);]]></script>
+    <in-binding>
+      <bind name="errorCode" type="string" export-name="errorCode"/>
+    </in-binding>
+    <out-binding/>
+    <position y="82.68181818181817" x="804.5"/>
+  </workflow-item>
+  <workflow-item name="item15" out-name="item12" throw-bind-name="errorCode" type="task">
+    <display-name><![CDATA[Logging the error messages]]></display-name>
+    <script encoded="false"><![CDATA[System.error("powering on the virtual mahcine failed. ERROR : "+ errorCode);]]></script>
+    <in-binding>
+      <bind name="errorCode" type="string" export-name="errorCode"/>
+    </in-binding>
+    <out-binding/>
+    <position y="82.68181818181817" x="1124.5"/>
+  </workflow-item>
+  <workflow-item name="item16" out-name="item0" type="task">
+    <display-name><![CDATA[logging success messages]]></display-name>
+    <script encoded="false"><![CDATA[System.log("Successfully powered on the virtual machine [" + vm.name+ "]");
+System.log("Successfully created new vNIC for the Virtual Machine[" + vm.name+ "]");]]></script>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+    </in-binding>
+    <out-binding/>
+    <position y="19.045454545454543" x="1264.5"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="vm">
+      <desc><![CDATA[vm]]></desc>
+    </p-param>
+    <p-param name="hostSystem">
+      <desc><![CDATA[Select the Host System where the selected Virtual machine resides]]></desc>
+    </p-param>
+    <p-param name="switchType">
+      <desc><![CDATA[Select the type of switch you want to use for creating new vNic]]></desc>
+      <p-qual kind="static" name="genericEnumeration" type="Array/string"><![CDATA[#{#string#Standard Switch#;#string#Distributed Switch#}#]]></p-qual>
+    </p-param>
+    <p-param name="adapterType">
+      <desc><![CDATA[Select the adapter type need to used while creating new vNic]]></desc>
+      <p-qual kind="static" name="genericEnumeration" type="Array/string"><![CDATA[#{#string#E1000#;#string#E1000e#;#string#Vmxnet#;#string#Vmxnet2#;#string#Vmxnet3#}#]]></p-qual>
+    </p-param>
+    <p-param name="standardNetworkGroup">
+      <desc><![CDATA[Select the standard switch network]]></desc>
+      <p-qual kind="ognl" name="visible" type="boolean"><![CDATA[#switchType=="Standard Switch"]]></p-qual>
+      <p-qual kind="ognl" name="notVisible" type="boolean"><![CDATA[#switchType=="Distributed Switch"]]></p-qual>
+    </p-param>
+    <p-param name="portGroup">
+      <desc><![CDATA[Select the distributed switch network]]></desc>
+      <p-qual kind="ognl" name="visible" type="boolean"><![CDATA[#switchType=="Distributed Switch"]]></p-qual>
+      <p-qual kind="ognl" name="notVisible" type="boolean"><![CDATA[#switchType=="Standard Switch"]]></p-qual>
+    </p-param>
+    <p-param name="vmState">
+      <desc><![CDATA[Do you want to start vm after adding new vNic]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

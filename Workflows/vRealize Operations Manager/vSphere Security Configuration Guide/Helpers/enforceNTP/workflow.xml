@@ -1,0 +1,93 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="fd73b9fe-e67d-4ced-b133-a8d034e084ee" version="0.0.4" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[enforceNTP]]></display-name>
+  <description><![CDATA[This workflow will set your ESXi Host NTP to comply with the vSphere Security Hardening Guide alerts in vRealize Operations 7.0.  The following settings are modified:
+
+- NTP service set to "Start and Stop with Host"
+- NTP firewall ports are open
+- NTP servers are set to the value of the attribute "ntpServers" found in the "SDO Host NTP Config" configuration element.  By default, the ntpServers value is set to 4 pool.ntp.org servers.  However, the Security Guide recommends that you use time servers inside your own network for better security and control.]]></description>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="host" type="VC:HostSystem"/>
+  </input>
+  <output>
+    <param name="ntpConfig" type="string">
+      <description><![CDATA[The new configuration; can be passed to another workflow if needed.]]></description>
+    </param>
+  </output>
+  <attrib name="ntpServers" type="Array/string" read-only="false" conf-id="5477703e-f0be-4626-b3c1-d78d94fcf99b" conf-key="ntpServers">
+    <value encoded="n"><![CDATA[#{#string#10.173.22.4#;#string#10.173.22.5#}#]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="384.5"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item0" type="task">
+    <display-name><![CDATA[Set Host NTP]]></display-name>
+    <script encoded="false"><![CDATA[//--Grab current config for logging
+var timeConfig = host.config.dateTimeInfo.ntpConfig.server;
+System.log("Current host NTP config " + timeConfig);
+
+//--Check if NTP URL is hostname or IP address
+var timeUrl = new URL();
+var ntpIPServers = new Array();
+
+for each (ntp in ntpServers) {
+	if (timeUrl.isValidIPAddress(ntp)) {
+	ntpIPServers.push(ntp);
+	} else {
+		try { ntpIPServers.push(System.resolveHostName(ntp)); }
+		catch(err) { System.log("Unable to resolve hostname " + ntp); }
+	}
+}
+
+
+//--Create new config for NTP
+var config = new VcHostDateTimeConfig();
+config.timeZone = "UTC";
+config.ntpConfig = new VcHostNtpConfig();
+config.ntpConfig.server = (ntpServers);
+
+//--Update Config--
+var hostDts = host.configManager.dateTimeSystem;
+hostDts.updateDateTimeConfig(config);
+
+//--Configure Ruleset for allow only the ntpServers--
+var ipList = new VcHostFirewallRulesetIpList();
+ipList.allIp = false;
+ipList.ipAddress = ntpIPServers;
+var updatedRuleset = new VcHostFirewallRulesetRulesetSpec();
+updatedRuleset.allowedHosts = ipList;
+
+//--Enable Ruleset--
+var ruleset = host.configManager.firewallSystem;
+ruleset.updateRuleset("ntpClient",updatedRuleset);
+
+
+//--Update Service Policy and Start NTP Service--
+var serviceSystem = host.configManager.serviceSystem;
+serviceSystem.updateServicePolicy("ntpd","on"); 
+serviceSystem.startService("ntpd");
+
+
+//--Log configuration changes
+timeConfig = host.config.dateTimeInfo.ntpConfig.server;
+System.log("New host NTP config" + timeConfig);
+
+
+
+]]></script>
+    <in-binding>
+      <bind name="host" type="VC:HostSystem" export-name="host"/>
+      <bind name="ntpServers" type="Array/string" export-name="ntpServers"/>
+    </in-binding>
+    <out-binding>
+      <bind name="ntpConfigOut" type="string" export-name="ntpConfig"/>
+    </out-binding>
+    <position y="55.40909090909091" x="204.5"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="host">
+      <desc><![CDATA[host]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

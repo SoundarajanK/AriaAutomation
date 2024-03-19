@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item4" object-name="workflow:name=generic" id="261289fa-ec72-474c-ab83-774039d2d9ca" editor-version="2.0" version="0.0.2" api-version="6.0.0" allowed-operations="vfe" restartMode="1" resumeFromFailedMode="0">
+    <display-name>UpdateInfobloxHostRecord</display-name>
+    <position y="50.0" x="100.0"/>
+    <input>
+        <param name="machineObj" type="Properties"/>
+    </input>
+    <output/>
+    <attrib name="restHost" type="REST:RESTHost">
+        <value encoded="n">dunes://service.dunes.ch/CustomSDKObject?id='10e54ed4-d7a2-408d-9c52-c20be0365df8'&amp;dunesName='REST:RESTHost'</value>
+    </attrib>
+    <attrib name="objRef" type="string">
+        <value encoded="n"></value>
+    </attrib>
+    <attrib name="wapi_version" type="string">
+        <value encoded="n">2.11.2</value>
+    </attrib>
+    <attrib name="domain" type="string">
+        <value encoded="n">s360.lab</value>
+    </attrib>
+    <attrib name="machineName" type="string">
+        <value encoded="n"></value>
+    </attrib>
+    <attrib name="machineId" type="string">
+        <value encoded="n"></value>
+    </attrib>
+    <attrib name="sleepTime" type="number">
+        <value encoded="n">30.0</value>
+    </attrib>
+    <workflow-item name="item0" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="50.0" x="1040.0"/>
+    </workflow-item>
+    <workflow-item name="item2" out-name="item3" type="task" comparator="0">
+        <display-name>FindRecord</display-name>
+        <script encoded="false">// ##### NO NEED TO CHANGE ANYTHING IN THIS BLOCK #####
+
+System.log('Find Host Address Object REF');
+
+recordname = machine + "." + domain;
+
+var headers = new Properties();
+var contentType = 'application/json';
+var uri  = '/wapi/v'+wapi_version+'/record:host?name='+recordname+'&amp;_return_as_object=1';
+
+var request = setRequest(restHost, 'GET', uri, headers, contentType, null);
+var response = request.execute();
+
+//Process response
+var responseData = parseResponse(response);
+
+System.log(responseData['content']);
+var data = JSON.parse(responseData['content'])
+
+if (data['result'].length == 1){
+    var objRef = data['result'][0]['_ref'];
+}else if(data['result'].length &gt; 1){
+    System.error('Multiple hosts found for host record: ' + recordname);
+    throw Error;
+}else{
+    System.error('NO hosts found for host record: ' + recordname);
+    throw Error;
+}
+
+function setRequest(host, method, pathUri, headers, contentType, content) {
+  var request = host.createRequest(method, pathUri, content);
+  request.contentType = contentType;
+  
+  for each (var header in headers.keys) {
+    request.setHeader(header, headers.get(header));
+    System.debug('Setting Header: ' + header + ' - ' + headers.get(header));
+  }
+  System.debug("Request to execute: " + request);
+  System.log("Request URL: " + request.fullUrl);
+  
+  return request;
+}
+
+// Parse the RESTResponse object returned from executing a RESTOperation
+function parseResponse(response) {
+    const HTTP_ClientError = 404;
+    var statusCode = response.statusCode;
+    System.log("Status code: " + statusCode);
+  
+    var headers = response.getAllHeaders();
+    for each (var headerKey in headers.keys) {
+        System.debug(headerKey + ": " + headers.get(headerKey));
+    }
+  
+    var contentAsString = response.contentAsString;
+    System.debug("Response content as string: " + contentAsString);
+  
+    if (['405', '200', '201'].indexOf(String(statusCode)) &gt;= 0) {
+        return { 'content':contentAsString, 'headers':headers };
+    } else {
+        throw "HTTPError: status code: " + statusCode;
+    }
+}</script>
+        <in-binding>
+            <bind name="restHost" type="REST:RESTHost" export-name="restHost"/>
+            <bind name="wapi_version" type="string" export-name="wapi_version"/>
+            <bind name="domain" type="string" export-name="domain"/>
+            <bind name="machine" type="string" export-name="machineName"/>
+        </in-binding>
+        <out-binding>
+            <bind name="objRef" type="string" export-name="objRef"/>
+        </out-binding>
+        <description>Simple task with custom script capability.</description>
+        <position y="60.0" x="460.0"/>
+    </workflow-item>
+    <workflow-item name="item3" out-name="item0" type="task" comparator="0">
+        <display-name>UpdateRecord</display-name>
+        <script encoded="false">// ##################################################################
+// ####### ADDITIONAL INPUTS CAN BE ADDED THAT MATCH THE NEW ########
+// ####### OUTPUTS OF THE Parse Inputs SCRIPT BLOCK          ########
+// ####### THESE VALUES CAN BE ADDED TO THE PAYLOAD BY       ########
+// ####### ADDING THEM TO THE attrs OBJECT                   ########
+// ################################################################## 
+
+System.log('Update Record');
+
+var headers = new Properties();
+var contentType = 'application/json';
+var uri  = '/wapi/v'+wapi_version+'/'+objRef+'?_return_fields%2B=extattrs&amp;_return_as_object=1';
+var attrs = {"extattrs+":
+                {
+                    'VMware resource ID':{"value": "/resources/compute/"+machineId},// /resources/compute/db79c35c-2d61-30bf-ba84-a59b7f90093c,
+                    'VMware NIC index':{"value": "0"}
+                    //'username':{"value":username}
+                }
+            };
+content = JSON.stringify(attrs);
+System.log(content);
+var request = setRequest(restHost, 'PUT', uri, headers, contentType, content);
+var response = request.execute();
+
+//Process response
+var responseData = parseResponse(response);
+
+function setRequest(host, method, pathUri, headers, contentType, content) {
+  var request = host.createRequest(method, pathUri, content);
+  request.contentType = contentType;
+  
+  for each (var header in headers.keys) {
+    request.setHeader(header, headers.get(header));
+    System.debug('Setting Header: ' + header + ' - ' + headers.get(header));
+  }
+  System.debug("Request to execute: " + request);
+  System.log("Request URL: " + request.fullUrl);
+  
+  return request;
+}
+
+// Parse the RESTResponse object returned from executing a RESTOperation
+function parseResponse(response) {
+    const HTTP_ClientError = 404;
+    var statusCode = response.statusCode;
+    System.log("Status code: " + statusCode);
+  
+    var headers = response.getAllHeaders();
+    for each (var headerKey in headers.keys) {
+        System.debug(headerKey + ": " + headers.get(headerKey));
+    }
+  
+    var contentAsString = response.contentAsString;
+    System.debug("Response content as string: " + contentAsString);
+  
+    if (['405', '200', '201'].indexOf(String(statusCode)) &gt;= 0) {
+        return { 'content':contentAsString, 'headers':headers };
+    } else {
+        throw "HTTPError: status code: " + statusCode;
+    }
+}</script>
+        <in-binding>
+            <bind name="restHost" type="REST:RESTHost" export-name="restHost"/>
+            <bind name="objRef" type="string" export-name="objRef"/>
+            <bind name="wapi_version" type="string" export-name="wapi_version"/>
+            <bind name="machine" type="string" export-name="machineName"/>
+            <bind name="machineId" type="string" export-name="machineId"/>
+        </in-binding>
+        <out-binding/>
+        <description>Simple task with custom script capability.</description>
+        <position y="60.0" x="640.0"/>
+    </workflow-item>
+    <workflow-item name="item4" out-name="item5" type="task" comparator="0">
+        <display-name>ParseInputs</display-name>
+        <script encoded="false">
+
+machineId = machineObj.get('id');
+System.log("machine Id is "+ machineId);
+machineName = machineObj.get('name');</script>
+        <in-binding>
+            <bind name="machineObj" type="Properties" export-name="machineObj"/>
+        </in-binding>
+        <out-binding>
+            <bind name="machineId" type="string" export-name="machineId"/>
+            <bind name="machineName" type="string" export-name="machineName"/>
+        </out-binding>
+        <description>Simple task with custom script capability.</description>
+        <position y="60.0" x="200.0"/>
+    </workflow-item>
+    <workflow-item name="item5" out-name="item2" type="task" prototype-id="sleep" content-mode="x" comparator="0">
+        <display-name>Sleep</display-name>
+        <script encoded="false">//Auto-generated script
+if ( sleepTime !== null )  {
+	System.sleep(sleepTime * 1000);
+}else  {
+	throw "'sleepTime' is NULL"; 
+}</script>
+        <in-binding>
+            <bind name="sleepTime" type="number" export-name="sleepTime">
+                <description>Time to sleep in seconds</description>
+            </bind>
+        </in-binding>
+        <out-binding/>
+        <description>Sleep a given number of seconds.</description>
+        <position y="60.0" x="340.0"/>
+    </workflow-item>
+</ns2:workflow>

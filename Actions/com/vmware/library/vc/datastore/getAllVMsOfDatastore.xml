@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getAllVMsOfDatastore" result-type="Array/VC:VirtualMachine" api-version="6.0.0" id="20e4e9d2-a712-47d3-8fc7-57b443557a52" version="0.1.0" allowed-operations="vf" category-name="com.vmware.library.vc.datastore">
+  <description><![CDATA[Return all VMs of a Datastore]]></description>
+  <param n="datastore" t="VC:Datastore"/>
+  <script encoded="false"><![CDATA[if(!datastore){
+	throw "UndefinedParameter: datastore mandatory input is not defined.";
+}
+return datastore.vm;]]></script>
+</dunes-script-module>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<package>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='261289fa-ec72-474c-ab83-774039d2d9ca'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='b4f1a232-725a-4ffb-8786-5b56700b1bfb'&dunesName='Workflow']]></elm>
+<used-plugin name='REST' version='2.5.0' />
+<used-plugin name='VRA' version='8.8.2' />
+</package>

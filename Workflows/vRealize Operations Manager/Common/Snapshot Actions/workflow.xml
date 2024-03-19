@@ -1,0 +1,162 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item25" object-name="workflow:name=generic" id="272e6bd8-b7e0-41ed-84aa-1aa4907fbe5d" version="0.0.7" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Snapshot Actions]]></display-name>
+  <description><![CDATA[The purpose of this workflow is to be called to update the number of VCPUs are on a VM.]]></description>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="targetVM" type="VC:VirtualMachine"/>
+    <param name="CorrelationId" type="string"/>
+    <param name="targetVMName" type="string"/>
+  </input>
+  <output>
+    <param name="status" type="boolean"/>
+  </output>
+  <attrib name="eventOut" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="eventDetails" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="snapshotEvent" type="string" read-only="false">
+    <value encoded="n"><![CDATA[Snapshot]]></value>
+  </attrib>
+  <attrib name="beforeEvent" type="string" read-only="false">
+    <value encoded="n"><![CDATA[Event is preparing to begin]]></value>
+  </attrib>
+  <attrib name="afterEvent" type="string" read-only="false">
+    <value encoded="n"><![CDATA[Event has completed]]></value>
+  </attrib>
+  <attrib name="snapshotDescription" type="string" read-only="false">
+    <value encoded="n"><![CDATA[Modify CPU Count Advanced taking snapshot before updating CPU Count]]></value>
+  </attrib>
+  <attrib name="snapshotMemory" type="boolean" read-only="false">
+    <value encoded="n"><![CDATA[true]]></value>
+  </attrib>
+  <attrib name="snapshotQuisce" type="boolean" read-only="false">
+    <value encoded="n"><![CDATA[true]]></value>
+  </attrib>
+  <attrib name="snapshot" type="VC:VirtualMachineSnapshot" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+    <description><![CDATA[The snapshot created]]></description>
+  </attrib>
+  <attrib name="snapshotException" type="string" read-only="false">
+    <value encoded="n"><![CDATA[Exception thrown from create snapshot]]></value>
+  </attrib>
+  <attrib name="snapshotName" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="event" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="targetVmName" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="severity" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <workflow-item name="item9" out-name="item2" catch-name="item0" throw-bind-name="snapshotException" type="link" linked-workflow-id="BD80808080808080808080808080808053C180800122528313869552e41805bb1">
+    <display-name><![CDATA[Create a snapshot]]></display-name>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="targetVM">
+        <description><![CDATA[Virtual machine of which to create a snapshot]]></description>
+      </bind>
+      <bind name="name" type="string" export-name="snapshotName">
+        <description><![CDATA[Snapshot name. The name need not be unique for this virtual machine.]]></description>
+      </bind>
+      <bind name="description" type="string" export-name="snapshotDescription">
+        <description><![CDATA[Snapshot description.]]></description>
+      </bind>
+      <bind name="memory" type="boolean" export-name="snapshotMemory">
+        <description><![CDATA[If TRUE, the snapshot includes a dump of the internal state of the virtual machine (a memory dump). ]]></description>
+      </bind>
+      <bind name="quiesce" type="boolean" export-name="snapshotQuisce">
+        <description><![CDATA[If TRUE and the virtual machine is powered on when the snapshot is taken, VMware Tools are used to quiesce the file system in the virtual machine.]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="snapshot" type="VC:VirtualMachineSnapshot" export-name="snapshot">
+        <description><![CDATA[The snapshot created]]></description>
+      </bind>
+    </out-binding>
+    <description><![CDATA[Creates a snapshot.]]></description>
+    <position y="228.13636363636363" x="204.5"/>
+  </workflow-item>
+  <workflow-item name="item10" out-name="item9" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="snapshotEvent"/>
+      <bind name="eventDetails" type="string" export-name="beforeEvent"/>
+      <bind name="CorrelationId" type="string" export-name="CorrelationId"/>
+      <bind name="targetVMName" type="string" export-name="targetVMName"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="182.68181818181816" x="204.5"/>
+  </workflow-item>
+  <workflow-item name="item11" out-name="item1" type="link" linked-workflow-id="161f7106-481b-453b-9e10-cc29acd42fef">
+    <display-name><![CDATA[EventRecorder]]></display-name>
+    <in-binding>
+      <bind name="event" type="string" export-name="snapshotEvent"/>
+      <bind name="eventDetails" type="string" export-name="afterEvent"/>
+      <bind name="CorrelationId" type="string" export-name="CorrelationId"/>
+      <bind name="targetVMName" type="string" export-name="targetVMName"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </in-binding>
+    <out-binding/>
+    <position y="355.4090909090909" x="204.5"/>
+  </workflow-item>
+  <workflow-item name="item25" out-name="item10" type="task">
+    <display-name><![CDATA[Build Snapshot Name]]></display-name>
+    <script encoded="false"><![CDATA[var currentDate = new Date();
+snapshotName = targetName+currentDate.toISOString();;
+]]></script>
+    <in-binding>
+      <bind name="targetName" type="string" export-name="targetVmName"/>
+    </in-binding>
+    <out-binding>
+      <bind name="snapshotName" type="string" export-name="snapshotName"/>
+    </out-binding>
+    <position y="137.22727272727272" x="204.5"/>
+  </workflow-item>
+  <workflow-item name="item0" out-name="item11" type="task">
+    <display-name><![CDATA[Scriptable task]]></display-name>
+    <script encoded="false"><![CDATA[event ="Create Snapshot"
+eventDetails = "Exception thrown in Create Snapshot Workflow";
+status = false;
+severity = "error";]]></script>
+    <in-binding>
+      <bind name="event" type="string" export-name="event"/>
+      <bind name="eventDetails" type="string" export-name="eventDetails"/>
+    </in-binding>
+    <out-binding>
+      <bind name="status" type="boolean" export-name="status"/>
+      <bind name="event" type="string" export-name="event"/>
+      <bind name="eventOut" type="string" export-name="eventOut"/>
+      <bind name="severity" type="string" export-name="severity"/>
+    </out-binding>
+    <position y="228.13636363636363" x="344.5"/>
+  </workflow-item>
+  <workflow-item name="item1" type="end" end-mode="0">
+    <position y="345.4090909090909" x="385.0"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item11" type="task">
+    <display-name><![CDATA[Set Good Status]]></display-name>
+    <script encoded="false"><![CDATA[status = true;]]></script>
+    <in-binding/>
+    <out-binding>
+      <bind name="status" type="boolean" export-name="status"/>
+    </out-binding>
+    <position y="291.77272727272725" x="205.0"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="targetVM">
+      <desc><![CDATA[targetVM]]></desc>
+    </p-param>
+    <p-param name="CorrelationId">
+      <desc><![CDATA[CorrelationId]]></desc>
+    </p-param>
+    <p-param name="targetVMName">
+      <desc><![CDATA[targetVMName]]></desc>
+    </p-param>
+  </presentation>
+</workflow>
