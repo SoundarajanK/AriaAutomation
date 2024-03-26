@@ -23,3 +23,4 @@ resources:
       networkType: existing
       constraints:
         - tag: 'env:compute'
+        - tag: 'env:prod'
